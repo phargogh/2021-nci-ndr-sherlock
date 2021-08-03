@@ -11,6 +11,8 @@ Scripts to run the NDR analyses for Natural Capital Index work on Sherlock.
    * The resulting `inspring_latest.sif` can then be uploaded to sherlock via a data transfer node:
      `scp ./inspring_latest.sif scp://$USER@dtn.sherlock.stanford.edu`.  When the file is uploaded via DTN, it
      will be written to $SCRATCH.
+  * Arbitrary docker images _can_ be run via singularity without any extra conversion in advance.  For example:
+    `singularity run docker://ghcr.io/phargogh/inspring-no-gcloud-keys@sha256:ff0fd8ea1594c35dc555273666a97d15340393772c95986097ffd826d22c0dc7`
 * Sherlock executes tasks via the SLURM workload manager, which has its own abstractions.
    * Python's `multiprocessing.cpu_count()` will show the number of CPUs on the machine, not the number of cores available to the current process.
    * In SLURM lingo, "Task" is akin to "Process".  You could have one task that has lots of threads and so needs few tasks but many CPUs.
