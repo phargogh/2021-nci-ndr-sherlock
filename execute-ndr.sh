@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mem-per-cpu=4G
 
-NDR_WORKSPACE_NAME=ndr_plus_global_workspace
+NDR_WORKSPACE_NAME=global_ndr_plus_workspace
 
 REPOSLUG=ndr_plus_global_pipeline
 REPO=https://github.com/phargogh/$REPOSLUG.git
