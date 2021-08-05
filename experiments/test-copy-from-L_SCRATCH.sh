@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#SBATCH --job-name=Test Copying from $L_SCRATCH at end of job
+#SBATCH --job-name=Test-Copying-from-$L_SCRATCH-at-end-of-job
 #
 #SBATCH --time=00:10:00
 #SBATCH --ntasks=1
