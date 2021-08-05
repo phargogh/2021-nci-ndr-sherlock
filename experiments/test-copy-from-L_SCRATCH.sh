@@ -13,12 +13,11 @@
 #the job.
 
 # Generating a 1GB file with random data in it.
+# Taken from https://superuser.com/a/470957
 FILENAME=1GB-random-data.txt
 SOURCE_FILENAME=$L_SCRATCH/$FILENAME
 TARGET_FILENAME=$SCRATCH/$FILENAME
-srun openssl rand -out $SOURCE_FILENAME -base64 $(( 2**30 * 3/4 ))
-
-cp $SOURCE_FILENAME $TARGET_FILENAME
+srun openssl rand -out $SOURCE_FILENAME -base64 $(( 2**30 * 3/4 )) && cp $SOURCE_FILENAME $TARGET_FILENAME
 
 # Conclusion:
 #
