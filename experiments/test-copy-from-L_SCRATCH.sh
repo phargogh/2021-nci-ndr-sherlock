@@ -20,4 +20,6 @@ TARGET_FILENAME=$SCRATCH/$FILENAME
 srun openssl rand -out $SOURCE_FILENAME -base64 $(( 2**30 * 3/4 )) && cp $SOURCE_FILENAME $TARGET_FILENAME
 
 # Conclusion:
-#
+# A single `srun` command appears to be a single "job", so local scratch files
+# MUST be copied out of $L_SCRATCH to a different filesystem within the
+# same `srun` operation.
