@@ -2,7 +2,7 @@
 #
 #SBATCH --job-name=Test-environment-vars-across-sruns
 #
-#SBATCH --time=00:10:00
+#SBATCH --time=00:00:30
 #SBATCH --ntasks=2
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=2G
@@ -20,10 +20,10 @@
 TARGET_FILE=$HOME/out_file.txt
 
 VARNAME=111
-srun --export=ALL bash -c 'echo "$VARNAME" >> $TARGET_FILE'
+srun bash -c "echo $VARNAME >> $TARGET_FILE"
 
 VARNAME=222
-srun --export=ALL bash -c 'echo "$VARNAME" >> $TARGET_FILE'
+srun bash -c "echo $VARNAME >> $TARGET_FILE"
 
 # Conclusion:
 # The above is what's needed (possibly without the --export=ALL) in order to
