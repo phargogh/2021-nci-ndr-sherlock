@@ -41,5 +41,5 @@ CONTAINER=ghcr.io/phargogh/inspring-no-gcloud-keys
 DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
 
 srun singularity run docker://$CONTAINER@$DIGEST \
-	global_ndr_plus_pipeline.py scenarios.nci_global_1 --n_workers=40 && \
+    global_ndr_plus_pipeline.py scenarios.nci_global_1 --n_workers=40 && \
     cp -r $TARGET_WORKSPACE_FILESYSTEM/$NDR_WORKSPACE_NAME $SCRATCH/2021-NCI-$NDR_WORKSPACE_NAME
