@@ -1,4 +1,4 @@
 .PHONY: ndr-batch
 
 ndr-batch:
-	sbatch ./execute-ndr-scenario-batch.sh
+	bash ./execute-ndr-scenario-batch.sh
