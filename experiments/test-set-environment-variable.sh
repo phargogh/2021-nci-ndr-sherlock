@@ -17,10 +17,19 @@
 #
 # Meaning that each srun occupied only 1 slurm task.
 
-TARGET_FILE = $HOME/out_file.txt
+TARGET_FILE=$HOME/out_file.txt
 
 VARNAME=111
 srun --export=ALL bash -c 'echo "$VARNAME" >> $TARGET_FILE'
 
 VARNAME=222
 srun --export=ALL bash -c 'echo "$VARNAME" >> $TARGET_FILE'
+
+# Conclusion:
+# The above is what's needed (possibly without the --export=ALL) in order to
+# pass environment variables to an srun command like so.
+#
+# But also, since we're running a singularity command, `singularity run` can
+# just take the --env option to pass environment variables into the contained
+# process.  See the CLI reference for the currently-installed version at:
+# https://sylabs.io/guides/3.8/user-guide/cli/singularity_run.html?highlight=--env
