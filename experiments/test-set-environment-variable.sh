@@ -33,3 +33,13 @@ srun bash -c "echo $VARNAME >> $TARGET_FILE"
 # just take the --env option to pass environment variables into the contained
 # process.  See the CLI reference for the currently-installed version at:
 # https://sylabs.io/guides/3.8/user-guide/cli/singularity_run.html?highlight=--env
+#
+# The output of this program is:
+#
+# 111
+# 111
+# 222
+# 222
+#
+# Which is not what we're looking for.  Guess that ntasks parameter should
+# usually be 1 for our purposes.
