@@ -18,8 +18,8 @@ srun mkdir $TARGET_WORKSPACE \
     && singularity run \
     --env WORKSPACE_DIR=$TARGET_WORKSPACE \
     docker://python:3.9.7-bullseye \
-    echo.py > $TARGET_WORKSPACE/out.txt \
+    echo-workspace.py > $TARGET_WORKSPACE/out.txt \
     ; cp -r $TARGET_WORKSPACE $SCRATCH/test-echo-workspace
 
 # Expected workspace: default/workspace
-singularity run docker://python:3.9.7-bullseye echo.py
+singularity run docker://python:3.9.7-bullseye echo-workspace.py
