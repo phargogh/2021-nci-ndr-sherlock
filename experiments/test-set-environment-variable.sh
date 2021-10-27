@@ -18,5 +18,9 @@
 # Meaning that each srun occupied only 1 slurm task.
 
 TARGET_FILE = $HOME/out_file.txt
-srun VARNAME=111 bash -c 'echo "$VARNAME" >> $TARGET_FILE'
-srun VARNAME=222 bash -c 'echo "$VARNAME" >> $TARGET_FILE'
+
+VARNAME=111
+srun --export=ALL bash -c 'echo "$VARNAME" >> $TARGET_FILE'
+
+VARNAME=222
+srun --export=ALL bash -c 'echo "$VARNAME" >> $TARGET_FILE'
