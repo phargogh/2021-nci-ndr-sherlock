@@ -2,7 +2,7 @@
 #
 #SBATCH --job-name=Test-singularity-environment-variable-passing
 #
-#SBATCH --time=00:02:30
+#SBATCH --time=00:10:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=2G
