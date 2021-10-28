@@ -14,7 +14,7 @@ CONTAINER=ghcr.io/phargogh/inspring-no-gcloud-keys
 DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
 WORKSPACE_DIR=$L_SCRATCH/$WORKSPACE_NAME
 
-mkdir -pf $WORKSPACE_DIR
+mkdir -p $WORKSPACE_DIR || echo "Could not create $WORKSPACE_DIR, maybe it already exists?"
 echo `pwd`
 
 singularity run \
