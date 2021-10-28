@@ -16,8 +16,9 @@ WORKSPACE_DIR=$L_SCRATCH/$WORKSPACE_NAME
 
 mkdir -pf $WORKSPACE_DIR
 
-singularity run docker://$CONTAINER@$DIGEST \
+singularity run \
     --env WORKSPACE_DIR=$WORKSPACE_DIR \
+    docker://$CONTAINER@$DIGEST \
     global_ndr_plus_pipeline.py scenarios.nci_global \
     --n_workers=40 \
     --limit_to_scenarios $SCENARIO_NAME
