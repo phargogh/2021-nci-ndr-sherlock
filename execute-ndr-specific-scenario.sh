@@ -15,6 +15,7 @@ DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
 WORKSPACE_DIR=$L_SCRATCH/$WORKSPACE_NAME
 
 mkdir -pf $WORKSPACE_DIR
+echo `pwd`
 
 singularity run \
     --env WORKSPACE_DIR=$WORKSPACE_DIR \

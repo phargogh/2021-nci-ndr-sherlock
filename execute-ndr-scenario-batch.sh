@@ -20,7 +20,6 @@ git fetch
 git checkout $REVISION
 # Sherlock still has python2, so need to specify python3 (3.6 is installed)
 SCENARIOS=$(python3 -c "import scenarios.nci_global as s; print('\n'.join(k for k in s.SCENARIOS))")
-popd
 
 for NCI_SCENARIO in $SCENARIOS
 do
