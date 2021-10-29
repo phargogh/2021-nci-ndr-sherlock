@@ -19,6 +19,21 @@ Scripts to run the NDR analyses for Natural Capital Index work on Sherlock.
      For taskgraph, this will probably end up being `n` tasks, `2n` CPUs.
 * For each job submitted, there will be a `slurm-{job_id}.out` file produced containing stdout.
   These appear to automatically delete, perhaps after each new job?
-* While Sherlock nodes have 150GB of local SSD scratch space (`$L_SCRATCH`), `$SCRATCH` appears to be an
+* While Sherlock nodes have ~150GB of local SSD scratch space (`$L_SCRATCH`), `$SCRATCH` appears to be an
   unexpectedly high-performance distributed filesystem.  In initial tests, I'll be attempting to run the entire
   analysis just on `$SCRATCH`.
+  * Update: Runs of an NCI scenario that were taking 30+ hours in `$SCRATCH` are completing in about 15 hours
+    in `$L_SCRATCH`.  Totally worth it to use `$L_SCRATCH` if possible.
+  * `$L_SCRATCH` is purged at the end of a job, so be sure to `sbatch` a script that includes copying the data
+    out of `$L_SCRATCH` and into `$SCRATCH` or somewhere else.
+  * For CPU-bound operations, `$SCRATCH` is probably good enough!
+* When running a job, you can see which node it's running in by using `squeue -u <username>`.  This will be a node name
+  in the form `sh02-01n20`.  When you're running a job on that node, you can `ssh sh02-01n20` in order to poke
+  around, run diagnostics, inspect things, etc.
+* To see which jobs remain in the queue: `squeue -u <username>`
+* To see the elapsed time for jobs, `sacct --format="JobID,Start,Elapsed,State"`
+* If a job is producing a _ton_ of stdout or stderr, you can use the `--output` and `--error` parameters to `sbatch`
+  to control where those files end up.
+* Parameters (or `#SBATCH` directives) passed to `sbatch` propagate to any `srun` commands within an `sbatch` batch file.
+  Thus, if your `srun` should only take a single CPU but your `sbatch` script calls for 20, you'll need to pass that
+  1-CPU parameter to `srun`.
