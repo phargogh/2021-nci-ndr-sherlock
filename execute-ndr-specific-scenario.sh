@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#SBATCH --time=30:00:00
+#SBATCH --time=20:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=20
 #SBATCH --mem-per-cpu=4G
@@ -37,6 +37,7 @@ singularity run \
     --limit_to_scenarios $SCENARIO_NAME
 
 # copy results (regardless of job run status) to $SCRATCH
+# TODO: make this rsync, to update the files instead?
 cp -r $WORKSPACE_DIR $SCRATCH/2021-NCI-$WORKSPACE_NAME
 
 # The trailing slash means that files will be copied into this directory.
