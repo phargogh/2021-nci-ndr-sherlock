@@ -24,10 +24,11 @@ popd
 
 for NCI_SCENARIO in $SCENARIOS
 do
+    WORKSPACE_DIR=NCI-NDRplus-$NCI_SCENARIO
     SCENARIO_JOB_ID=$(sbatch \
         --job-name=NCI-NDR-plus-global-rerun-Oct-2021-$NCI_SCENARIO \
         --chdir=$REPOSLUG \
         execute-ndr-specific-scenario.sh \
-        NCI-NDRplus-$NCI_SCENARIO $NCI_SCENARIO | grep -o [0-9]\\+)
+        $WORKSPACE_DIR $NCI_SCENARIO | grep -o [0-9]\\+)
     echo "$NCI_SCENARIO $SCENARIO_JOB_ID" >> scenario_jobs.txt
 done
