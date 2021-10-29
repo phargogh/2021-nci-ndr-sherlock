@@ -14,7 +14,17 @@ CONTAINER=ghcr.io/phargogh/inspring-no-gcloud-keys
 DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
 WORKSPACE_DIR=$L_SCRATCH/$WORKSPACE_NAME
 
-mkdir -p $WORKSPACE_DIR || echo "Could not create $WORKSPACE_DIR, maybe it already exists?"
+if [ -d $SCRATCH/$WORKSPACE_NAME ]
+then
+    # If there's already a workspace on $SCRATCH, then copy it into $L_SCRATCH
+    # so we can reuse the task graph.
+    cp -r $SCRATCH/$WORKSPACE_NAME $WORKSPACE_DIR
+else
+    # If the workspace isn't in $SCRATCH, then we'll be starting with an empty
+    # workspace ("from scratch", one might say, if you'll pardon the pun)
+    mkdir -p $WORKSPACE_DIR
+fi
+
 echo `pwd`
 
 singularity run \
