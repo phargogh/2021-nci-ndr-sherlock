@@ -45,6 +45,7 @@ GDRIVE_DIR="$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME/$WORKSPACE_NAME/"
 
 # Copy geotiffs AND logfiles.
 # $file should be the complete path to the file (it is in my tests anyways)
+module load system rclone
 for file in `ls $WORKSPACE_DIR/*.{tif,log}`
 do
     rclone copy --progress $file "nci-ndr-stanford-gdrive:$GDRIVE_DIR"
