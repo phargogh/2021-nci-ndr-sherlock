@@ -22,6 +22,9 @@ git checkout $REVISION
 SCENARIOS=$(python3 -c "import scenarios.nci_global as s; print('\n'.join(k for k in s.SCENARIOS))")
 popd
 
+DATE="$(date +%F)"
+GIT_REV="rev$(git rev-parse --short HEAD)"
+
 for NCI_SCENARIO in $SCENARIOS
 do
     WORKSPACE_DIR=NCI-NDRplus-$NCI_SCENARIO
@@ -29,6 +32,6 @@ do
         --job-name=NCI-NDRplus-$NCI_SCENARIO-global-rerun-Oct-2021 \
         --chdir=$REPOSLUG \
         execute-ndr-specific-scenario.sh \
-        $WORKSPACE_DIR $NCI_SCENARIO | grep -o [0-9]\\+)
+        $WORKSPACE_DIR $NCI_SCENARIO $DATE $GIT_REV | grep -o [0-9]\\+)
     echo "$NCI_SCENARIO $SCENARIO_JOB_ID" >> scenario_jobs.txt
 done

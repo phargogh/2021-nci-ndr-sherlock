@@ -9,6 +9,8 @@
 
 WORKSPACE_NAME="$1"
 SCENARIO_NAME="$2"
+DATE="$3"
+GIT_REV="$4"
 
 CONTAINER=ghcr.io/phargogh/inspring-no-gcloud-keys
 DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
@@ -36,3 +38,13 @@ singularity run \
 
 # copy results (regardless of job run status) to $SCRATCH
 cp -r $WORKSPACE_DIR $SCRATCH/2021-NCI-$WORKSPACE_NAME
+
+# The trailing slash means that files will be copied into this directory.
+# Don't need to name the files explicitly.
+GDRIVE_DIR="$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME/$WORKSPACE_NAME/"
+
+# $file should be the complete path to the file (it is in my tests anyways)
+for file in `ls $WORKSPACE_DIR/*.tif`
+do
+    rclone copy $file "nci-ndr-stanford-gdrive:$GDRIVE_DIR"
+done
