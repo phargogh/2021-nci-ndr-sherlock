@@ -25,8 +25,16 @@ popd
 DATE="$(date +%F)"
 GIT_REV="rev$(git rev-parse --short HEAD)"
 
+# According to https://slurm.schedmd.com/sbatch.html#SECTION_PERFORMANCE,
+# we're not supposed to call sbatch from within a loop.  A loop is the only way
+# this makes sense, though, and it isn't usually very many.  I've added a sleep
+# to help avoid a possible denial-of-service.
 for NCI_SCENARIO in $SCENARIOS
 do
+    # Can also redirect stdout/stderr if needed:
+    #--output=$SCRATCH/NCI-$NCI_SCENARIO-%j.out
+    #--error=$SCRATCH/NCI-$NCI_SCENARIO-%j.err
+
     WORKSPACE_DIR=NCI-NDRplus-$NCI_SCENARIO
     SCENARIO_JOB_ID=$(sbatch \
         --job-name=NCI-NDRplus-$NCI_SCENARIO-global-rerun-Oct-2021 \
@@ -34,4 +42,7 @@ do
         execute-ndr-specific-scenario.sh \
         $WORKSPACE_DIR $NCI_SCENARIO $DATE $GIT_REV | grep -o [0-9]\\+)
     echo "$NCI_SCENARIO $SCENARIO_JOB_ID" >> scenario_jobs.txt
+
+    # Give slurmctld a break for 2s just to be save
+    sleep 2s
 done

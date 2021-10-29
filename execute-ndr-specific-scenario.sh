@@ -4,7 +4,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=20
 #SBATCH --mem-per-cpu=4G
-#SBATCH --mail-type=FAIL
+#SBATCH --mail-type=ALL
 #
 # This script assumes that the task name will be set by the calling sbatch command.
 
