@@ -43,8 +43,9 @@ cp -r $WORKSPACE_DIR $SCRATCH/2021-NCI-$WORKSPACE_NAME
 # Don't need to name the files explicitly.
 GDRIVE_DIR="$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME/$WORKSPACE_NAME/"
 
+# Copy geotiffs AND logfiles.
 # $file should be the complete path to the file (it is in my tests anyways)
-for file in `ls $WORKSPACE_DIR/*.tif`
+for file in `ls $WORKSPACE_DIR/*.{tif,log}`
 do
-    rclone copy $file "nci-ndr-stanford-gdrive:$GDRIVE_DIR"
+    rclone copy --progress $file "nci-ndr-stanford-gdrive:$GDRIVE_DIR"
 done
