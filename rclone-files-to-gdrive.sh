@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#SBATCH --time=01:00:00
+#SBATCH --time=10:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --job-name=RClone-NCI-files-to-gdrive
