@@ -1,7 +1,7 @@
 ARG GDAL_VER=3.3.2
 FROM --platform=linux/amd64 osgeo/gdal:ubuntu-full-$GDAL_VER
 
-ARG PGP_VER=2.3.3
+ARG PGP_VER=2.3.2
 
 USER root
 RUN apt-get update \
