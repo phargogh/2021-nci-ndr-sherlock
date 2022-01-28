@@ -16,6 +16,7 @@ import os
 import numpy
 import pandas
 import pygeoprocessing
+import pygeoprocessing.symbolic
 from osgeo import gdal
 
 # Redefine as little as possible. Keep it DRY!
@@ -29,6 +30,8 @@ _NOXN_MODULE = _LOADER.load_module()
 _NOXN_NODATA = _NOXN_MODULE._NOXN_NODATA
 _TARGET_NODATA = _NOXN_MODULE._TARGET_NODATA
 _BASE_DATA_PATH_DICT = _NOXN_MODULE._BASE_DATA_PATH_DICT
+GROUNDWATER = 'groundwater'
+SURFACEWATER = 'surfacewater'
 
 
 def calc_drinking_water_source_raster(
@@ -111,8 +114,20 @@ def main(source_concentration_rasters_dir, country_codes_vector_path,
     graph = taskgraph.TaskGraph(
         os.path.join(workspace_path, '.taskgraph'), n_workers=n_workers)
 
-    source_concentration_rasters = glob.glob(
-        os.path.join(source_concentration_rasters_dir, '*.tif'))
+    scenarios = collections.defaultdict(dict)
+    for concentration_raster_path in glob.glob(
+            os.path.join(source_concentration_rasters_dir, 'noxn*.tif')):
+        # Scenarios are prefixed with `noxn_gw_` and `noxn_sw_`.
+        # We need to group together these noxn_gw and noxn_sw rasters because
+        # we need both of them in the final function.
+        scenario = os.path.splitext(
+            os.path.basename(concentration_raster_path))[0]
+        scenario_key = '_'.join(scenario.split('_')[2:])
+        if scenario.startswith('noxn_gw'):
+            water_type = GROUNDWATER
+        else:
+            water_type = SURFACEWATER
+        scenarios[scenario_key][water_type] = concentration_raster_path
 
     country_codes_raster_path = os.path.join(
         workspace_path, 'rasterized_country_codes.tif')
@@ -141,9 +156,8 @@ def main(source_concentration_rasters_dir, country_codes_vector_path,
         dependent_task_list=[country_codes_rasterize_task]
     )
 
-    for source_concentration_raster_path in source_concentration_rasters:
-        pass
-        # Step 1:
+    for scenario_rasters in scenarios:
+        # Step 1:  IS THIS THE PERCENT DRINKING WATER?
         # create a raster which defines the fraction of surface water in each
         # pixel’s drinking water (as a function of the country in which a
         # country is located)
@@ -151,10 +165,41 @@ def main(source_concentration_rasters_dir, country_codes_vector_path,
         # Step 2:
         # The fraction of groundwater in that pixel’s drinking water is than
         # 1-that_value.
+        fraction_ground_water_path = os.path.join(
+            workspace_path, 'frac_groundwater.tif')
+        fraction_ground_water_task = graph.add_task(
+            pygeoprocessing.symbolic.evaluate_raster_calculator_expression,
+            kwargs={
+                'expression': '1-percent',
+                'symbol_to_path_band_map': {
+                    'percent': (percent_drinking_water_path, 1),
+                },
+                'target_nodata': _NOXN_NODATA,
+                'target_raster_path': fraction_groundwater_path,
+            },
+            task_name=f'fraction of water that is groundwater - {scenario}',
+            dependent_task_list=[percent_drinking_water_task]
+        )
 
         # Step 3:
         # Based on that, the actual concentration is calculated from
         # calc_noxn_in_drinking_water
+        _ = graph.add_task(
+            pygeoprocessing.raster_calculator,
+            kwargs={
+                'base_raster_path_band_const_list': [
+                    (scenario_rasters[SURFACEWATER], 1),
+                    (scenario_rasters[GROUNDWATER], 1),
+                    (percent_drinking_water_path, 1),
+                ],
+                'local_op': map(),
+                'target_raster_path': '',
+                'datatype_target': gdal.GDT_Float32,
+                'nodata_target': _NOXN_NODATA,
+            },
+            task_name='calculate noxn in drinking water',
+            dependent_task_list=[]
+        )
 
     graph.join()
     graph.close()
