@@ -129,6 +129,12 @@ def main(source_concentration_rasters_dir, country_codes_vector_path,
             water_type = SURFACEWATER
         scenarios[scenario_key][water_type] = concentration_raster_path
 
+    # Rasterize country codes
+    #
+    # I'm assuming that we'll want to use country codes at the native
+    # resolution of the source concentration rasters.  There are no
+    # rasterization steps in Ginger's original source code, so I'm just
+    # guessing here.
     country_codes_raster_path = os.path.join(
         workspace_path, 'rasterized_country_codes.tif')
     country_codes_rasterize_task = graph.add_task(
@@ -142,7 +148,10 @@ def main(source_concentration_rasters_dir, country_codes_vector_path,
         target_path_list=[country_codes_raster_path]
     )
 
-    # Create a raster giving percent of drinking water from surface water
+    # Reclassify Country Codes
+    #
+    # This reclassifies the country codes to give the percentage of drinking
+    # water comes from surface water.
     percent_drinking_water_path = os.path.join(
         workspace_path, 'percent_drinking_water_by_country.tif')
     percent_drinking_water_task = graph.add_task(
@@ -211,5 +220,6 @@ if __name__ == '__main__':
         source_concentration_rasters_dir='concentration-rasters-from-ian',
         country_codes_vector_path='data-from-rafa/countries_iso3.shp',
         water_source_table='data-from-rafa/water_source_table.csv',
-        workspace_path='workspace'
+        workspace_path='workspace',
+        n_workers=8
     )
