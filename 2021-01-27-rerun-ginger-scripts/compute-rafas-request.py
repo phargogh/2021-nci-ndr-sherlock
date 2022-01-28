@@ -160,4 +160,9 @@ def main(source_concentration_rasters_dir, country_codes_vector_path,
     graph.close()
 
 if __name__ == '__main__':
-    main('target_workspace')
+    main(
+        source_concentration_rasters_dir='concentration-rasters-from-ian',
+        country_codes_vector_path='data-from-rafa/countries_iso3.shp',
+        water_source_table='data-from-rafa/water_source_table.csv',
+        workspace_path='workspace'
+    )
