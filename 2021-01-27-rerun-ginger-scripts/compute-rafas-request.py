@@ -165,6 +165,8 @@ def main(source_concentration_rasters_dir, country_codes_vector_path,
         # Step 2:
         # The fraction of groundwater in that pixel’s drinking water is than
         # 1-that_value.
+        # TODO: Verify that I can just ignore this since the 1-drinkingwater is
+        # already done in calc_noxn_in_drinking_water
         fraction_ground_water_path = os.path.join(
             workspace_path, 'frac_groundwater.tif')
         fraction_ground_water_task = graph.add_task(
