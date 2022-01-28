@@ -8,7 +8,7 @@ filepaths everywhere).
 
 
 """
-
+import glob
 import importlib
 import importlib.machinery
 import os
@@ -95,8 +95,23 @@ def calc_noxn_in_drinking_water(
     return noxn_in_drinking_water
 
 
-def main(workspace_path):
-    pass
+def main(source_concentration_rasters_dir, workspace_path):
+    for source_concentration_file in glob.glob(
+            os.path.join(source_concentration_rasters_dir, '*.tif')):
+        pass
+        # Step 1:
+        # create a raster which defines the fraction of surface water in each
+        # pixel’s drinking water (as a function of the country in which a
+        # country is located)
+
+        # Step 2:
+        # The fraction of groundwater in that pixel’s drinking water is than
+        # 1-that_value.
+
+        # Step 3:
+        # Based on that, the actual concentration is calculated from
+        # calc_noxn_in_drinking_water
+
 
 
 if __name__ == '__main__':
