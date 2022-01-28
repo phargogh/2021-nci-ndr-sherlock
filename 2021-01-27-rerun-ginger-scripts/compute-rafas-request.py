@@ -95,9 +95,53 @@ def calc_noxn_in_drinking_water(
     return noxn_in_drinking_water
 
 
-def main(source_concentration_rasters_dir, workspace_path):
-    for source_concentration_file in glob.glob(
-            os.path.join(source_concentration_rasters_dir, '*.tif')):
+def _create_country_codes_raster(
+        sample_raster_path, country_codes_vector, target_raster_path):
+    pygeoprocessing.new_raster_from_base(
+        sample_raster_path, target_raster_path, gdal.GDT_Int16, [-1], [-1])
+
+    pygeoprocessing.rasterize(
+        country_codes_vector, target_raster_path,
+        option_list=["ATTRIBUTE=id"])
+
+
+def main(source_concentration_rasters_dir, country_codes_vector_path,
+         water_source_table,
+         workspace_path, n_workers=8):
+    graph = taskgraph.TaskGraph(
+        os.path.join(workspace_path, '.taskgraph'), n_workers=n_workers)
+
+    source_concentration_rasters = glob.glob(
+        os.path.join(source_concentration_rasters_dir, '*.tif'))
+
+    country_codes_raster_path = os.path.join(
+        workspace_path, 'rasterized_country_codes.tif')
+    country_codes_rasterize_task = graph.add_task(
+        _create_country_codes_raster,
+        kwargs={
+            'sample_raster_path': source_concentration_rasters[0],
+            'country_codes_vector': country_codes_vector_path,
+            'target_raster_path': country_codes_raster_path,
+        },
+        task_name='create country codes raster',
+        target_path_list=[country_codes_raster_path]
+    )
+
+    # Create a raster giving percent of drinking water from surface water
+    percent_drinking_water_path = os.path.join(
+        workspace_path, 'percent_drinking_water_by_country.tif')
+    percent_drinking_water_task = graph.add_task(
+        calc_drinking_water_source_raster,
+        kwargs={
+            'save_as': percent_drinking_water_path,
+            'water_source_table': water_source_table,
+            'countries_raster': country_codes_raster_path,
+        },
+        task_name="percent drinking water from surface water",
+        dependent_task_list=[country_codes_rasterize_task]
+    )
+
+    for source_concentration_raster_path in source_concentration_rasters:
         pass
         # Step 1:
         # create a raster which defines the fraction of surface water in each
@@ -112,7 +156,8 @@ def main(source_concentration_rasters_dir, workspace_path):
         # Based on that, the actual concentration is calculated from
         # calc_noxn_in_drinking_water
 
-
+    graph.join()
+    graph.close()
 
 if __name__ == '__main__':
     main('target_workspace')
