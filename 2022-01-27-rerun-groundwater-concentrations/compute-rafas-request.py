@@ -8,15 +8,18 @@ filepaths everywhere).
 
 
 """
+import collections
 import glob
 import importlib
 import importlib.machinery
 import os
+import sys
 
 import numpy
 import pandas
 import pygeoprocessing
 import pygeoprocessing.symbolic
+import taskgraph
 from osgeo import gdal
 
 # Redefine as little as possible. Keep it DRY!
@@ -140,7 +143,7 @@ def main(source_concentration_rasters_dir, country_codes_vector_path,
     country_codes_rasterize_task = graph.add_task(
         _create_country_codes_raster,
         kwargs={
-            'sample_raster_path': source_concentration_rasters[0],
+            'sample_raster_path': concentration_raster_path,
             'country_codes_vector': country_codes_vector_path,
             'target_raster_path': country_codes_raster_path,
         },
@@ -186,7 +189,7 @@ def main(source_concentration_rasters_dir, country_codes_vector_path,
                     'percent': (percent_drinking_water_path, 1),
                 },
                 'target_nodata': _NOXN_NODATA,
-                'target_raster_path': fraction_groundwater_path,
+                'target_raster_path': fraction_ground_water_path,
             },
             task_name=f'fraction of water that is groundwater - {scenario}',
             dependent_task_list=[percent_drinking_water_task]
@@ -209,17 +212,21 @@ def main(source_concentration_rasters_dir, country_codes_vector_path,
                 'nodata_target': _NOXN_NODATA,
             },
             task_name='calculate noxn in drinking water',
-            dependent_task_list=[]
+            dependent_task_list=[percent_drinking_water_task]
         )
 
     graph.join()
     graph.close()
 
+
 if __name__ == '__main__':
-    main(
-        source_concentration_rasters_dir='concentration-rasters-from-ian',
-        country_codes_vector_path='data-from-rafa/countries_iso3.shp',
-        water_source_table='data-from-rafa/water_source_table.csv',
-        workspace_path='workspace',
-        n_workers=8
-    )
+    if '--test-imports' in sys.argv:
+        print("If we got here, then imports passed :)")
+    else:
+        main(
+            source_concentration_rasters_dir='concentration-rasters-from-ian',
+            country_codes_vector_path='data-from-rafa/countries_iso3.shp',
+            water_source_table='data-from-rafa/water_source_table.csv',
+            workspace_path='workspace',
+            n_workers=8
+        )
