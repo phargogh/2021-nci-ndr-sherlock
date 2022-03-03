@@ -1,3 +1,6 @@
 [submodule "2021-01-27-rerun-ginger-scripts/nci_ndr"]
 	path = 2022-01-27-rerun-groundwater-concentrations/nci_ndr
 	url = https://github.com/vakowal/nci_ndr.git
+[submodule "2022-03-03-rerun-noxn-levels/natcap-noxn-levels"]
+	path = 2022-03-03-rerun-noxn-levels/natcap-noxn-levels
+	url = git@code.stanford.edu:jdouglass/natcap-noxn-levels.git
