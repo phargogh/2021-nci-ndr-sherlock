@@ -4,3 +4,6 @@
 [submodule "2022-03-03-rerun-noxn-levels/natcap-noxn-levels"]
 	path = 2022-03-03-rerun-noxn-levels/natcap-noxn-levels
 	url = git@code.stanford.edu:jdouglass/natcap-noxn-levels.git
+[submodule "ndr_plus_global_pipeline"]
+	path = ndr_plus_global_pipeline
+	url = https://github.com/phargogh/ndr_plus_global_pipeline.git
