@@ -8,7 +8,7 @@ DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
 # Fetch the repository
 REPOSLUG=ndr_plus_global_pipeline
 REPO=https://github.com/phargogh/$REPOSLUG.git
-REVISION=4bb34ec6032e828a7bc337f48ee56a2b68f6dfb3
+REVISION=8df2cc24b7534f65d716c2f0f7c3aea5f38f7de4
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
@@ -37,7 +37,7 @@ do
 
     WORKSPACE_DIR=NCI-NDRplus-$NCI_SCENARIO
     SCENARIO_JOB_ID=$(sbatch \
-        --job-name=NCI-NDRplus-$NCI_SCENARIO-global-rerun-Oct-2021 \
+        --job-name=NCI-NDRplus-$NCI_SCENARIO-global-rerun-Mar-2022 \
         --chdir=$REPOSLUG \
         execute-ndr-specific-scenario.sh \
         $WORKSPACE_DIR $NCI_SCENARIO $DATE $GIT_REV | grep -o [0-9]\\+)
