@@ -42,8 +42,8 @@ singularity run \
     --limit_to_scenarios $SCENARIO_NAME
 
 # copy results (regardless of job run status) to $SCRATCH
-# TODO: make this rsync, to update the files instead?
-cp -r $WORKSPACE_DIR $SCRATCH/2021-NCI-$WORKSPACE_NAME
+# Rsync will help to only copy the deltas; might be faster than cp.
+rsync -r $WORKSPACE_DIR $SCRATCH/2021-NCI-$WORKSPACE_NAME
 
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
