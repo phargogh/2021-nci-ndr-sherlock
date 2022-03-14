@@ -6,8 +6,11 @@
 #SBATCH --mem-per-cpu=4G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
+#SBATCH --partition=hns,normal
 #
 # This script assumes that the task name will be set by the calling sbatch command.
+#
+# --partition=hns,normal means that this will be submitted to both queues, whichever gets to it first will be used.
 
 WORKSPACE_NAME="$1"
 SCENARIO_NAME="$2"
