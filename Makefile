@@ -3,6 +3,7 @@
 JOBIDS := $(shell awk '{ print $2 }' scenario_jobs.txt | paste -sd ',' -)
 
 ndr-batch:
+	module load py-numpy/1.14.3_py36
 	bash ./execute-ndr-scenario-batch.sh
 
 show-job-queue:
