@@ -43,7 +43,7 @@ singularity run \
 
 # copy results (regardless of job run status) to $SCRATCH
 # Rsync will help to only copy the deltas; might be faster than cp.
-rsync -r $WORKSPACE_DIR $SCRATCH/2021-NCI-$WORKSPACE_NAME
+rsync -r $WORKSPACE_DIR/* $SCRATCH/2021-NCI-$WORKSPACE_NAME
 
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
