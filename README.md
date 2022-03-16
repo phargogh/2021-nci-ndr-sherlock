@@ -37,3 +37,15 @@ Scripts to run the NDR analyses for Natural Capital Index work on Sherlock.
 * Parameters (or `#SBATCH` directives) passed to `sbatch` propagate to any `srun` commands within an `sbatch` batch file.
   Thus, if your `srun` should only take a single CPU but your `sbatch` script calls for 20, you'll need to pass that
   1-CPU parameter to `srun`.
+* Although we have access to the `hns` queue, NCI jobs are actually executed
+  _much_ sooner when run in `normal`.  You can submit jobs to both queues with
+  `--partition=normal,hns`, and whichever partition gets to it first will
+  execute the job.
+* According to the [slurm docs](https://slurm.schedmd.com/sbatch.html#SECTION_INPUT-ENVIRONMENT-VARIABLES), parameters may be
+  passed to `sbatch` via command-line flags, `#SBATCH` directives in a script, and through environment variables.
+  Command-line flags take priority over `#SBATCH` directives, which take priority over environment variables.
+  Thus, it's probably good practice to define `#SBATCH` directives as defaults,
+  but then override them with command-line flags when needed.  In NCI, for
+  example, a standard run without any precomputation will take ~10 hours.  With
+  precomputation, it'll probably take less and this can be provided to the
+  script via a separate command-line flag.
