@@ -8,7 +8,7 @@ DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
 # Fetch the repository
 REPOSLUG=ndr_plus_global_pipeline
 REPO=https://github.com/phargogh/$REPOSLUG.git
-REVISION=f2f075fec304de592f6f188fb816cce80e4b45e0
+REVISION=046c80fb1efd2f992abc62adf1bdf467479cba3c
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
