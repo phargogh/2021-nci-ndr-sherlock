@@ -46,3 +46,14 @@ do
     # Give slurmctld a break for 2s just to be save
     sleep 2s
 done
+
+# --dependency=afterok:<jobid>
+if [ "$1" = "--with-noxn" ]
+then
+    # --dependency=afterok:<id1>:<id2>... means that if the whole NDR pipeline
+    # passes, then we'll trigger the NOXN pipeline.
+    SLURM_IDS="$(awk '{ print $2 }' < scenario_jobs.txt | tr '\n' ':' | sed s/:$//g)"
+    sbatch \
+        --dependency="afterok:$SLURM_IDS" \
+        ./execute-noxn.sh
+fi
