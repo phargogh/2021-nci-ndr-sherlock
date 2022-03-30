@@ -1,6 +1,15 @@
 # 2021-nci-ndr-sherlock
 Scripts to run the NDR analyses for Natural Capital Index work on Sherlock.
 
+## To execute the NDR+ pipeline on sherlock:
+
+1. SSH into sherlock
+2. Set up rclone such that `nci-ndr-stanford-gdrive` refers to a google shared drive that you have write access to.
+3. Clone this repo
+4. Run `make ndr-batch`
+5. Wait 13-16 hours for everything to finish.
+
+
 ## Notes
 
 * Sherlock doesn't support docker because running docker would allow root access to the host node.
