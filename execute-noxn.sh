@@ -15,6 +15,14 @@
 set -e
 set -x
 
+# Container configuration
+#
+# NOTE: this is currently a private repository, so it'll be easier to cache
+# this locally before the NOXN run.  I did this with:
+#    $ singularity pull --docker-login docker://ghcr.io/natcap/natcap-noxn-levels
+# which then prompted me for my username and GHCR password (authentication token).
+# See the singularity docs on the subject for more info:
+# https://sylabs.io/guides/3.0/user-guide/singularity_and_docker.html#making-use-of-private-images-from-docker-hub
 CONTAINER=ghcr.io/natcap/natcap-noxn-levels
 DIGEST=sha256:b6e7a1a251a4047a1c69fc253e3fde320eff2221ea55d90b155619702fefade3
 
