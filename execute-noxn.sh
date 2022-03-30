@@ -1,4 +1,17 @@
 #!/bin/bash
+#
+#SBATCH --time=5:00:00
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=20
+#SBATCH --mem-per-cpu=4G
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=jdouglass@stanford.edu
+#SBATCH --partition=hns,normal
+#BBATCH --job-name="NCI-NOXN-Mar-2022"
+#
+# This script assumes that the task name will be set by the calling sbatch command.
+#
+# --partition=hns,normal means that this will be submitted to both queues, whichever gets to it first will be used.
 set -e
 set -x
 

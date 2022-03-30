@@ -5,6 +5,9 @@ JOBIDS := $(shell awk '{ print $2 }' scenario_jobs.txt | paste -sd ',' -)
 ndr-batch:
 	bash ./execute-ndr-scenario-batch.sh
 
+noxn:
+	sbatch ./execute-noxn.sh
+
 show-job-queue:
 	squeue --jobs=$(JOBIDS) --format="%A, %M, %j"
 
