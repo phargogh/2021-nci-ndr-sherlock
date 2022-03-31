@@ -25,7 +25,8 @@ if [ -d $SCRATCH/$WORKSPACE_NAME ]
 then
     # If there's already a workspace on $SCRATCH, then copy it into $L_SCRATCH
     # so we can reuse the task graph.
-    cp -r $SCRATCH/$WORKSPACE_NAME $WORKSPACE_DIR
+    # cp -rp will recurse and also copy permissions and timestamps (needed for better taskgraph performance)
+    cp -rp $SCRATCH/$WORKSPACE_NAME $WORKSPACE_DIR
 else
     # If the workspace isn't in $SCRATCH, then we'll be starting with an empty
     # workspace ("from scratch", one might say, if you'll pardon the pun)
@@ -43,7 +44,9 @@ singularity run \
 
 # copy results (regardless of job run status) to $SCRATCH
 # Rsync will help to only copy the deltas; might be faster than cp.
-rsync -r $WORKSPACE_DIR/* $SCRATCH/2021-NCI-$WORKSPACE_NAME
+# rsync -avz is equivalent to rsync -rlptgoDvz
+# Preserves permissions, timestamps, etc, which is better for taskgraph.
+rsync -avz $WORKSPACE_DIR/* $SCRATCH/2021-NCI-$WORKSPACE_NAME
 
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.

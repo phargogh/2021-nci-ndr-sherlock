@@ -49,7 +49,8 @@ NDR_OUTPUTS_DIR=$L_SCRATCH/NCI-ndr-plus-outputs
 mkdir "$NDR_OUTPUTS_DIR"
 for ndroutput in `find "$SCRATCH/2021-NCI*" -name "compressed_*.tif"`
 do
-    cp -v "$ndroutput" "$NDR_OUTPUTS_DIR"
+    # Copy files, presreving permissions
+    cp -pv "$ndroutput" "$NDR_OUTPUTS_DIR"
 done
 
 # run job
@@ -59,7 +60,9 @@ singularity run \
     pipeline.py --n_workers=40 "$WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
 # rsync the files back to $SCRATCH
-rsync -r "$WORKSPACE_DIR/*" "$SCRATCH/NCI-NOXN-workspace"
+# rsync -avz is equivalent to rsync -rlptgoDvz
+# Preserves permissions, timestamps, etc, which is better for taskgraph.
+rsync -avz "$WORKSPACE_DIR/*" "$SCRATCH/NCI-NOXN-workspace"
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
