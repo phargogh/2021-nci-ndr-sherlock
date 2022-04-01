@@ -3,11 +3,11 @@ Scripts to run the NDR analyses for Natural Capital Index work on Sherlock.
 
 ## To execute the NDR+ pipeline on sherlock:
 
-1. SSH into sherlock
-2. Set up rclone such that `nci-ndr-stanford-gdrive` refers to a google shared drive that you have write access to.
-3. Clone this repo
-4. Run `make ndr-batch`
-5. Wait 13-16 hours for everything to finish.
+1.  SSH into sherlock
+2.  Set up rclone such that `nci-ndr-stanford-gdrive` refers to a google shared drive that you have write access to.
+3.  Clone this repo
+4.  Run `make ndr-batch`
+5.  Wait 13-16 hours for everything to finish.
 
 
 ## Notes
@@ -22,6 +22,11 @@ Scripts to run the NDR analyses for Natural Capital Index work on Sherlock.
      will be written to $SCRATCH.
   * Arbitrary docker images _can_ be run via singularity without any extra conversion in advance.  For example:
     `singularity run docker://ghcr.io/phargogh/inspring-no-gcloud-keys@sha256:ff0fd8ea1594c35dc555273666a97d15340393772c95986097ffd826d22c0dc7`
+  * `STAT: /root/some-script.sh: permission denied` errors happen if/when your
+    docker container put stuff into `/root`.  Singularity [restricts access](https://sylabs.io/guides/3.9/user-guide/singularity_and_docker.html#best-practices-for-docker-singularityce-compatibility)
+    to `/root` when importing a docker container.  You can get around this by setting permissions in a custom
+    singularity definition, but it's better to just avoid putting stuff you need into `/root`.
+    Use `/opt/myapp` or similar instead.
 * Sherlock executes tasks via the SLURM workload manager, which has its own abstractions.
    * Python's `multiprocessing.cpu_count()` will show the number of CPUs on the machine, not the number of cores available to the current process.
    * In SLURM lingo, "Task" is akin to "Process".  You could have one task that has lots of threads and so needs few tasks but many CPUs.
