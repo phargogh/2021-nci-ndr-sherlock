@@ -47,7 +47,7 @@ GIT_REV="rev$(git rev-parse --short HEAD)"
 # copy files from scratch workspaces to local machine.
 NDR_OUTPUTS_DIR=$L_SCRATCH/NCI-ndr-plus-outputs
 mkdir "$NDR_OUTPUTS_DIR"
-for ndroutput in `find "$SCRATCH/2021-NCI*" -name "compressed_*.tif"`
+for ndroutput in 2021-NCI-NCI-NDRplus-*/compressed_*.tif
 do
     # Copy files, presreving permissions
     cp -pv "$ndroutput" "$NDR_OUTPUTS_DIR"
@@ -72,7 +72,7 @@ GDRIVE_DIR="$DATE-nci-noxn-$GIT_REV/"
 # Copy geotiffs AND logfiles, if any.
 # $file should be the complete path to the file (it is in my tests anyways)
 module load system rclone
-for file in `ls $WORKSPACE_DIR/*.{tif,log}`
+for file in "$WORKSPACE_DIR"/*.{tif,log}
 do
     rclone copy --progress "$file" "nci-ndr-stanford-gdrive:$GDRIVE_DIR"
 done
