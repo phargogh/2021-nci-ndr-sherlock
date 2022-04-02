@@ -47,11 +47,13 @@ GIT_REV="rev$(git rev-parse --short HEAD)"
 # copy files from scratch workspaces to local machine.
 NDR_OUTPUTS_DIR=$L_SCRATCH/NCI-ndr-plus-outputs
 mkdir "$NDR_OUTPUTS_DIR"
-for ndroutput in 2021-NCI-NCI-NDRplus-*/compressed_*.tif
+for ndroutput in "$SCRATCH"/2021-NCI-NCI-NDRplus-*/compressed_*.tif
 do
     # Copy files, presreving permissions
     cp -pv "$ndroutput" "$NDR_OUTPUTS_DIR"
 done
+
+ls -la "$NDR_OUTPUTS_DIR"
 
 # run job
 WORKSPACE_DIR=$L_SCRATCH/NCI-NOXN-workspace
