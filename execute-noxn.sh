@@ -56,7 +56,19 @@ done
 ls -la "$NDR_OUTPUTS_DIR"
 
 # run job
-WORKSPACE_DIR=$L_SCRATCH/NCI-NOXN-workspace
+WORKSPACE_DIRNAME=NCI-NOXN-workspace
+WORKSPACE_DIR=$L_SCRATCH/$WORKSPACE_DIRNAME
+if [ -d "$SCRATCH/$WORKSPACE_DIRNAME" ]
+then
+    # if there's already a workspace on $SCRATCH, copy it into $L_SCRATCH so we
+    # can reuse the task graph.  Preserve permissions and timestamps too during
+    # copy.
+    cp -rp "$SCRATCH/$WORKSPACE_DIRNAME" "$WORKSPACE_DIR"
+else
+    # Otherwise, create the new workspace
+    mkdir -p "$WORKSPACE_DIR"
+fi
+
 singularity run \
     docker://$CONTAINER@$DIGEST \
     pipeline.py --n_workers=40 "$WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
