@@ -3,11 +3,11 @@
 #SBATCH --time=5:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=20
-#SBATCH --mem-per-cpu=4G
+#SBATCH --mem-per-cpu=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
 #SBATCH --partition=hns,normal
-#BBATCH --job-name="NCI-NOXN-Mar-2022"
+#SBATCH --job-name="NCI-NOXN-Mar-2022"
 #
 # This script assumes that the task name will be set by the calling sbatch command.
 #
@@ -30,7 +30,7 @@ DIGEST=sha256:6164b338bc3626e8994e2e0ffd50220fe2f66e7e904b794920749fa23360d7af
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=6d7ff3173f6b6a11da723adfead832bf78ba83cb
+REVISION=cfae797117b427a0800f8dc4c693f7f0f075da5b
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
