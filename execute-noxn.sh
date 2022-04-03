@@ -55,12 +55,6 @@ done
 
 ls -la "$NDR_OUTPUTS_DIR"
 
-# checksumming the files here is faster than in python.
-for ndroutput in "$NDR_OUTPUTS_DIR"/*.tif
-do
-    sha256sum "$ndroutput"
-done
-
 # run job
 WORKSPACE_DIRNAME=NCI-NOXN-workspace
 WORKSPACE_DIR=$L_SCRATCH/$WORKSPACE_DIRNAME
