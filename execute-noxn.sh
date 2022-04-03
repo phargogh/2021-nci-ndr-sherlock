@@ -30,7 +30,7 @@ DIGEST=sha256:6164b338bc3626e8994e2e0ffd50220fe2f66e7e904b794920749fa23360d7af
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=3667229e54226609797c712eada4a7deb3aaf25d
+REVISION=1bf54cbb2098d0eb27d4c56b5c3cceb446fddbd1
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
@@ -44,9 +44,11 @@ git checkout $REVISION
 DATE="$(date +%F)"
 GIT_REV="rev$(git rev-parse --short HEAD)"
 
+TARGET_VOLUME="$SCRATCH"
+
 # copy files from scratch workspaces to local machine.
-NDR_OUTPUTS_DIR=$L_SCRATCH/NCI-ndr-plus-outputs
-mkdir "$NDR_OUTPUTS_DIR"
+NDR_OUTPUTS_DIR=$TARGET_VOLUME/NCI-ndr-plus-outputs
+mkdir -p "$NDR_OUTPUTS_DIR"
 for ndroutput in "$SCRATCH"/2021-NCI-NCI-NDRplus-*/compressed_*.tif
 do
     # Copy files, presreving permissions
@@ -57,7 +59,7 @@ ls -la "$NDR_OUTPUTS_DIR"
 
 # run job
 WORKSPACE_DIRNAME=NCI-NOXN-workspace
-WORKSPACE_DIR=$L_SCRATCH/$WORKSPACE_DIRNAME
+WORKSPACE_DIR=$TARGET_VOLUME/$WORKSPACE_DIRNAME
 if [ -d "$SCRATCH/$WORKSPACE_DIRNAME" ]
 then
     # if there's already a workspace on $SCRATCH, copy it into $L_SCRATCH so we
@@ -65,7 +67,7 @@ then
     # copy.
     cp -rp "$SCRATCH/$WORKSPACE_DIRNAME" "$WORKSPACE_DIR"
 else
-    # Otherwise, create the new workspace
+    # Otherwise, create the new workspace, skipping if already there.
     mkdir -p "$WORKSPACE_DIR"
 fi
 
@@ -73,10 +75,14 @@ singularity run \
     docker://$CONTAINER@$DIGEST \
     pipeline.py --n_workers=40 "$WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
-# rsync the files back to $SCRATCH
+# rsync the files back to $SCRATCH, but only if we're not already using
+# $SCRATCH as a workspace.
 # rsync -avz is equivalent to rsync -rlptgoDvz
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
-rsync -avz "$WORKSPACE_DIR/*" "$SCRATCH/NCI-NOXN-workspace"
+if [ "$TARGET_VOLUME" != "$SCRATCH" ]
+then
+    rsync -avz "$WORKSPACE_DIR/*" "$SCRATCH/NCI-NOXN-workspace"
+fi
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
