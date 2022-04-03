@@ -30,7 +30,7 @@ DIGEST=sha256:6164b338bc3626e8994e2e0ffd50220fe2f66e7e904b794920749fa23360d7af
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=8c28a52a6543471b2a51bdd0b38b0609742ee82c
+REVISION=dd5c24cc1517751e6074470aa956c20c8d96d75f
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
@@ -58,7 +58,7 @@ ls -la "$NDR_OUTPUTS_DIR"
 # checksumming the files here is faster than in python.
 for ndroutput in "$NDR_OUTPUTS_DIR"/*.tif
 do
-    sha256sum $ndroutput
+    sha256sum "$ndroutput"
 done
 
 # run job
