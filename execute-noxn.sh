@@ -3,7 +3,7 @@
 #SBATCH --time=0:30:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=20
-#SBATCH --mem-per-cpu=4G
+#SBATCH --mem-per-cpu=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
 #SBATCH --partition=hns,normal
@@ -30,7 +30,7 @@ DIGEST=sha256:6164b338bc3626e8994e2e0ffd50220fe2f66e7e904b794920749fa23360d7af
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=18d1dbfb954a70b1152322d6ac0f0da8ab3ed2e6
+REVISION=3667229e54226609797c712eada4a7deb3aaf25d
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
