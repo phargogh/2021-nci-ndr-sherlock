@@ -62,7 +62,8 @@ then
     # if there's already a workspace on $SCRATCH, copy it into $L_SCRATCH so we
     # can reuse the task graph.  Preserve permissions and timestamps too during
     # copy.
-    find "$SCRATCH/$WORKSPACE_DIRNAME" | parallel -j 10 rsync -avzm --relative --human-readable {} "$WORKSPACE_DIR"
+    #find "$SCRATCH/$WORKSPACE_DIRNAME" | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$WORKSPACE_DIR"
+    echo "not worth it to copy files to $L_SCRATCH -- too big for what we need to compute."
 else
     # Otherwise, create the new workspace, skipping if already there.
     mkdir -p "$WORKSPACE_DIR"
@@ -76,7 +77,7 @@ singularity run \
 # $SCRATCH as a workspace.
 # rsync -avz is equivalent to rsync -rlptgoDvz
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
-find "$WORKSPACE_DIR" | parallel -j 10 rsync -avzm --relative --human-readable {} "$SCRATCH/NCI-NOXN-workspace"
+find "$WORKSPACE_DIR" | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$SCRATCH/NCI-NOXN-workspace"
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
