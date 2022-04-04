@@ -77,7 +77,7 @@ singularity run \
 # $SCRATCH as a workspace.
 # rsync -avz is equivalent to rsync -rlptgoDvz
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
-rsync -avz "$WORKSPACE_DIR/*" "$SCRATCH/NCI-NOXN-workspace"
+rsync -avz $WORKSPACE_DIR/* $SCRATCH/NCI-NOXN-workspace
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
