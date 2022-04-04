@@ -83,7 +83,7 @@ singularity run \
 # $SCRATCH as a workspace.
 # rsync -avz is equivalent to rsync -rlptgoDvz
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
-find "$WORKSPACE_DIR/" | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$SCRATCH/NCI-NOXN-workspace"
+find "$WORKSPACE_DIR/" | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$SCRATCH/NCI-NOXN-workspace" &
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
@@ -97,7 +97,7 @@ for file in "$WORKSPACE_DIR"/*_noxn_in_drinking_water.tif
 do
     rclone copy --progress "$file" "nci-ndr-stanford-gdrive:$GDRIVE_DIR" &
 done
-echo "waiting for rclone jobs to complete"
+echo "waiting for rclone/rsync jobs to complete"
 
 wait
 
