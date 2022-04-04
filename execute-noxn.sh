@@ -79,23 +79,23 @@ singularity run \
     docker://$CONTAINER@$DIGEST \
     pipeline.py --n_workers=20 --resolution="$RESOLUTION" "$WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
-# rsync the files back to $SCRATCH, but only if we're not already using
-# $SCRATCH as a workspace.
-# rsync -avz is equivalent to rsync -rlptgoDvz
-# Preserves permissions, timestamps, etc, which is better for taskgraph.
-find "$WORKSPACE_DIR/" | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$SCRATCH/NCI-NOXN-workspace" &
-
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
-GDRIVE_DIR="$DATE-nci-noxn-$GIT_REV-$RESOLUTION/"
+ARCHIVE_DIR="$DATE-nci-noxn-$GIT_REV-$RESOLUTION/"
+
+# Useful to back up the workspace to $SCRATCH for reference, even though we
+# only need the drinking water rasters uploaded to GDrive.
+# rsync -avz is equivalent to rsync -rlptgoDvz
+# Preserves permissions, timestamps, etc, which is better for taskgraph.
+find "$WORKSPACE_DIR/" | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$SCRATCH/$ARCHIVE_DIR" &
 
 # Copy geotiffs AND logfiles, if any.
 # $file should be the complete path to the file (it is in my tests anyways)
 module load system rclone
 for file in "$WORKSPACE_DIR"/*_noxn_in_drinking_water.tif
 do
-    rclone copy --progress "$file" "nci-ndr-stanford-gdrive:$GDRIVE_DIR" &
+    rclone copy --progress "$file" "nci-ndr-stanford-gdrive:$ARCHIVE_DIR" &
 done
 echo "waiting for rclone/rsync jobs to complete"
 
