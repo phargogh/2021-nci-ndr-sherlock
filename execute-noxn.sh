@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-#SBATCH --time=0:30:00
+#SBATCH --time=4:00:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=20
+#SBATCH --cpus-per-task=10
 #SBATCH --mem-per-cpu=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
@@ -47,16 +47,10 @@ GIT_REV="rev$(git rev-parse --short HEAD)"
 # copy files from scratch workspaces to local machine.
 NDR_OUTPUTS_DIR=$SCRATCH/NCI-ndr-plus-outputs
 mkdir -p "$NDR_OUTPUTS_DIR"
-SOURCE_FILES_TO_RSYNC='files_to_rsync.txt'
-rm -f $SOURCE_FILES_TO_RSYNC
-for ndroutput in "$SCRATCH"/2021-NCI-NCI-NDRplus-*/compressed_*.tif
-do
-    echo $ndroutput >> $SOURCE_FILES_TO_RSYNC
-done
 
 # Copy files, presreving permissions.
 # This should be faster than simply copying individual files.
-rsync -avz --files-from=$SOURCE_FILES_TO_RSYNC --no-relative $NDR_OUTPUTS_DIR
+find 2021-NCI-NCI-* -name "compressed_*.tif" | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$NDR_OUTPUTS_DIR"
 
 ls -la "$NDR_OUTPUTS_DIR"
 
@@ -68,7 +62,7 @@ then
     # if there's already a workspace on $SCRATCH, copy it into $L_SCRATCH so we
     # can reuse the task graph.  Preserve permissions and timestamps too during
     # copy.
-    cp -rp "$SCRATCH/$WORKSPACE_DIRNAME" "$WORKSPACE_DIR"
+    find "$SCRATCH/$WORKSPACE_DIRNAME" | parallel -j 10 rsync -avzm --relative --human-readable {} "$WORKSPACE_DIR"
 else
     # Otherwise, create the new workspace, skipping if already there.
     mkdir -p "$WORKSPACE_DIR"
@@ -82,7 +76,7 @@ singularity run \
 # $SCRATCH as a workspace.
 # rsync -avz is equivalent to rsync -rlptgoDvz
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
-rsync -avz $WORKSPACE_DIR/* $SCRATCH/NCI-NOXN-workspace
+find "$WORKSPACE_DIR" | parallel -j 10 rsync -avzm --relative --human-readable {} "$SCRATCH/NCI-NOXN-workspace"
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
@@ -96,3 +90,4 @@ for file in "$WORKSPACE_DIR"/*.{tif,log}
 do
     rclone copy --progress "$file" "nci-ndr-stanford-gdrive:$GDRIVE_DIR"
 done
+echo "NCI NOXN done!"
