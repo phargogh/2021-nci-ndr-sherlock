@@ -15,6 +15,12 @@
 set -e
 set -x
 
+RESOLUTION="$1"
+if [ "$RESOLUTION" = "" ]
+then
+    RESOLUTION="10km"
+fi
+
 # Container configuration
 #
 # NOTE: this is currently a private repository, so it'll be easier to cache
@@ -71,7 +77,7 @@ fi
 
 singularity run \
     docker://$CONTAINER@$DIGEST \
-    pipeline.py --n_workers=40 "$WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
+    pipeline.py --n_workers=20 --resolution="$RESOLUTION" "$WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
 # rsync the files back to $SCRATCH, but only if we're not already using
 # $SCRATCH as a workspace.
