@@ -30,7 +30,7 @@ DIGEST=sha256:6164b338bc3626e8994e2e0ffd50220fe2f66e7e904b794920749fa23360d7af
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=1bf54cbb2098d0eb27d4c56b5c3cceb446fddbd1
+REVISION=6b5b3499eb131d8d2c1c2775041ca322e1e69151
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
@@ -44,10 +44,8 @@ git checkout $REVISION
 DATE="$(date +%F)"
 GIT_REV="rev$(git rev-parse --short HEAD)"
 
-TARGET_VOLUME="$SCRATCH"
-
 # copy files from scratch workspaces to local machine.
-NDR_OUTPUTS_DIR=$TARGET_VOLUME/NCI-ndr-plus-outputs
+NDR_OUTPUTS_DIR=$SCRATCH/NCI-ndr-plus-outputs
 mkdir -p "$NDR_OUTPUTS_DIR"
 for ndroutput in "$SCRATCH"/2021-NCI-NCI-NDRplus-*/compressed_*.tif
 do
@@ -59,7 +57,7 @@ ls -la "$NDR_OUTPUTS_DIR"
 
 # run job
 WORKSPACE_DIRNAME=NCI-NOXN-workspace
-WORKSPACE_DIR=$TARGET_VOLUME/$WORKSPACE_DIRNAME
+WORKSPACE_DIR=$L_SCRATCH/$WORKSPACE_DIRNAME
 if [ -d "$SCRATCH/$WORKSPACE_DIRNAME" ]
 then
     # if there's already a workspace on $SCRATCH, copy it into $L_SCRATCH so we
@@ -79,10 +77,7 @@ singularity run \
 # $SCRATCH as a workspace.
 # rsync -avz is equivalent to rsync -rlptgoDvz
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
-if [ "$TARGET_VOLUME" != "$SCRATCH" ]
-then
-    rsync -avz "$WORKSPACE_DIR/*" "$SCRATCH/NCI-NOXN-workspace"
-fi
+rsync -avz "$WORKSPACE_DIR/*" "$SCRATCH/NCI-NOXN-workspace"
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
