@@ -88,7 +88,7 @@ ARCHIVE_DIR="$DATE-nci-noxn-$GIT_REV-$RESOLUTION/"
 # only need the drinking water rasters uploaded to GDrive.
 # rsync -avz is equivalent to rsync -rlptgoDvz
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
-find "$WORKSPACE_DIR/" | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$SCRATCH/$ARCHIVE_DIR" &
+find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$SCRATCH/$ARCHIVE_DIR" &
 
 # Copy geotiffs AND logfiles, if any.
 # $file should be the complete path to the file (it is in my tests anyways)
