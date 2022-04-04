@@ -47,11 +47,16 @@ GIT_REV="rev$(git rev-parse --short HEAD)"
 # copy files from scratch workspaces to local machine.
 NDR_OUTPUTS_DIR=$SCRATCH/NCI-ndr-plus-outputs
 mkdir -p "$NDR_OUTPUTS_DIR"
+SOURCE_FILES_TO_RSYNC='files_to_rsync.txt'
+rm -f $SOURCE_FILES_TO_RSYNC
 for ndroutput in "$SCRATCH"/2021-NCI-NCI-NDRplus-*/compressed_*.tif
 do
-    # Copy files, presreving permissions
-    cp -pv "$ndroutput" "$NDR_OUTPUTS_DIR"
+    echo $ndroutput >> $SOURCE_FILES_TO_RSYNC
 done
+
+# Copy files, presreving permissions.
+# This should be faster than simply copying individual files.
+rsync -avz --files-from=$SOURCE_FILES_TO_RSYNC --no-relative $NDR_OUTPUTS_DIR
 
 ls -la "$NDR_OUTPUTS_DIR"
 
