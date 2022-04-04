@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --time=00:00:05
+#SBATCH --time=00:05:00
 #SBATCH --partition=hns,normal
 
 for i in {0..100}
 do
-    echo $i
+    echo "hello world $i"
     sleep 3
 done

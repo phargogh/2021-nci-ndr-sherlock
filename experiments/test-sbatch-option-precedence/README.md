@@ -9,7 +9,7 @@ expected behavior.
 
 ```shell
 # Override the script's 5-minute time limit with a 10-minute time limit.
-$ sbatch --time-limit=0:00:10 test-options.sh
+$ sbatch --time=0:10:00 test-options.sh
 $ squeue -u <username> --long
 ```
 
