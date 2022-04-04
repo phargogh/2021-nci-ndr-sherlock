@@ -15,4 +15,8 @@ $ squeue -u <username> --long
 
 ## Results
 
+The queued job had a 10 minute time limit, as demonstrated by `squeue --long`.
 
+Yep, so, the command-line `--time` argument appears from this test to override
+what's in the `#SBATCH` header.  Maybe I just had something wrong in my
+Makefile?
