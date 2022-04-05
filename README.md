@@ -63,3 +63,12 @@ Scripts to run the NDR analyses for Natural Capital Index work on Sherlock.
   example, a standard run without any precomputation will take ~10 hours.  With
   precomputation, it'll probably take less and this can be provided to the
   script via a separate command-line flag.
+* For future pipelines, it may be wise to include `taskgraph` tasks that upload
+  completed, final outputs to a target directory, such as to google drive.  In
+  the NDR+ pipeline script `execute-ndr-specific-scenario.sh`, I first run the
+  python pipeline and then rsync files to `$SCRATCH` and _then_ `rclone` files up
+  to google drive.  Same sort of setup for the `noxn` pipeline.  It might be a
+  more efficient allocation of resources if the network-bound tasks could also
+  be executed in parallel, once they are ready.  I haven't tried this, of
+  course, but it seems like a good idea, especially for larger files that need
+  some time to copy/transfer.
