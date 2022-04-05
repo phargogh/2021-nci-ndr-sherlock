@@ -35,7 +35,7 @@ do
 
     WORKSPACE_DIR=NCI-NDRplus-$NCI_SCENARIO
     SCENARIO_JOB_ID=$(sbatch \
-        --job-name="NCI-NDRplus-$NCI_SCENARIO-global-rerun-Apr-2022" \
+        --job-name="NCI-NDRplus-$NCI_SCENARIO-global-$DATE" \
         --chdir=$REPOSLUG \
         execute-ndr-specific-scenario.sh \
         "$WORKSPACE_DIR" "$NCI_SCENARIO" "$DATE" "$GIT_REV" | grep -o [0-9]\\+)
