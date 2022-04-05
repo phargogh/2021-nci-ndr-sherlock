@@ -2,13 +2,10 @@
 set -e
 set -x
 
-CONTAINER=ghcr.io/phargogh/inspring-no-gcloud-keys
-DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
-
 # Fetch the repository
 REPOSLUG=ndr_plus_global_pipeline
 REPO=https://github.com/phargogh/$REPOSLUG.git
-REVISION=e7a6f10eb5b21799d5ee6571691aacdddffec0d0
+REVISION=36f83e274825a8e91be8d9ea622a0c513fd3dae6
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
@@ -37,10 +34,10 @@ do
 
     WORKSPACE_DIR=NCI-NDRplus-$NCI_SCENARIO
     SCENARIO_JOB_ID=$(sbatch \
-        --job-name=NCI-NDRplus-$NCI_SCENARIO-global-rerun-Mar-2022 \
+        --job-name="NCI-NDRplus-$NCI_SCENARIO-global-rerun-Apr-2022" \
         --chdir=$REPOSLUG \
         execute-ndr-specific-scenario.sh \
-        $WORKSPACE_DIR $NCI_SCENARIO $DATE $GIT_REV | grep -o [0-9]\\+)
+        "$WORKSPACE_DIR" "$NCI_SCENARIO" "$DATE" "$GIT_REV" | grep -o [0-9]\\+)
     echo "$NCI_SCENARIO $SCENARIO_JOB_ID" >> scenario_jobs.txt
 
     # Give slurmctld a break for 2s just to be save
