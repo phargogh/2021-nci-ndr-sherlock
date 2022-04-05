@@ -26,6 +26,7 @@ GIT_REV="rev$(git rev-parse --short HEAD)"
 # we're not supposed to call sbatch from within a loop.  A loop is the only way
 # this makes sense, though, and it isn't usually very many.  I've added a sleep
 # to help avoid a possible denial-of-service.
+SLURM_DEPENDENCY_STRING="afterok"
 for NCI_SCENARIO in $SCENARIOS
 do
     # Can also redirect stdout/stderr if needed:
@@ -38,6 +39,7 @@ do
         --chdir=$REPOSLUG \
         execute-ndr-specific-scenario.sh \
         "$WORKSPACE_DIR" "$NCI_SCENARIO" "$DATE" "$GIT_REV" | grep -o [0-9]\\+)
+    SLURM_DEPENDENCY_STRING="$SLURM_DEPENDENCY_STRING:$SCENARIO_JOB_ID"
     echo "$NCI_SCENARIO $SCENARIO_JOB_ID" >> scenario_jobs.txt
 
     # Give slurmctld a break for 2s just to be save
@@ -49,8 +51,7 @@ if [ "$1" = "--with-noxn" ]
 then
     # --dependency=afterok:<id1>:<id2>... means that if the whole NDR pipeline
     # passes, then we'll trigger the NOXN pipeline.
-    SLURM_IDS="$(awk '{ print $2 }' < scenario_jobs.txt | tr '\n' ':' | sed s/:$//g)"
     sbatch \
-        --dependency="afterok:$SLURM_IDS" \
+        --dependency="$SLURM_DEPENDENCY_STRING" \
         ./execute-noxn.sh
 fi
