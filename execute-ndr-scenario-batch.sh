@@ -5,7 +5,7 @@ set -x
 # Fetch the repository
 REPOSLUG=ndr_plus_global_pipeline
 REPO=https://github.com/phargogh/$REPOSLUG.git
-REVISION=36f83e274825a8e91be8d9ea622a0c513fd3dae6
+REVISION=8a69d6fc8c2923bf7ab688312568a09455b92b62
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
