@@ -93,6 +93,9 @@ find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --huma
 # Copy geotiffs AND logfiles, if any.
 # $file should be the complete path to the file (it is in my tests anyways)
 module load system rclone
+# create the directory first so we can parallelize uploads into it.
+# If we don't do this, then we'll get 10 folders with the same name.
+rclone mkdir "nci-ndr-stanford-gdrive:$ARCHIVE_DIR"
 for file in "$WORKSPACE_DIR"/*_noxn_in_drinking_water_$RESOLUTION.tif
 do
     rclone copy --progress "$file" "nci-ndr-stanford-gdrive:$ARCHIVE_DIR" &
