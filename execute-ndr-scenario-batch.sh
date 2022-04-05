@@ -42,7 +42,8 @@ do
     SLURM_DEPENDENCY_STRING="$SLURM_DEPENDENCY_STRING:$SCENARIO_JOB_ID"
     echo "$NCI_SCENARIO $SCENARIO_JOB_ID" >> scenario_jobs.txt
 
-    # Give slurmctld a break for 2s just to be save
+    # Give slurmctld a break for 2s just to be safe, in case they try to deny
+    # our submission.
     sleep 2s
 done
 
