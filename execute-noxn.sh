@@ -82,7 +82,7 @@ singularity run \
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
-ARCHIVE_DIR="$DATE-nci-noxn-$GIT_REV-$RESOLUTION/"
+ARCHIVE_DIR="$DATE-nci-noxn-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION/"
 
 # Useful to back up the workspace to $SCRATCH for reference, even though we
 # only need the drinking water rasters uploaded to GDrive.
