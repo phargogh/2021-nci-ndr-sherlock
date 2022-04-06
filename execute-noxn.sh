@@ -86,6 +86,9 @@ ARCHIVE_DIR="$DATE-nci-noxn-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION/"
 
 # Useful to back up the workspace to $SCRATCH for reference, even though we
 # only need the drinking water rasters uploaded to GDrive.
+# Create folders first so rsync only has to worry about files
+find "$WORKSPACE_DIR/" -type d | sed "s|$WORKSPACE_DIR|$SCRATCH/$ARCHIVE_DIR|g" | xargs mkdir -p
+
 # rsync -avz is equivalent to rsync -rlptgoDvz
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
 find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$SCRATCH/$ARCHIVE_DIR"
