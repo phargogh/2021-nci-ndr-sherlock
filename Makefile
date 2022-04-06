@@ -6,10 +6,10 @@ ndr-batch:
 	bash ./execute-ndr-scenario-batch.sh
 
 noxn-1km:
-	sbatch ./execute-noxn.sh 1km --time=8:00:00
+	sbatch --time=8:00:00 ./execute-noxn.sh 1km
 
 noxn-10km:
-	sbatch ./execute-noxn.sh 10km --time=1:00:00
+	sbatch --time=1:00:00 ./execute-noxn.sh 10km
 
 all:
 	bash ./execute-ndr-scenario-batch.sh --with-noxn
