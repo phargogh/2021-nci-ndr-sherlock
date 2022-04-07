@@ -50,12 +50,7 @@ rsync -avz $WORKSPACE_DIR/* $SCRATCH/2021-NCI-$WORKSPACE_NAME
 
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
-GDRIVE_DIR="$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME/$WORKSPACE_NAME/"
+GDRIVE_DIR="$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME/"
 
-# Copy geotiffs AND logfiles.
-# $file should be the complete path to the file (it is in my tests anyways)
-module load system rclone
-for file in `ls $WORKSPACE_DIR/*.{tif,log}`
-do
-    rclone copy --progress $file "nci-ndr-stanford-gdrive:$GDRIVE_DIR"
-done
+# Copy geotiffs AND logfiles to google drive.
+./upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.{tif,log}
