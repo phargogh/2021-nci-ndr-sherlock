@@ -9,6 +9,12 @@
 #  $ sbatch --time=1:00:00 ./upload-to-googledrive.sh \
 #        "nci-ndr-stanford-gdrive:2022-04-06-nci-noxn-rev526c591-slurm48859659-1km/ndrplus-outputs-1km" \
 #        $(pwd)/aligned*{export,modified_load}.tif
+#
+# Or within an sbatch'ed script:
+#  $(pwd)/upload-to-googledrive.sh \
+#        "nci-ndr-stanford-gdrive:2022-04-06-nci-noxn-rev526c591-slurm48859659-1km/ndrplus-outputs-1km" \
+#        $(pwd)/aligned*{export,modified_load}.tif
+
 
 DEST_DIR="$1"
 
