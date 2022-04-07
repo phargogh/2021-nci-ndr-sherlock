@@ -53,4 +53,4 @@ rsync -avz $WORKSPACE_DIR/* $SCRATCH/2021-NCI-$WORKSPACE_NAME
 GDRIVE_DIR="$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME/"
 
 # Copy geotiffs AND logfiles to google drive.
-$(pwd)/upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.{tif,log}
+$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.{tif,log}
