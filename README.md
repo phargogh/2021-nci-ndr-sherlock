@@ -44,10 +44,10 @@ Scripts to run the NDR analyses for Natural Capital Index work on Sherlock.
 * When running a job, you can see which node it's running in by using `squeue -u <username>`.  This will be a node name
   in the form `sh02-01n20`.  When you're running a job on that node, you can `ssh sh02-01n20` in order to poke
   around, run diagnostics, inspect things, etc.
-* To see which jobs remain in the queue: `squeue -u <username>`
-* To see the elapsed time for jobs, `sacct --format="JobID,Start,Elapsed,State"`
+* To see which jobs remain in the queue: `squeue -u <username>`.
+* To see the elapsed time for jobs, `sacct --format="JobID,Start,Elapsed,State"`.
 * If a job is producing a _ton_ of stdout or stderr, you can use the `--output` and `--error` parameters to `sbatch`
-  to control where those files end up.
+  to control where those files end up, such as writing the logfiles to `$SCRATCH`.
 * Parameters (or `#SBATCH` directives) passed to `sbatch` propagate to any `srun` commands within an `sbatch` batch file.
   Thus, if your `srun` should only take a single CPU but your `sbatch` script calls for 20, you'll need to pass that
   1-CPU parameter to `srun`.
