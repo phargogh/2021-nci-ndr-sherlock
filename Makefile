@@ -11,9 +11,6 @@ noxn-1km:
 noxn-10km:
 	sbatch --time=1:00:00 ./execute-noxn.sh 10km
 
-noxn-100km:
-	sbatch --time=0:10:00 ./execute-noxn.sh 100km
-
 all:
 	bash ./execute-ndr-scenario-batch.sh --with-noxn
 
