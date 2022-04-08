@@ -82,21 +82,21 @@ singularity run \
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
-ARCHIVE_DIR="$DATE-nci-noxn-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION/"
+ARCHIVE_DIR="$DATE-nci-noxn-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION"
 
 # Useful to back up the workspace to $SCRATCH for reference, even though we
 # only need the drinking water rasters uploaded to GDrive.
 # Create folders first so rsync only has to worry about files
-find "$WORKSPACE_DIR/" -type d | sed "s|$WORKSPACE_DIR|$SCRATCH/$ARCHIVE_DIR|g" | xargs mkdir -p
+find "$WORKSPACE_DIR/" -type d | sed "s|$WORKSPACE_DIR|$SCRATCH/$ARCHIVE_DIR/|g" | xargs mkdir -p
 
 # rsync -avz is equivalent to rsync -rlptgoDvz
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
-find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$SCRATCH/$ARCHIVE_DIR"
+find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$SCRATCH/$ARCHIVE_DIR/"
 
 # Copy geotiffs AND logfiles, if any.
 # $file should be the complete path to the file (it is in my tests anyways)
 module load system rclone
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR" "$WORKSPACE_DIR"/*_noxn_in_drinking_water_$RESOLUTION.tif
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-$RESOLUTION" "$WORKSPACE_DIR"/aligned*{export,modified_load}.tif
+$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" "$WORKSPACE_DIR"/*_noxn_in_drinking_water_$RESOLUTION.tif
+$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-$RESOLUTION" "$WORKSPACE_DIR"/aligned_*_{export,modified_load}.tif
 
 echo "NCI NOXN done!"
