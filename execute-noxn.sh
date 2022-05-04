@@ -36,7 +36,7 @@ DIGEST=sha256:6164b338bc3626e8994e2e0ffd50220fe2f66e7e904b794920749fa23360d7af
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=40d5715e5bbdc1f973d2959262ebcc8582583753
+REVISION=a9a840c438d6da9d23caf8fa8f9694bba7873f67
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
@@ -75,9 +75,10 @@ else
     mkdir -p "$WORKSPACE_DIR"
 fi
 
+LOGFILE_PATH="$SCRATCH/$DATE-nci-noxn-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION.log"
 singularity run \
     docker://$CONTAINER@$DIGEST \
-    pipeline.py --n_workers=20 --resolution="$RESOLUTION" "$WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
+    pipeline.py --n_workers=20 --resolution="$RESOLUTION" --logfile="$LOGFILE_PATH" "$WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
