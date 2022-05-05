@@ -1,13 +1,13 @@
 #!/bin/bash
 #
-#SBATCH --time=2:00:00
+#SBATCH --time=4:00:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=16
 #SBATCH --mem-per-cpu=4G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
 #SBATCH --partition=hns,normal
-#SBATCH --job-name="NCI-NOXN-Mar-2022"
+#SBATCH --job-name="NCI-NOXN-May-2022"
 #
 # This script assumes that the task name will be set by the calling sbatch command.
 #
@@ -36,7 +36,7 @@ DIGEST=sha256:6164b338bc3626e8994e2e0ffd50220fe2f66e7e904b794920749fa23360d7af
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=a9a840c438d6da9d23caf8fa8f9694bba7873f67
+REVISION=dca6530dd57533416f64ccfb865c2db0c65f05c0
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
@@ -61,8 +61,8 @@ find "$SCRATCH" -path "$SCRATCH/2021-NCI-NCI-*" -name "compressed_*.tif" | paral
 ls -la "$NDR_OUTPUTS_DIR"
 
 # run job
-WORKSPACE_DIRNAME=NCI-NOXN-workspace
-WORKSPACE_DIR=$L_SCRATCH/$WORKSPACE_DIRNAME
+WORKSPACE_DIRNAME=NCI-NOXN-workspace-$DATE-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION
+WORKSPACE_DIR=$SCRATCH/$WORKSPACE_DIRNAME
 if [ -d "$SCRATCH/$WORKSPACE_DIRNAME" ]
 then
     # if there's already a workspace on $SCRATCH, copy it into $L_SCRATCH so we
@@ -75,10 +75,9 @@ else
     mkdir -p "$WORKSPACE_DIR"
 fi
 
-LOGFILE_PATH="$SCRATCH/$DATE-nci-noxn-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION.log"
 singularity run \
     docker://$CONTAINER@$DIGEST \
-    pipeline.py --n_workers=20 --resolution="$RESOLUTION" --logfile="$LOGFILE_PATH" "$WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
+    pipeline.py --n_workers=20 --resolution="$RESOLUTION" "$WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
