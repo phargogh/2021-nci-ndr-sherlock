@@ -19,6 +19,6 @@ echo "Total NDR cpu cores requested: $CPUCORES"
 CPUCORES=$(cat $outfile | grep noxn | awk '{ print $5 }' | paste -sd+ - | bc)
 echo "Total NOXN cpu cores requested: $CPUCORES"
 
-ELAPSEDTIME=$(cat $outfile | grep NDR | awk '{ print $9 }' | python sum_slurm_cputime.py)
+ELAPSEDTIME=$(cat $outfile | grep NCI | awk '{ print $9 }' | python sum_slurm_cputime.py)
 echo "Total requested time: $ELAPSEDTIME"
 

@@ -13,7 +13,12 @@ for line in fileinput.input():
         days = 0
         hours_minutes_seconds = line
 
-    hours, minutes, seconds = hours_minutes_seconds.split(':')
+    try:
+        hours, minutes, seconds = hours_minutes_seconds.split(':')
+    except ValueError:
+        hours = 0
+        minutes, seconds = hours_minutes_seconds.split(':')
+
     totaltime += datetime.timedelta(
         days=int(days),
         hours=int(hours),
