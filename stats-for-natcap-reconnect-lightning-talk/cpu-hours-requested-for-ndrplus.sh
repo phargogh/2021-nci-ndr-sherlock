@@ -9,12 +9,15 @@ do
         sacct -u jadoug06 \
             --starttime $yyyy-$mm-01 \
             --endtime $yyyy-$mm-31 \
-            --format jobid,jobname,partition,account,alloccpus,state,exitcode,reserved | grep NDR >> $outfile
+            --format jobid,jobname,partition,account,alloccpus,state,exitcode,reserved >> $outfile
     done
 done
 
-CPUCORES=$(cat $outfile | awk '{ print $5 }' | paste -sd+ - | bc)
-echo "Total cpu cores requested: $CPUCORES"
+CPUCORES=$(cat $outfile | grep NDR | awk '{ print $5 }' | paste -sd+ - | bc)
+echo "Total NDR cpu cores requested: $CPUCORES"
+
+CPUCORES=$(cat $outfile | grep noxn | awk '{ print $5 }' | paste -sd+ - | bc)
+echo "Total NOXN cpu cores requested: $CPUCORES"
 
 #REQUESTEDTIME=$(cat $outfile | awk '{ print $8 }'
 #echo "
