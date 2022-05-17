@@ -12,3 +12,10 @@ do
             --format jobid,jobname,partition,account,alloccpus,state,exitcode,reserved | grep NDR >> $outfile
     done
 done
+
+CPUCORES=$(cat $outfile | awk '{ print $5 }' | paste -sd+ - | bc)
+echo "Total cpu cores requested: $CPUCORES"
+
+#REQUESTEDTIME=$(cat $outfile | awk '{ print $8 }'
+#echo "
+
