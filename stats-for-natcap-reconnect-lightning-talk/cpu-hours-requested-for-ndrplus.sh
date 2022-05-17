@@ -9,7 +9,7 @@ do
         sacct -u jadoug06 \
             --starttime $yyyy-$mm-01 \
             --endtime $yyyy-$mm-31 \
-            --format jobid,jobname%40,partition,account,alloccpus,state%15,exitcode,reserved,cputime >> $outfile
+            --format jobid,jobname%60,partition,account,alloccpus,state%40,exitcode,reserved,cputime >> $outfile
     done
 done
 
@@ -19,6 +19,6 @@ echo "Total NDR cpu cores requested: $CPUCORES"
 CPUCORES=$(cat $outfile | grep noxn | awk '{ print $5 }' | paste -sd+ - | bc)
 echo "Total NOXN cpu cores requested: $CPUCORES"
 
-REQUESTEDTIME=$(cat $outfile | grep NDR | awk '{ print $9 }' | paste -sd+ - | bc)
-echo "Total requested time: $REQUESTEDTIME"
+ELAPSEDTIME=$(cat $outfile | grep NDR | awk '{ print $9 }' | python sum_slurm_cputime.py)
+echo "Total requested time: $ELAPSEDTIME"
 
