@@ -72,3 +72,7 @@ Scripts to run the NDR analyses for Natural Capital Index work on Sherlock.
   be executed in parallel, once they are ready.  I haven't tried this, of
   course, but it seems like a good idea, especially for larger files that need
   some time to copy/transfer.
+* `pygeoprocessing` uses tempfiles and temporary directories for a lot of its
+  computation, and those files are generally written somewhere on the local
+  filesystem.  Setting the environment variable `TMPDIR=$L_SCRATCH` will allow
+  those temporary files to be run on a high-bandwidth local SSD.

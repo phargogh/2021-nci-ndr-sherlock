@@ -36,7 +36,8 @@ fi
 echo `pwd`
 
 singularity run \
-    --env WORKSPACE_DIR=$WORKSPACE_DIR \
+    --env WORKSPACE_DIR="$WORKSPACE_DIR" \
+    --env TMPDIR="$L_SCRATCH" \
     docker://$CONTAINER@$DIGEST \
     global_ndr_plus_pipeline.py scenarios.nci_global \
     --n_workers=40 \
