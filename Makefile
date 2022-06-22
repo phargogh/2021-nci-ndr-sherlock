@@ -11,6 +11,10 @@ noxn-1km:
 noxn-10km:
 	sbatch --time=4:00:00 ./execute-noxn.sh 10km
 
+# Useful as a smoke test
+noxn-100km:
+	sbatch --time=2:00:00 ./execute-noxn.sh 100km
+
 all:
 	bash ./execute-ndr-scenario-batch.sh --with-noxn
 
