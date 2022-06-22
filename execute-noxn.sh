@@ -100,4 +100,7 @@ $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" "$WOR
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-$RESOLUTION" "$WORKSPACE_DIR"/aligned_*_{export,modified_load}.tif
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-$RESOLUTION" $(find "$WORKSPACE_DIR" -name "aligned_*_export.tif" -o -name "aligned_*_modified_load.tif")
 
+module load system jq
+gdrivedir=$(rclone lsjson "nci-ndr-stanford-gdrive:/" | jq ".[] | select(.Path==$ARCHIVE_DIR)".ID || echo "failed")
+echo "Files uploaded to GDrive available at https://drive.google.com/drive/u/0/folders/$gdrivedir"
 echo "NCI NOXN done!"
