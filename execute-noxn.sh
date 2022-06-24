@@ -36,7 +36,7 @@ DIGEST=sha256:6164b338bc3626e8994e2e0ffd50220fe2f66e7e904b794920749fa23360d7af
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=ab9aff11266284e0cec12c8f38cd1381a2959d6f
+REVISION=43466b313815e20641896716dc2f8ae94e431ddb
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
@@ -97,6 +97,7 @@ find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --huma
 # $file should be the complete path to the file (it is in my tests anyways)
 module load system rclone
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" "$WORKSPACE_DIR"/*_noxn_in_drinking_water_$RESOLUTION.tif
+$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" "$WORKSPACE_DIR"/*.png
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-$RESOLUTION" "$WORKSPACE_DIR"/aligned_*_{export,modified_load}.tif
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-$RESOLUTION" $(find "$WORKSPACE_DIR" -name "aligned_*_export.tif" -o -name "aligned_*_modified_load.tif")
 
