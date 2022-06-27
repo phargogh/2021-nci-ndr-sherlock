@@ -98,7 +98,7 @@ find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --huma
 module load system rclone
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" "$WORKSPACE_DIR"/*_noxn_in_drinking_water_$RESOLUTION.tif
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" "$WORKSPACE_DIR"/*.png
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-$RESOLUTION" "$WORKSPACE_DIR"/aligned_*_{export,modified_load}.tif
+$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-$RESOLUTION" "$WORKSPACE_DIR"/aligned_unit_area_*_{export,modified_load}.tif
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-$RESOLUTION" $(find "$WORKSPACE_DIR" -name "aligned_*_export.tif" -o -name "aligned_*_modified_load.tif")
 
 module load system jq
