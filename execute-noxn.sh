@@ -30,7 +30,7 @@ fi
 # See the singularity docs on the subject for more info:
 # https://sylabs.io/guides/3.0/user-guide/singularity_and_docker.html#making-use-of-private-images-from-docker-hub
 CONTAINER=ghcr.io/natcap/natcap-noxn-levels
-DIGEST=sha256:6164b338bc3626e8994e2e0ffd50220fe2f66e7e904b794920749fa23360d7af
+DIGEST=sha256:a9e09ff873407ce9e315504b019c616bf59095d65dcff4f31e1d4886722c8b46
 
 # Fetch the repository
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
