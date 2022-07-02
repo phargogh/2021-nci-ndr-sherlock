@@ -36,7 +36,7 @@ DIGEST=sha256:a9e09ff873407ce9e315504b019c616bf59095d65dcff4f31e1d4886722c8b46
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=68445049d85db9b1cbbc9a76a67f4cbff0908b35
+REVISION=83e3ec8489bf2090d10e3853fd7a5756f48b9c41
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
@@ -101,9 +101,8 @@ fi
 # Copy geotiffs AND logfiles, if any, to google drive.
 # $file should be the complete path to the file (it is in my tests anyways)
 module load system rclone
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" "$WORKSPACE_DIR"/*_noxn_in_drinking_water_$RESOLUTION.tif
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" "$WORKSPACE_DIR"/*.png
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-$RESOLUTION" "$WORKSPACE_DIR"/aligned_unit_area_*_{export,modified_load}.tif
+$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*_noxn_in_drinking_water_$RESOLUTION.tif")
+$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*.png")
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-$RESOLUTION" $(find "$WORKSPACE_DIR" -name "aligned_*_export.tif" -o -name "aligned_*_modified_load.tif")
 
 module load system jq
