@@ -75,9 +75,14 @@ else
     mkdir -p "$WORKSPACE_DIR"
 fi
 
+DECAYED_FLOWACCUM_WORKSPACE_DIR=$WORKSPACE_DIR/decayed_flowaccum
 singularity run \
     docker://$CONTAINER@$DIGEST \
-    pipeline.py --n_workers=20 --resolution="$RESOLUTION" "$WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
+    pipeline-decayed-export.py --n_workers=20 "$DECAYED_FLOWACCUM_WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
+
+singularity run \
+    docker://$CONTAINER@$DIGEST \
+    pipeline.py --n_workers=20 --resolution="$RESOLUTION" "$WORKSPACE_DIR" "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs"
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
