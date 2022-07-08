@@ -108,7 +108,7 @@ fi
 module load system rclone
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*_noxn_in_drinking_water_$RESOLUTION.tif")
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*.png")
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-raw" $(find "$NDR_OUTPUTS_DIR" -name "*.tif")
+#$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-raw" $(find "$NDR_OUTPUTS_DIR" -name "*.tif")  # SLOW - outputs are tens of GB
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-aligned-to-flowdir" $(find "$DECAYED_FLOWACCUM_WORKSPACE_DIR" -name "aligned_export*.tif")
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-decayed-accumulation" $(find "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs" -name "*.tif")
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/covariates-$RESOLUTION" $(find "$WORKSPACE_DIR/aligned" -name "*.tif")
