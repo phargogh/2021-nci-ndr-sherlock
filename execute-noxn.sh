@@ -7,7 +7,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
 #SBATCH --partition=hns,normal
-#SBATCH --job-name="NCI-NOXN-May-2022"
+#SBATCH --job-name="NCI-NOXN-pipeline"
 #
 # This script assumes that the task name will be set by the calling sbatch command.
 #
