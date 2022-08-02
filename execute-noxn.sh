@@ -36,7 +36,7 @@ DIGEST=sha256:a9e09ff873407ce9e315504b019c616bf59095d65dcff4f31e1d4886722c8b46
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=30a454f81fc15c92a2c7854f75841c2b8a5ac66b
+REVISION=d2adf54a34d1b7fefc554eadd21efe8c6af24ebc
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
@@ -103,6 +103,10 @@ then
     find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$SCRATCH/$ARCHIVE_DIR/"
 fi
 
+# Echo out the latest git log to make what's in this commit a little more readable.
+GIT_LOG_MSG_FILE="$WORKSPACE_DIR/_which_commit_is_this.txt"
+git log -n1 > $GIT_LOG_MSG_FILE
+
 # Copy geotiffs AND logfiles, if any, to google drive.
 # $file should be the complete path to the file (it is in my tests anyways)
 module load system rclone
@@ -111,6 +115,7 @@ $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/predict
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/predicted_noxn_in_groundwater" $(find "$WORKSPACE_DIR" -name "*_groundwater_predicted_noxn_$RESOLUTION.tif")
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/predicted_noxn_in_drinkingwater" $(find "$WORKSPACE_DIR" -name "*_noxn_in_drinking_water_$RESOLUTION.tif")
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*.png")
+$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*.txt")
 #$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-raw" $(find "$NDR_OUTPUTS_DIR" -name "*.tif")  # SLOW - outputs are tens of GB
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-aligned-to-flowdir" $(find "$DECAYED_FLOWACCUM_WORKSPACE_DIR" -name "aligned_export*.tif")
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-decayed-accumulation" $(find "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs" -name "*.tif")
