@@ -54,5 +54,5 @@ then
     # passes, then we'll trigger the NOXN pipeline.
     sbatch \
         --dependency="$SLURM_DEPENDENCY_STRING" \
-        ./execute-noxn.sh
+        ./execute-noxn.sh "$2"
 fi

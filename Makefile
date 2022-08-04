@@ -12,7 +12,10 @@ noxn-10km:
 	sbatch --time=4:00:00 ./execute-noxn.sh 10km
 
 all:
-	bash ./execute-ndr-scenario-batch.sh --with-noxn
+	bash ./execute-ndr-scenario-batch.sh --with-noxn 10km
+
+all-1km:
+	bash ./execute-ndr-scenario-batch.sh --with-noxn 1km
 
 show-job-queue:
 	squeue --jobs=$(JOBIDS) --format="%A, %M, %j"
