@@ -16,7 +16,7 @@ pushd $REPOSLUG
 git fetch
 git checkout $REVISION
 # Sherlock still has python2, so need to specify python3
-module load python3/3.9.0
+module load python/3.9.0
 SCENARIOS=$(python3 -c "import scenarios.nci_global as s; print('\n'.join(k for k in s.SCENARIOS))")
 popd
 
