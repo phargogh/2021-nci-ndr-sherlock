@@ -45,13 +45,22 @@ singularity run \
 
 # copy results (regardless of job run status) to $SCRATCH
 # Rsync will help to only copy the deltas; might be faster than cp.
-# rsync -avz is equivalent to rsync -rlptgoDvz
+# rsync -az is equivalent to rsync -rlptgoDz
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
-rsync -avz $WORKSPACE_DIR/* $SCRATCH/2021-NCI-$WORKSPACE_NAME
+# I've removed the -v flag because workspaces have a few hundred thousand files
+# that don't all need to have their filenames printed to stdout.
+rsync -az $WORKSPACE_DIR/* $SCRATCH/2021-NCI-$WORKSPACE_NAME
 
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
 GDRIVE_DIR="$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME/"
 
 # Copy geotiffs AND logfiles to google drive.
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.{tif,log}
+#$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.{tif,out}
+
+# Only uploading logfiles to google drive.
+# It turns out that Google Drive has a 750GB/day upload limit, which we are
+# easily exceeding with 14 scenarios at 59GB/scenario, totaling 826GB.
+# So I'm updating this now to not upload anything at all because it'll just time out.
+# Later on, I can see about uploading these files again.
+#$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.out
