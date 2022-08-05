@@ -3,7 +3,7 @@
 #SBATCH --time=20:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=20
-#SBATCH --mem-per-cpu=4G
+#SBATCH --mem-per-cpu=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
 #SBATCH --partition=hns,normal
@@ -40,7 +40,7 @@ singularity run \
     --env TMPDIR="$L_SCRATCH" \
     docker://$CONTAINER@$DIGEST \
     global_ndr_plus_pipeline.py scenarios.nci_global \
-    --n_workers=40 \
+    --n_workers=30 \
     --limit_to_scenarios $SCENARIO_NAME
 
 # copy results (regardless of job run status) to $SCRATCH
