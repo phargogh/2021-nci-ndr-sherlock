@@ -19,18 +19,18 @@ GIT_REV="$4"
 
 CONTAINER=ghcr.io/phargogh/inspring-no-gcloud-keys
 DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
-WORKSPACE_DIR=$L_SCRATCH/$WORKSPACE_NAME
+WORKSPACE_DIR="$L_SCRATCH/$WORKSPACE_NAME"
 
-if [ -d $SCRATCH/$WORKSPACE_NAME ]
+if [ -d "$SCRATCH/$WORKSPACE_NAME" ]
 then
     # If there's already a workspace on $SCRATCH, then copy it into $L_SCRATCH
     # so we can reuse the task graph.
     # cp -rp will recurse and also copy permissions and timestamps (needed for better taskgraph performance)
-    cp -rp $SCRATCH/$WORKSPACE_NAME $WORKSPACE_DIR
+    cp -rp "$SCRATCH/$WORKSPACE_NAME" "$WORKSPACE_DIR"
 else
     # If the workspace isn't in $SCRATCH, then we'll be starting with an empty
     # workspace ("from scratch", one might say, if you'll pardon the pun)
-    mkdir -p $WORKSPACE_DIR
+    mkdir -p "$WORKSPACE_DIR"
 fi
 
 echo `pwd`
@@ -41,7 +41,7 @@ singularity run \
     docker://$CONTAINER@$DIGEST \
     global_ndr_plus_pipeline.py scenarios.nci_global \
     --n_workers=30 \
-    --limit_to_scenarios $SCENARIO_NAME
+    --limit_to_scenarios "$SCENARIO_NAME"
 
 # copy results (regardless of job run status) to $SCRATCH
 # Rsync will help to only copy the deltas; might be faster than cp.
@@ -49,7 +49,7 @@ singularity run \
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
 # I've removed the -v flag because workspaces have a few hundred thousand files
 # that don't all need to have their filenames printed to stdout.
-rsync -az $WORKSPACE_DIR/* $SCRATCH/2021-NCI-$WORKSPACE_NAME
+rsync -az "$WORKSPACE_DIR/*" "$SCRATCH/2021-NCI-$WORKSPACE_NAME"
 
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
