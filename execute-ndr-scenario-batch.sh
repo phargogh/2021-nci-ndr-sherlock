@@ -1,11 +1,23 @@
 #!/bin/bash
 set -e
+
+DATE="$(date +%F)"
+GIT_REV="rev$(git rev-parse --short HEAD)"
+REPOSLUG=ndr_plus_global_pipeline
+REPO=https://github.com/phargogh/$REPOSLUG.git
+NDR_REVISION=c5b59ab7419d41410d41c74917abd5b494fd84e1
+
+echo "***********************************************************************"
+echo "Beginning NDR Batch"
+echo "Started $DATE"
+echo "Sherlock repo rev: $GIT_REV"
+echo "NDR repo rev: $NDR_REVISION"
+echo "Extra args: $1 $2"
+echo "***********************************************************************"
+
 set -x
 
 # Fetch the repository
-REPOSLUG=ndr_plus_global_pipeline
-REPO=https://github.com/phargogh/$REPOSLUG.git
-REVISION=c5b59ab7419d41410d41c74917abd5b494fd84e1
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
@@ -14,14 +26,11 @@ pushd $REPOSLUG
 
 # OK to always fetch the repo
 git fetch
-git checkout $REVISION
+git checkout $NDR_REVISION
 # Sherlock still has python2, so need to specify python3
 module load python/3.9.0
 SCENARIOS=$(python3 -c "import scenarios.nci_global as s; print('\n'.join(k for k in s.SCENARIOS))")
 popd
-
-DATE="$(date +%F)"
-GIT_REV="rev$(git rev-parse --short HEAD)"
 
 # According to https://slurm.schedmd.com/sbatch.html#SECTION_PERFORMANCE,
 # we're not supposed to call sbatch from within a loop.  A loop is the only way
