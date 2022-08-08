@@ -61,6 +61,8 @@ GDRIVE_DIR="$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME/"
 # Only uploading logfiles to google drive.
 # It turns out that Google Drive has a 750GB/day upload limit, which we are
 # easily exceeding with 14 scenarios at 59GB/scenario, totaling 826GB.
-# So I'm updating this now to not upload anything at all because it'll just time out.
-# Later on, I can see about uploading these files again.
-#$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.out
+#
+# Only uploading the logfiles and the compressed geotiffs should keep things below our max limit,
+# about 14 scenarios, 15 GB apiece, so 210GB for a complete NDR run.
+$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.out
+$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/compressed_*.tif
