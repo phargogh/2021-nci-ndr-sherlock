@@ -76,3 +76,14 @@ Scripts to run the NDR analyses for Natural Capital Index work on Sherlock.
   computation, and those files are generally written somewhere on the local
   filesystem.  Setting the environment variable `TMPDIR=$L_SCRATCH` will allow
   those temporary files to be run on a high-bandwidth local SSD.
+* Sherlock (and SLURM) allocate the number of CPUs based on a per-partition
+  ratio of RAM-per-CPU in order to prevent a process from starving other
+  processes of memory.  Consequence: If your job requests more RAM per CPU
+  than the partition allows, then your job will be modified to allocate
+  more CPUs to avoid this starvation situation.  In my NCI jobs, I requested
+  8GB, which was more than the 8000MB allowed RAM/CPU limit on `normal`, so
+  my requested number of CPUs was doubled.
+   * To investigate this limit per partition, see
+     `scontrol show partition <partition_name>`, specifically:
+     * `DefMemPerCPU` - how much memory will be allocated with each requested CPU
+     * `MaxMemPerCPU` - at which point requesting more memory will increase the number of allocated CPUs
