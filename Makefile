@@ -8,7 +8,7 @@ print-%:
 	@echo "$* = $($*)"
 
 ndr-batch:
-	bash ./execute-ndr-scenario-batch.sh >> $@-$(DATE)-$(GIT_REV).log 2>&1
+	bash ./execute-ndr-scenario-batch.sh 2>&1 | tee -a $@-$(DATE)-$(GIT_REV).log
 
 noxn-1km:
 	sbatch --time=16:00:00 ./execute-noxn.sh 1km
@@ -17,10 +17,10 @@ noxn-10km:
 	sbatch --time=4:00:00 ./execute-noxn.sh 10km
 
 all:
-	bash ./execute-ndr-scenario-batch.sh --with-noxn 10km >> $@-$(DATE)-$(GIT_REV).log 2>&1
+	bash ./execute-ndr-scenario-batch.sh --with-noxn 10km 2>&1 | tee -a $@-$(DATE)-$(GIT_REV).log
 
 all-1km:
-	bash ./execute-ndr-scenario-batch.sh --with-noxn 1km >> $@-$(DATE)-$(GIT_REV).log 2>&1
+	bash ./execute-ndr-scenario-batch.sh --with-noxn 1km 2>&1 | tee -a $@-$(DATE)-$(GIT_REV).log
 
 show-job-queue:
 	squeue --jobs=$(JOBIDS) --format="%A, %M, %j"
