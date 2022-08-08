@@ -10,6 +10,15 @@ Scripts to run the NDR analyses for Natural Capital Index work on Sherlock.
 5.  Wait 13-16 hours for everything to finish.
 
 
+## Other useful operations
+
+### To cancel all currently-scheduled jobs:
+
+```shell
+squeue -u jadoug06 --format "%A"  | tail -n +2 | xargs scancel
+```
+
+
 ## Notes
 
 * Sherlock doesn't support docker because running docker would allow root access to the host node.
