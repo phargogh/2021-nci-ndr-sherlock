@@ -7,6 +7,10 @@ DATE := $(shell date +%F)
 print-%:
 	@echo "$* = $($*)"
 
+when-might-ndr-run:
+	sbatch --test-only -p normal ./execute-ndr-specific-scenario.sh
+	sbatch --test-only -p hns ./execute-ndr-specific-scenario.sh
+
 ndr-batch:
 	bash ./execute-ndr-scenario-batch.sh 2>&1 | tee -a $@-$(DATE)-$(GIT_REV).log
 
