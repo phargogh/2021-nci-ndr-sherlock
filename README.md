@@ -81,6 +81,12 @@ squeue -u jadoug06 --format "%A"  | tail -n +2 | xargs scancel
   be executed in parallel, once they are ready.  I haven't tried this, of
   course, but it seems like a good idea, especially for larger files that need
   some time to copy/transfer.
+    * It's worth noting that although Sherlock nodes appear to be able to use
+      Infiniband among the cluster, I've only gotten 1Gb/s upload speeds to
+      google cloud.  This means that if the pipeline doesn't include tasks for
+      uploading files as we go, we'll necessarily spend a fair amount of time
+      waiting on the network at the end of the run and we could spend hours
+      only uploading files.
 * `pygeoprocessing` uses tempfiles and temporary directories for a lot of its
   computation, and those files are generally written somewhere on the local
   filesystem.  Setting the environment variable `TMPDIR=$L_SCRATCH` will allow
@@ -96,3 +102,7 @@ squeue -u jadoug06 --format "%A"  | tail -n +2 | xargs scancel
      `scontrol show partition <partition_name>`, specifically:
      * `DefMemPerCPU` - how much memory will be allocated with each requested CPU
      * `MaxMemPerCPU` - at which point requesting more memory will increase the number of allocated CPUs
+* For jobs like the NOXN pipeline that spend almost all of their time being
+  CPU-bound, it's helpful to just use the `$SLURM_CPUS_PER_TASK` environment
+  variable.  More tasks than we need will only result in more context switches,
+  which slow the whole job down.
