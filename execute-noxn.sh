@@ -36,7 +36,7 @@ DIGEST=sha256:a9e09ff873407ce9e315504b019c616bf59095d65dcff4f31e1d4886722c8b46
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=f553808ac17340068a97d2734d8ddd3cfd358573
+REVISION=857c827fbb5b2fa778f700891f9128be7094cac9
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
@@ -114,8 +114,7 @@ $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" $(fin
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/predicted_noxn_in_surfacewater" $(find "$WORKSPACE_DIR" -name "*_surfacewater_predicted_noxn_$RESOLUTION.tif")
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/predicted_noxn_in_groundwater" $(find "$WORKSPACE_DIR" -name "*_groundwater_predicted_noxn_$RESOLUTION.tif")
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/predicted_noxn_in_drinkingwater" $(find "$WORKSPACE_DIR" -name "*_noxn_in_drinking_water_$RESOLUTION.tif")
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*.png")
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*.txt")
+$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*.png" -o -name "*.txt" -o -name "*.json")
 #$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-raw" $(find "$NDR_OUTPUTS_DIR" -name "*.tif")  # SLOW - outputs are tens of GB
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-aligned-to-flowdir" $(find "$DECAYED_FLOWACCUM_WORKSPACE_DIR" -name "aligned_export*.tif")
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-decayed-accumulation" $(find "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs" -name "*.tif")
