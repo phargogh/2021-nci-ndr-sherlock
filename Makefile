@@ -22,7 +22,7 @@ noxn-1km:
 	sbatch --time=16:00:00 ./execute-noxn.sh 1km
 
 noxn-10km:
-	sbatch --time=4:00:00 ./execute-noxn.sh 10km
+	sbatch --time=2:00:00 ./execute-noxn.sh 10km
 
 all:
 	bash ./execute-ndr-scenario-batch.sh --with-noxn 10km 2>&1 | tee -a $@-$(DATE)-$(GIT_REV).log
