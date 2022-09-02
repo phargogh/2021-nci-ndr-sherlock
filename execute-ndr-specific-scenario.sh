@@ -39,7 +39,7 @@ singularity run \
     --env WORKSPACE_DIR="$WORKSPACE_DIR" \
     --env TMPDIR="$L_SCRATCH" \
     docker://$CONTAINER@$DIGEST \
-    global_ndr_plus_pipeline.py scenarios.nci_global \
+    global_ndr_plus_pipeline.py scenarios.nci_global_sept_2022_scenario_redesign \
     --n_workers=30 \
     --limit_to_scenarios "$SCENARIO_NAME"
 
