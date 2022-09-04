@@ -8,6 +8,7 @@
 #SBATCH --mail-user=jdouglass@stanford.edu
 #SBATCH --partition=hns,normal
 #SBATCH --job-name="NCI-NOXN-pipeline"
+#SBATCH --output=/scratch/users/jadoug06/slurm-logfiles/slurm-%j.%x.out
 #
 # This script assumes that the task name will be set by the calling sbatch command.
 #
