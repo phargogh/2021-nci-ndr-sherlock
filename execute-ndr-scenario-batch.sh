@@ -5,7 +5,7 @@ DATE="$(date +%F)"
 GIT_REV="rev$(git rev-parse --short HEAD)"
 REPOSLUG=ndr_plus_global_pipeline
 REPO=https://github.com/phargogh/$REPOSLUG.git
-NDR_REVISION=90c72a9dcd04d94978047fef3aad16ff95b77fec
+NDR_REVISION=0e9dd91aefd2dfd2bdac143de9b5aca682c5e123
 
 echo "***********************************************************************"
 echo "Beginning NDR Batch"
