@@ -29,6 +29,12 @@ git fetch
 git checkout $NDR_REVISION
 # Sherlock still has python2, so need to specify python3
 module load python/3.9.0
+
+# having the numpy module loaded causes problems at import time for the
+# singularity container, where the system-loaded numpy will override the one in
+# the container.
+module unload numpy
+
 SCENARIOS=$(python3 -c "import scenarios.nci_global_sept_2022_scenario_redesign as s; print('\n'.join(k for k in s.SCENARIOS))")
 popd
 
