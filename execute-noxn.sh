@@ -55,9 +55,10 @@ GIT_REV="rev$(git rev-parse --short HEAD)"
 NDR_OUTPUTS_DIR=$SCRATCH/NCI-ndr-plus-outputs
 mkdir -p "$NDR_OUTPUTS_DIR"
 
-# Copy files, presreving permissions.
+# Copy files, preserving permissions.
+# Also only copy files over if they're newer than the ones already there.
 # This should be faster than simply copying individual files.
-find "$SCRATCH" -path "$SCRATCH/2021-NCI-NCI-*" -name "compressed_*.tif" | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$NDR_OUTPUTS_DIR"
+find "$SCRATCH" -path "$SCRATCH/2021-NCI-NCI-*" -name "compressed_*.tif" | parallel -j 10 rsync -avzm --update --no-relative --human-readable {} "$NDR_OUTPUTS_DIR"
 
 ls -la "$NDR_OUTPUTS_DIR"
 
