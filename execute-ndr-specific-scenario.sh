@@ -50,7 +50,7 @@ singularity run \
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
 # I've removed the -v flag because workspaces have a few hundred thousand files
 # that don't all need to have their filenames printed to stdout.
-rsync -az "$WORKSPACE_DIR/*" "$SCRATCH/2021-NCI-$WORKSPACE_NAME"
+rsync -az "$WORKSPACE_DIR/" "$SCRATCH/2021-NCI-$WORKSPACE_NAME"
 
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
