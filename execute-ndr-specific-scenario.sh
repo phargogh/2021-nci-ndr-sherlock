@@ -36,13 +36,14 @@ fi
 
 echo `pwd`
 
+FAILED=0
 singularity run \
     --env WORKSPACE_DIR="$WORKSPACE_DIR" \
     --env TMPDIR="$L_SCRATCH" \
     docker://$CONTAINER@$DIGEST \
     global_ndr_plus_pipeline.py scenarios.nci_global_sept_2022_scenario_redesign \
     --n_workers=30 \
-    --limit_to_scenarios "$SCENARIO_NAME"
+    --limit_to_scenarios "$SCENARIO_NAME" || FAILED=1
 
 # copy results (regardless of job run status) to $SCRATCH
 # Rsync will help to only copy the deltas; might be faster than cp.
@@ -67,3 +68,9 @@ GDRIVE_DIR="$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME/"
 # about 14 scenarios, 15 GB apiece, so 210GB for a complete NDR run.
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.out
 $(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/compressed_*.tif
+
+# If NDR failed, we want that to be reflected in the email I get on exit.
+if [ "$FAILED" -gt "0" ]
+then
+    exit 1
+fi
