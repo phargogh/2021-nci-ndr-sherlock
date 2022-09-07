@@ -19,8 +19,11 @@ set -x
 RESOLUTION="$1"
 if [ "$RESOLUTION" = "" ]
 then
-    RESOLUTION="10km"
+    echo "Parameter 1 must be the resolution"
+    exit 1
 fi
+
+SHERLOCK_REPO_REV="$2"
 
 # Container configuration
 #
@@ -58,7 +61,7 @@ mkdir -p "$NDR_OUTPUTS_DIR"
 # Copy files, preserving permissions.
 # Also only copy files over if they're newer than the ones already there.
 # This should be faster than simply copying individual files.
-find "$SCRATCH" -path "$SCRATCH/2021-NCI-NCI-*" -name "compressed_*.tif" | parallel -j 10 rsync -avzm --update --no-relative --human-readable {} "$NDR_OUTPUTS_DIR"
+find "$SCRATCH" -path "$SCRATCH/2021-NCI-NCI-NDRplus-rev$SHERLOCK_REPO_REV-*" -name "compressed_*.tif" | parallel -j 10 rsync -avzm --update --no-relative --human-readable {} "$NDR_OUTPUTS_DIR"
 
 ls -la "$NDR_OUTPUTS_DIR"
 

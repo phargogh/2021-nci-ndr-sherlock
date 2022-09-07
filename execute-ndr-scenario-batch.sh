@@ -49,7 +49,7 @@ do
     #--output=$SCRATCH/NCI-$NCI_SCENARIO-%j.out
     #--error=$SCRATCH/NCI-$NCI_SCENARIO-%j.err
 
-    WORKSPACE_DIR=NCI-NDRplus-$NCI_SCENARIO
+    WORKSPACE_DIR=NCI-NDRplus-rev$GIT_REV-$NCI_SCENARIO
     SCENARIO_JOB_ID=$(sbatch \
         --job-name="NCI-NDRplus-$NCI_SCENARIO-global-$DATE" \
         --chdir=$REPOSLUG \
@@ -70,5 +70,5 @@ then
     # passes, then we'll trigger the NOXN pipeline.
     sbatch \
         --dependency="$SLURM_DEPENDENCY_STRING" \
-        ./execute-noxn.sh "$2"
+        ./execute-noxn.sh "$2" "$GIT_REV"
 fi
