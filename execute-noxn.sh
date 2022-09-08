@@ -110,7 +110,8 @@ fi
 
 # Echo out the latest git log to make what's in this commit a little more readable.
 GIT_LOG_MSG_FILE="$WORKSPACE_DIR/_which_commit_is_this.txt"
-git log -n1 > $GIT_LOG_MSG_FILE
+git remote -v >> $GIT_LOG_MSG_FILE
+git log -n1 >> $GIT_LOG_MSG_FILE
 
 # Copy geotiffs AND logfiles, if any, to google drive.
 # $file should be the complete path to the file (it is in my tests anyways)
