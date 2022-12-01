@@ -7,3 +7,9 @@
 [submodule "ndr_plus_global_pipeline"]
 	path = ndr_plus_global_pipeline
 	url = https://github.com/phargogh/ndr_plus_global_pipeline.git
+[submodule "natural-capital-index"]
+	path = natural-capital-index
+	url = git@github.com:natcap-nci/natural-capital-index.git
+[submodule "NCI_Score"]
+	path = NCI_Score
+	url = git@github.com:natcap-nci/NCI_Score.git
