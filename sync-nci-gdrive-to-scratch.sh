@@ -12,5 +12,7 @@
 #
 # --partition=hns,normal means that this will be submitted to both queues, whichever gets to it first will be used.
 
+set -e
+set -x
 module load system rclone
 rclone sync nci-whole-project-stanford-gdrive:/inputs/ "$SCRATCH/nci-gdrive/inputs/"
