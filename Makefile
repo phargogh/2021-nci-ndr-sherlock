@@ -1,4 +1,4 @@
-.PHONY: ndr-batch show-job-queue show-job-status noxn-1km noxn-10km all
+.PHONY: ndr-batch show-job-queue show-job-status noxn-1km noxn-10km all sync-input-data
 
 JOBIDS := $(shell awk '{ print $2 }' scenario_jobs.txt | paste -sd ',' -)
 GIT_REV := rev$(shell git rev-parse --short HEAD)
@@ -35,3 +35,6 @@ show-job-queue:
 
 show-job-status:
 	sacct --format="JOBIDRaw,Start,Elapsed,State" --jobs=$(JOBIDS)
+
+sync-input-data:
+	sbatch ./sync-nci-gdrive-to-scratch.sh
