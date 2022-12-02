@@ -16,3 +16,4 @@ set -e
 set -x
 module load system rclone
 rclone sync nci-whole-project-stanford-gdrive:/inputs/ "$SCRATCH/nci-gdrive/inputs/"
+echo "Finished syncing NCI gdrive inputs to SCRATCH"
