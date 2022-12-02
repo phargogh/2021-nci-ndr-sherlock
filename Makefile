@@ -43,5 +43,5 @@ show-job-status:
 sync-input-data:
 	sbatch ./sync-nci-gdrive-to-scratch.sh
 
-build-ndr-scenarios:
+build-ndr-scenarios: update-submodules
 	sbatch ./build-ndr-scenarios.sh
