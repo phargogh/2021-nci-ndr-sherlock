@@ -38,3 +38,6 @@ show-job-status:
 
 sync-input-data:
 	sbatch ./sync-nci-gdrive-to-scratch.sh
+
+build-ndr-scenarios:
+	sbatch ./build-ndr-scenarios.sh
