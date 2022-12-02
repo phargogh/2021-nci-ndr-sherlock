@@ -1,4 +1,4 @@
-.PHONY: ndr-batch show-job-queue show-job-status noxn-1km noxn-10km all sync-input-data
+.PHONY: ndr-batch show-job-queue show-job-status noxn-1km noxn-10km all sync-input-data update-submodules build-ndr-scenarios
 
 JOBIDS := $(shell awk '{ print $2 }' scenario_jobs.txt | paste -sd ',' -)
 GIT_REV := rev$(shell git rev-parse --short HEAD)
@@ -6,6 +6,10 @@ DATE := $(shell date +%F)
 
 print-%:
 	@echo "$* = $($*)"
+
+update-submodules:
+	git submodule init
+	git submodule update
 
 when-might-ndr-run:
 	sbatch --test-only -p normal ./execute-ndr-specific-scenario.sh
