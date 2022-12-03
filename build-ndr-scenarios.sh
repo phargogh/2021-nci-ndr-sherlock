@@ -16,7 +16,8 @@ set -e
 set -x
 
 SCENARIO_OUTPUTS_DIR="$SCRATCH/NCI-generated-scenarios"
-mkdir -p $SCENARIO_OUTPUTS_DIR || echo "Directory already exists"
+rm -r $SCENARIO_OUTPUTS_DIR || echo "Cannot delete a folder that doesn't exist"
+mkdir -p $SCENARIO_OUTPUTS_DIR
 
 CONTAINER=ghcr.io/natcap-nci/devstack
 DIGEST=sha256:6c4a3233395b304a9d2eac57f954acf63b8dc477f5b997857a8a89f135cb5f34
