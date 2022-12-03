@@ -7,6 +7,7 @@ import sys
 
 sys.path.append('NCI_Score')  # So we can import Saleh's water package.
 logging.basicConfig(level=logging.INFO)
+LOGGER = logging.getLogger(__name__)
 
 from water import scenario_generation
 
