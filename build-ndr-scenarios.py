@@ -22,4 +22,8 @@ loader.exec_module(make_fertilizer_app_rasters)
 if __name__ == '__main__':
     scenario_generation.main(input_folder=sys.argv[1],
                              target_folder=sys.argv[2])
-    make_fertilizer_app_rasters.main()
+    make_fertilizer_app_rasters.main(
+        run=True,
+        input_folder=sys.argv[1],
+        output_folder=os.path.join(sys.argv[2], 'N_application')
+    )
