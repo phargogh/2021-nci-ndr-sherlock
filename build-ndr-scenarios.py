@@ -27,3 +27,4 @@ if __name__ == '__main__':
         input_folder=sys.argv[1],
         output_folder=os.path.join(sys.argv[2], 'N_application')
     )
+    LOGGER.info("Finished build-ndr-scenarios script.")
