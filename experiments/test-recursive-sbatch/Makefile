@@ -1,0 +1,2 @@
+all:
+	sbatch test.sh
