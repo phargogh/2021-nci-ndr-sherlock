@@ -45,3 +45,6 @@ sync-input-data:
 
 build-ndr-scenarios: update-submodules
 	sbatch ./build-ndr-scenarios.sh
+
+build-n-app-scenarios: update-submodules
+	sbatch ./build-n-app-scenarios.sh
