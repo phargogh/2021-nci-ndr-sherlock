@@ -15,7 +15,7 @@
 set -e
 set -x
 
-SCENARIO_OUTPUTS_DIR="$SCRATCH/NCI-generated-scenarios"
+SCENARIO_OUTPUTS_DIR="$SCRATCH/NCI-lulc-scenarios"
 rm -r $SCENARIO_OUTPUTS_DIR || echo "Cannot delete a folder that doesn't exist"
 mkdir -p $SCENARIO_OUTPUTS_DIR
 

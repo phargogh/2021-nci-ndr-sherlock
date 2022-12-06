@@ -2,9 +2,9 @@ import logging
 import os
 import sys
 
+sys.path.append('natural-capital-index/src/one-off')  # For Peter's script
 import make_fertilizer_application_rasters
 
-sys.path.append('natural-capital-index/src/one-off')  # For Peter's script
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
