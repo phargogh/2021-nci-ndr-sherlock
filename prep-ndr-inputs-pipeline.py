@@ -51,6 +51,12 @@ INTERM_FILES = {
     'cropland_intensified_rainfed_suitability': "intensified_rainfed.tif",
     'cropland_intensified_irrigated_suitability': "intensified_irrigated.tif",
 }
+GRAZING_LU = [
+    30, 34, 39, 40, 44, 49, 104, 109, 114, 119, 124, 125, 126, 134, 144, 154,
+    156, 157, 184, 204, 205, 206
+]
+AG_LUCODES = [10, 11, 12, 15, 16, 20, 25, 26, 30, 40]  # I did not do anything with oil palm[29].
+
 
 def intensification_op(clm, sti, cvcm, cvirm, cviim, ir, rfs, sir, ss):
     cvcm[np.isnan(cvcm)] = 0
@@ -61,6 +67,25 @@ def intensification_op(clm, sti, cvcm, cvirm, cviim, ir, rfs, sir, ss):
     result[np.all([np.isin(clm, [10, 11, 12]), sti==1, cvirm>0, rfs==1, np.any([ir!=1, sir!=1], axis=0), ss== 1], axis=0)] = 15
     result[np.all([np.isin(clm, [10, 11, 12]), sti!=1, cvcm>0, ir==1, sir==1, ss==1], axis=0)] = 20
     result[np.all([np.isin(clm, [20]), sti== 1, cviim>0], axis=0)] = 25
+    return result
+
+
+def intensification_expansion_op(ints, sti, cvirm, cviim, ir, rfs, sir, ss, pa):
+    cvirm[np.isnan(cvirm)] = 0
+    cviim[np.isnan(cviim)] = 0
+    result = ints
+    result[np.all([np.isin(ints, GRAZING_LU), sti==1, cviim>0, ir==1, sir==1, ss==1, pa==7], axis=0)] = 25
+    result[np.all([np.isin(ints, GRAZING_LU), sti==1, cvirm>0, rfs==1, np.any([ir!=1, sir!=1], axis=0), ss==1, pa==7], axis=0)] = 15
+    return result
+
+
+def extensification_current_practices_op(clm, ste, cvcm, ir, rfs, sir, ss, pa):
+    cvcm[np.isnan(cvcm)] = 0
+    result = clm
+    gr_20 = np.all([np.isin(clm, GRAZING_LU), ste==1, cvcm>0, ir==1, sir==1, ss==1, pa==7], axis=0)
+    result[gr_20] = 20
+    gr_10 = np.all([np.isin(clm, GRAZING_LU), ste==1, cvcm>0, rfs==1, np.any([ir!=1, sir!=1], axis=0), ss==1, pa==7], axis=0)
+    result[gr_10] = 10
     return result
 
 
@@ -141,6 +166,69 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             if key in warp_tasks
         ]
     )
+
+
+    intensification_expansion_keys = [
+        'intensification',
+        'slope_threshold_intensification',
+        'crop_value_intensified_rainfed_masked',
+        'crop_value_intensified_irrigated_masked',
+        'irrigated_suitability',
+        'rainfed_suitability',
+        'sustainable_irrigation',
+        'soil_suitability',
+        'protected_areas_masked'
+    ]
+    intensification_expansion_task = graph.add_task(
+        pygeoprocessing.raster_calculator,
+        kwargs={
+            "base_raster_path_band_const_list": [
+                (str(files[key]), 1) for key in intensification_expansion_keys],
+            "local_op": intensification_expansion_op,
+            "target_raster_path": str(f_out['intensification_expansion']),
+            "datatype_target": base_lulc_info['datatype'],
+            "nodata_target": base_lulc_info['nodata'][0],
+            "calc_raster_stats": True,
+        },
+        task_name='intensification_expansion',
+        target_path_list=[f_out['intensification_expansion']],
+        dependent_task_list=[
+            warp_tasks[key] for key in intensification_expansion_keys
+            if key in warp_tasks
+        ]
+    )
+
+    extensification_current_practices_keys = [
+        'current_lulc_masked',
+        'slope_threshold_expansion',
+        'crop_value_current_masked',
+        'irrigated_suitability',
+        'rainfed_suitability',
+        'sustainable_irrigation',
+        'soil_suitability',
+        'protected_areas_masked',
+    ]
+    extensification_current_practices_task = graph.add_task(
+        pygeoprocessing.raster_calculator,
+        kwargs={
+            "base_raster_path_band_const_list": [
+                (str(files[key]), 1) for key in
+                extensification_current_practices_keys],
+            "local_op": extensification_current_practices_op,
+            "target_raster_path": str(f_out['extensification_current_practices']),
+            "datatype_target": base_lulc_info['datatype'],
+            "nodata_target": base_lulc_info['nodata'][0],
+            "calc_raster_stats": True,
+        },
+        task_name='extensification_current_practices',
+        target_path_list=[f_out['extensification_current_practices']],
+        dependent_task_list=[
+            warp_tasks[key] for key in extensification_current_practices_keys
+            if key in warp_tasks
+        ]
+    )
+
+
 
 
 
