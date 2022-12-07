@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#SBATCH --time=1:00:00
+#SBATCH --time=2:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem-per-cpu=4G
@@ -42,3 +42,12 @@ singularity run \
     python build-ndr-scenarios.py \
     "$GDRIVE_INPUTS_DIR" \
     "$SCENARIO_OUTPUTS_DIR"
+
+if [ "$3" != "" ]
+then
+    FINAL_RESTING_PLACE="$3"
+    GDRIVE_DIR="$(basename $FINAL_RESTING_PLACE)"
+    $(pwd)/upload-to-googledrive.sh \
+        "nci-ndr-stanford-gdrive:$GDRIVE_DIR" \
+        "$SCENARIO_OUTPUTS_DIR/Scenarios_ecosharded"/*.{tif,json}
+fi

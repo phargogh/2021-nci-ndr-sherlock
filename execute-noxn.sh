@@ -93,7 +93,7 @@ singularity run \
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
-ARCHIVE_DIR="$FINAL_RESTING_PLACE/$DATE-nci-noxn-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION"
+ARCHIVE_DIR="$DATE-nci-noxn-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION"
 
 # Check to see if the workspace is on scratch.  If it isn't, rsync the workspace over to scratch.
 if [[ $WORKSPACE_DIR != $SCRATCH/* ]]
@@ -101,33 +101,35 @@ then
     # Useful to back up the workspace to $SCRATCH for reference, even though we
     # only need the drinking water rasters uploaded to GDrive.
     # Create folders first so rsync only has to worry about files
-    find "$WORKSPACE_DIR/" -type d | sed "s|$WORKSPACE_DIR|$SCRATCH/$ARCHIVE_DIR/|g" | xargs mkdir -p
+    find "$WORKSPACE_DIR/" -type d | sed "s|$WORKSPACE_DIR|$FINAL_RESTING_PLACE/$ARCHIVE_DIR/|g" | xargs mkdir -p
 
     # rsync -avz is equivalent to rsync -rlptgoDvz
     # Preserves permissions, timestamps, etc, which is better for taskgraph.
     # TODO: maybe don't copy the workspace directory to scratch if the workspace is already on scratch?
-    find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$SCRATCH/$ARCHIVE_DIR/"
+    find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$FINAL_RESTING_PLACE/$ARCHIVE_DIR/"
 fi
 
 # Echo out the latest git log to make what's in this commit a little more readable.
 GIT_LOG_MSG_FILE="$WORKSPACE_DIR/_which_commit_is_this.txt"
-git remote -v >> $GIT_LOG_MSG_FILE
-git log -n1 >> $GIT_LOG_MSG_FILE
+git remote -v >> "$GIT_LOG_MSG_FILE"
+git log -n1 >> "$GIT_LOG_MSG_FILE"
 
 # Copy geotiffs AND logfiles, if any, to google drive.
 # $file should be the complete path to the file (it is in my tests anyways)
+# This will upload to a workspace with the same dirname as $FINAL_RESTING_PLACE.
 module load system rclone
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*_noxn_in_drinking_water_$RESOLUTION.tif")
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/predicted_noxn_in_surfacewater" $(find "$WORKSPACE_DIR" -name "*_surfacewater_predicted_noxn_*.tif")
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/predicted_noxn_in_groundwater" $(find "$WORKSPACE_DIR" -name "*_groundwater_predicted_noxn_*.tif")
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/predicted_noxn_in_drinkingwater" $(find "$WORKSPACE_DIR" -name "*_noxn_in_drinking_water_$RESOLUTION.tif")
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*.png" -o -name "*.txt" -o -name "*.json")
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-aligned-to-flowdir" $(find "$DECAYED_FLOWACCUM_WORKSPACE_DIR" -name "aligned_export*.tif")
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-decayed-accumulation" $(find "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs" -name "*.tif")
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/covariates-$RESOLUTION" $(find "$WORKSPACE_DIR/aligned" -name "*.tif")
-#$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$ARCHIVE_DIR/ndrplus-outputs-raw" $(find "$NDR_OUTPUTS_DIR" -name "*.tif")  # SLOW - outputs are tens of GB
+GDRIVE_DIR="nci-ndr-stanford-gdrive:$(basename $FINAL_RESTING_PLACE)/$ARCHIVE_DIR"
+$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*_noxn_in_drinking_water_$RESOLUTION.tif")
+$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/predicted_noxn_in_surfacewater" $(find "$WORKSPACE_DIR" -name "*_surfacewater_predicted_noxn_*.tif")
+$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/predicted_noxn_in_groundwater" $(find "$WORKSPACE_DIR" -name "*_groundwater_predicted_noxn_*.tif")
+$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/predicted_noxn_in_drinkingwater" $(find "$WORKSPACE_DIR" -name "*_noxn_in_drinking_water_$RESOLUTION.tif")
+$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*.png" -o -name "*.txt" -o -name "*.json")
+$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/ndrplus-outputs-aligned-to-flowdir" $(find "$DECAYED_FLOWACCUM_WORKSPACE_DIR" -name "aligned_export*.tif")
+$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/ndrplus-decayed-accumulation" $(find "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs" -name "*.tif")
+$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/covariates-$RESOLUTION" $(find "$WORKSPACE_DIR/aligned" -name "*.tif")
+#$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/ndrplus-outputs-raw" $(find "$NDR_OUTPUTS_DIR" -name "*.tif")  # SLOW - outputs are tens of GB
 
 module load system jq
-gdrivedir=$(rclone lsjson "nci-ndr-stanford-gdrive:/" | jq -r --arg path "$ARCHIVE_DIR" '.[] | select(.Path==$path)'.ID)
+gdrivedir=$(rclone lsjson "nci-ndr-stanford-gdrive:/" | jq -r --arg path "$(basename $FINAL_RESTING_PLACE)/$ARCHIVE_DIR" '.[] | select(.Path==$path)'.ID)
 echo "Files uploaded to GDrive available at https://drive.google.com/drive/u/0/folders/$gdrivedir"
 echo "NCI NOXN done!"

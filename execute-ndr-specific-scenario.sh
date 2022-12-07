@@ -56,7 +56,7 @@ rsync -az "$WORKSPACE_DIR/" "$FINAL_RESTING_PLACE/$WORKSPACE_NAME"
 
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
-GDRIVE_DIR="$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME/"
+GDRIVE_DIR="$(basename $FINAL_RESTING_PLACE)/$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME/"
 
 # Copy geotiffs AND logfiles to google drive.
 #$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.{tif,out}
