@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 
+sys.path.append('ndr_plus_global_pipeline/scenarios')
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
