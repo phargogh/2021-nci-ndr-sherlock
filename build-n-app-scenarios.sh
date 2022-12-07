@@ -53,11 +53,11 @@ singularity run \
 
 singularity run \
     --env GDAL_CACHEMAX=1024 \
-    --env N_APP_DATA_FOLDER=$SCENARIO_OUTPUTS_DIR \
-    --env SCENARIO_RASTER_FOLDER=$SCENARIO_LULC_DIR \
-    --env ALIGNED_RASTER_FOLDER=$SCENARIO_OUTPUTS_DIR \
-    --env OUTPUT_ROOT=$SCENARIO_OUTPUTS_DIR/n_app \
-    --env BASE_RASTER=$SCRATCH/nci-ecoshards/modifiedESA_2022_06_03_md5_7dc8402ad44251e8021f4a72559e5f32.tif \
+    --env N_APP_DATA_FOLDER="$SCENARIO_OUTPUTS_DIR" \
+    --env SCENARIO_RASTER_FOLDER="$SCENARIO_LULC_DIR" \
+    --env ALIGNED_RASTER_FOLDER="$SCENARIO_OUTPUTS_DIR" \
+    --env OUTPUT_ROOT="$SCENARIO_OUTPUTS_DIR/n_app" \
+    --env BASE_RASTER="$SCRATCH/nci-ecoshards/modifiedESA_2022_06_03_md5_7dc8402ad44251e8021f4a72559e5f32.tif" \
     docker://$CONTAINER@$DIGEST \
     python "natural-capital-index/src/one-off/2022-09-01_napp_wq_paper_scenarios.py"
 
