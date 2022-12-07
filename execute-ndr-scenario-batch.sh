@@ -38,12 +38,12 @@ LULC_SCENARIOS_JOB=$(sbatch \
     --job-name="NCI-WQ-LULC-scenarios-$GIT_REV" \
     build-ndr-scenarios.sh \
     "$LOCAL_GDRIVE_INPUTS_DIR"\
-    "$FULL_WQ_PIPELINE_WORKSPACE")
+    "$FULL_WQ_PIPELINE_WORKSPACE" | grep -o "[0-9]\\+")
 N_APP_SCENARIOS_JOB=$(sbatch \
     --job-name="NCI-WQ-N-application-$GIT_REV" \
     build-n-app-scenarios.sh \
     "$LOCAL_GDRIVE_INPUTS_DIR" \
-    "$FULL_WQ_PIPELINE_WORKSPACE")
+    "$FULL_WQ_PIPELINE_WORKSPACE" | grep -o "[0-9]\\+")
 
 # Fetch the repository
 if [ ! -d $REPOSLUG ]
@@ -87,7 +87,7 @@ do
         --chdir=$REPOSLUG \
         --dependency="$NDR_SLURM_DEPENDENCY_STRING" \
         execute-ndr-specific-scenario.sh \
-        "$WORKSPACE_DIR" "$NCI_SCENARIO" "$DATE" "$GIT_REV" | grep -o [0-9]\\+)
+        "$WORKSPACE_DIR" "$NCI_SCENARIO" "$DATE" "$GIT_REV" "$FULL_WQ_PIPELINE_WORKSPACE" | grep -o "[0-9]\\+")
     NOXN_SLURM_DEPENDENCY_STRING="$NOXN_SLURM_DEPENDENCY_STRING:$SCENARIO_JOB_ID"
     echo "$NCI_SCENARIO $SCENARIO_JOB_ID" >> scenario_jobs.txt
 

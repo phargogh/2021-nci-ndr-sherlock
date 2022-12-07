@@ -17,6 +17,7 @@ WORKSPACE_NAME="$1"
 SCENARIO_NAME="$2"
 DATE="$3"
 GIT_REV="$4"
+FINAL_RESTING_PLACE="$5"
 
 CONTAINER=ghcr.io/phargogh/inspring-no-gcloud-keys
 DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
@@ -51,7 +52,7 @@ singularity run \
 # Preserves permissions, timestamps, etc, which is better for taskgraph.
 # I've removed the -v flag because workspaces have a few hundred thousand files
 # that don't all need to have their filenames printed to stdout.
-rsync -az "$WORKSPACE_DIR/" "$SCRATCH/2021-NCI-$WORKSPACE_NAME"
+rsync -az "$WORKSPACE_DIR/" "$FINAL_RESTING_PLACE/$WORKSPACE_NAME"
 
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
