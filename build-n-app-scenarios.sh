@@ -15,7 +15,20 @@
 set -e
 set -x
 
-SCENARIO_OUTPUTS_DIR="$SCRATCH/NCI-n-app-scenarios"
+if [ "$1" = "" ]
+then
+    GDRIVE_INPUTS_DIR="$SCRATCH/nci-gdrive/inputs"
+else
+    GDRIVE_INPUTS_DIR="$1"
+fi
+
+if [ "$2" = "" ]
+then
+    SCENARIO_OUTPUTS_DIR="$SCRATCH/NCI-n-app-scenarios"
+else
+    SCENARIO_OUTPUTS_DIR="$2"
+fi
+
 rm -r $SCENARIO_OUTPUTS_DIR || echo "Cannot delete a folder that doesn't exist"
 mkdir -p $SCENARIO_OUTPUTS_DIR
 
@@ -28,7 +41,7 @@ singularity run \
     --env GDAL_CACHEMAX=1024 \
     docker://$CONTAINER@$DIGEST \
     python build-n-app-scenarios.py \
-    "$SCRATCH/nci-gdrive/inputs" \
+    "$GDRIVE_INPUTS_DIR" \
     "$SCENARIO_OUTPUTS_DIR"
 
 

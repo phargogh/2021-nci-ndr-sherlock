@@ -22,13 +22,28 @@ echo "***********************************************************************"
 
 # - [X] sbatch the 2 scenario tasks
 # - [X] make NDR scenarios dependent on the 2 scenario tasks
-# - [ ] override the job name in the 2 scenario tasks
+# - [X] override the job name in the 2 scenario tasks
 # - [ ] write the job scenario tasks to a single workspace
+# - [ ] assert that no nan or inf values are written to rasters.
 
 
 set -x
-LULC_SCENARIOS_JOB=$(sbatch --job-name="NCI-WQ-LULC-scenarios-$GIT_REV" build-ndr-scenarios.sh)
-N_APP_SCENARIOS_JOB=$(sbatch --job-name="NCI-WQ-N-application-$GIT_REV" build-n-app-scenarios.sh)
+LOCAL_GDRIVE_INPUTS_DIR="$SCRATCH/nci-gdrive/inputs"  # A local rsync clone of the NCI google drive
+
+FULL_WQ_PIPELINE_WORKSPACE="$SCRATCH/NCI-WQ-full-${DATE}-${GIT_REV}"
+rm -r "$FULL_WQ_PIPELINE_WORKSPACE" || echo "Cannot remove directory that isn't there."
+mkdir -p "$FULL_WQ_PIPELINE_WORKSPACE" || echo "Cannot create directory that exists."
+
+LULC_SCENARIOS_JOB=$(sbatch \
+    --job-name="NCI-WQ-LULC-scenarios-$GIT_REV" \
+    build-ndr-scenarios.sh \
+    "$LOCAL_GDRIVE_INPUTS_DIR"\
+    "$FULL_WQ_PIPELINE_WORKSPACE")
+N_APP_SCENARIOS_JOB=$(sbatch \
+    --job-name="NCI-WQ-N-application-$GIT_REV" \
+    build-n-app-scenarios.sh \
+    "$LOCAL_GDRIVE_INPUTS_DIR" \
+    "$FULL_WQ_PIPELINE_WORKSPACE")
 
 # Fetch the repository
 if [ ! -d $REPOSLUG ]
