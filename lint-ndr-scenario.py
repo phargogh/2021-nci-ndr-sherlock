@@ -19,7 +19,7 @@ def main(scenario_name):
             except KeyError:
                 LOGGER.error(
                     "Key not found in ECOSHARDS: "
-                    f"{ndr_scenario_key}:{file_key}")
+                    f"{ndr_scenario_key}:{file_key} ({ecoshards_key})")
                 error = True
                 continue
 
