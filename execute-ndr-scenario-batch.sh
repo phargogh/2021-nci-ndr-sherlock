@@ -23,8 +23,9 @@ echo "***********************************************************************"
 # - [X] sbatch the 2 scenario tasks
 # - [X] make NDR scenarios dependent on the 2 scenario tasks
 # - [X] override the job name in the 2 scenario tasks
-# - [ ] write the job scenario tasks to a single workspace
+# - [X] write the job scenario tasks to a single workspace
 # - [ ] assert that no nan or inf values are written to rasters.
+# - [ ] upload all target files to a consistent place on google drive
 
 
 set -x
@@ -103,5 +104,5 @@ then
     # passes, then we'll trigger the NOXN pipeline.
     sbatch \
         --dependency="$NOXN_SLURM_DEPENDENCY_STRING" \
-        ./execute-noxn.sh "$2" "$GIT_REV"
+        ./execute-noxn.sh "$2" "$GIT_REV" "$FULL_WQ_PIPELINE_WORKSPACE"
 fi

@@ -24,6 +24,7 @@ then
 fi
 
 SHERLOCK_REPO_REV="$2"
+FINAL_RESTING_PLACE="$3"  # final location of pipeline outputs
 
 # Container configuration
 #
@@ -92,7 +93,7 @@ singularity run \
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
-ARCHIVE_DIR="$DATE-nci-noxn-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION"
+ARCHIVE_DIR="$FINAL_RESTING_PLACE/$DATE-nci-noxn-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION"
 
 # Check to see if the workspace is on scratch.  If it isn't, rsync the workspace over to scratch.
 if [[ $WORKSPACE_DIR != $SCRATCH/* ]]
