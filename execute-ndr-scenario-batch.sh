@@ -47,9 +47,11 @@ LULC_SCENARIOS_JOB=$(sbatch \
 N_APP_SCENARIOS_WORKSPACE="$FULL_WQ_PIPELINE_WORKSPACE/NCI-WQ-inputs-n-application"
 N_APP_SCENARIOS_JOB=$(sbatch \
     --job-name="NCI-WQ-N-application-$GIT_REV" \
+    --dependency="afterok:$LULC_SCENARIOS_JOB" \
     build-n-app-scenarios.sh \
     "$LOCAL_GDRIVE_INPUTS_DIR" \
     "$N_APP_SCENARIOS_WORKSPACE" \
+    "$LULC_SCENARIOS_WORKSPACE/Scenarios_ecosharded" \
     "$FULL_WQ_PIPELINE_WORKSPACE" | grep -o "[0-9]\\+")
 
 # Verify that our rasters at least exist and the json has the right keys.
@@ -61,6 +63,8 @@ RASTER_LINTING_JOB=$(sbatch \
     lint-ndr-scenario.sh \
     "$LULC_SCENARIOS_WORKSPACE/Scenarios_ecosharded/scenarios.json" \
     "$N_APP_SCENARIOS_WORKSPACE/N_application/rasters.json" | grep "[0-9]\\+")
+
+exit 0  # until I am confident about the results of the above, don't run NDR.
 
 # Fetch the repository
 if [ ! -d $REPOSLUG ]
