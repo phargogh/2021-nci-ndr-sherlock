@@ -1,6 +1,7 @@
 import importlib
 import logging
 import os
+import pprint
 import sys
 
 sys.path.append('ndr_plus_global_pipeline/scenarios')
@@ -29,6 +30,8 @@ def main(scenario_name):
                 error = True
 
     if error:
+        LOGGER.info("The current state of ECOSHARDS looks like:\n"
+                    f"{pprint.pformat(scenario.ECOSHARDS)}")
         raise AssertionError("One or more files/keys do not work as expected.")
     LOGGER.info("All OK")
 
