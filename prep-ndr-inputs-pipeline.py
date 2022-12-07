@@ -7,11 +7,13 @@ import pprint
 import numpy
 import numpy as np
 import pygeoprocessing
+import pygeoprocessing.symbolic
 import taskgraph
 from osgeo import gdal
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
+FLOAT32_NODATA = float(numpy.finfo(numpy.float32).min)
 
 # These paths are relative to the NCI gdrive folder.
 INPUT_FILES = {
@@ -29,6 +31,12 @@ INPUT_FILES = {
     "crop_value_current": "cropland/totalproductionvaluecurrentRevR_nolabor_machinerycosts.tif",
     "crop_value_intensified_rainfed": "cropland/totalproductionvaluerainfedRevR_nolabor_machinerycosts.tif",
     "crop_value_intensified_irrigated": "cropland/totalproductionvalueirrigatedRevR_nolabor_machinerycosts.tif",
+
+    # Nitrogen application rasters from Jamie for Peter's scripts
+    "n_background": "nitrogen/Background_Nload_restoration_md5_a77d99a607727668386a4ba0344f01d4.tif",
+    "n_current": "nitrogen/finaltotalNfertratescurrentRevQ.tif",
+    "n_rainfed": "nitrogen/finaltotalNfertratesrainfedRevQ.tif",
+    "n_irrigated": "nitrogen/finaltotalNfertratesirrigatedRevQ.tif",
 }
 
 OUTPUT_FILES = {
@@ -40,6 +48,11 @@ OUTPUT_FILES = {
     "intensification_bmps": "intensification_bmps.tif",
     "intensification_expansion": "intensification_expansion.tif",
     "intensification_expansion_bmps": "intensification_expansion_bmps.tif",
+    "current_n_app": "current_n_app.tif",
+    "intensified_irrigated_n_app": "intensified_irrigated_n_app.tif",
+    "intensified_irrigated_bmps_n_app": "intensified_irrigated_bmps_n_app.tif",
+    "intensified_rainfed_n_app": "intensified_rainfed_n_app.tif",
+    "intensified_rainfed_bmps_n_app": "intensified_rainfed_bmps_n_app.tif",
 }
 
 INTERM_FILES = {
@@ -50,6 +63,10 @@ INTERM_FILES = {
     'cropland_current_practices_suitability': "current_practices.tif",
     'cropland_intensified_rainfed_suitability': "intensified_rainfed.tif",
     'cropland_intensified_irrigated_suitability': "intensified_irrigated.tif",
+    'n_background_aligned': 'n_background_aligned.tif',
+    'n_current_aligned': 'n_current_aligned.tif',
+    'n_rainfed_aligned': 'n_rainfed_aligned.tif',
+    'n_irrigated_aligned': 'n_irrigated_aligned.tif',
 }
 GRAZING_LU = [
     30, 34, 39, 40, 44, 49, 104, 109, 114, 119, 124, 125, 126, 134, 144, 154,
@@ -101,6 +118,65 @@ def bmp_op(lu, rb, pv):
     return result
 
 
+def _get_nodata(raster_path):
+    return pygeoprocessing.get_raster_info(raster_path)['nodata'][0]
+
+
+def _equals_nodata(array, nodata):
+    if nodata is None:
+        return False
+    return numpy.isclose(array, nodata)
+
+
+def intensified_irrigated_n_app(
+        background_path, current_path, rainfed_path, irrigated_path,
+        target_path, bmps=False):
+    background_nodata = _get_nodata(background_path)
+    current_nodata = _get_nodata(current_path)
+    rainfed_nodata = _get_nodata(rainfed_path)
+    current_raster_info = pygeoprocessing.get_raster_info(current_path)
+
+    def local_op(background, current, rainfed, irrigated):
+        result = irrigated.copy()
+        ix = np.isnan(result) | _equals_nodata(rainfed, rainfed_nodata)
+        result[ix] = rainfed[ix]
+        ix = np.isnan(result) | _equals_nodata(current, current_nodata)
+        result[ix] = current[ix]
+
+        if bmps:
+            return 0.9 * result + background
+        else:
+            return result + background
+
+    pygeoprocessing.raster_calculator(
+        [(path, 1) for path in (
+            background_path, current_path, rainfed_path, irrigated_path)],
+        local_op, target_path, current_raster_info['datatype'], current_nodata)
+
+
+def intensified_rainfed_n_app(
+        background_path, current_path, rainfed_path, target_path, bmps=False):
+    background_nodata = _get_nodata(background_path)
+    current_nodata = _get_nodata(current_path)
+    rainfed_nodata = _get_nodata(rainfed_path)
+    current_raster_info = pygeoprocessing.get_raster_info(current_path)
+
+    def local_op(background, current, rainfed):
+        result = rainfed.copy()
+        ix = np.isnan(result) | _equals_nodata(current, current_nodata)
+        result[ix] = current[ix]
+
+        if bmps:
+            return 0.9 * result + background
+        else:
+            return result + background
+
+    pygeoprocessing.raster_calculator(
+        [(path, 1) for path in (
+            background_path, current_path, rainfed_path)],
+        local_op, target_path, current_raster_info['datatype'], current_nodata)
+
+
 def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                        n_workers=None):
     gdrive = pathlib.Path(nci_gdrive_inputs_dir)
@@ -116,6 +192,9 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
     graph = taskgraph.TaskGraph(output_dir/'.taskgraph',
                                 n_workers=int(n_workers))
 
+    ####################
+    # Saleh's scenario generation scripts
+    ####################
     f_in = {key: gdrive/INPUT_FILES[key] for key in INPUT_FILES}
     f_out = {key: output_dir/OUTPUT_FILES[key] for key in OUTPUT_FILES}
     f_inter = {key: intermediate_dir/INTERM_FILES[key] for key in INTERM_FILES}
@@ -134,7 +213,11 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                 'crop_value_intensified_rainfed_masked'),
             ('crop_value_intensified_irrigated',
                 'crop_value_intensified_irrigated_masked'),
-            ('protected_areas', 'protected_areas_masked')]:
+            ('protected_areas', 'protected_areas_masked'),
+            ('n_background', 'n_background_aligned'),
+            ('n_current', 'n_current_aligned'),
+            ('n_rainfed', 'n_rainfed_aligned'),
+            ('n_irrigated', 'n_irrigated_aligned')]:
         warp_tasks[warped_key] = graph.add_task(
             pygeoprocessing.warp_raster,
             kwargs={
@@ -234,6 +317,87 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                 warp_tasks[key] for key in input_keys if key in warp_tasks
             ]
         )
+
+    ####################
+    # Peter's N Application scripts
+    #
+    # N application input rasters have already been aligned by this point.
+    ####################
+    current_n_app_raster_info = pygeoprocessing.get_raster_info(
+        str(files['n_current']))
+    current_n_app_nodata = current_n_app_raster_info['nodata'][0]
+    if current_n_app_nodata is None:
+        current_n_app_nodata = float(numpy.finfo(numpy.float32).min)
+
+    current_n_app_task = graph.add_task(
+        pygeoprocessing.symbolic.evaluate_raster_calculator_expression,
+        kwargs={
+            "expression": "background + current",
+            "symbol_to_path_band_map": {
+                "background": (str(files['n_background_aligned']), 1),
+                "current": (str(files['n_current_aligned']), 1),
+            },
+            "target_nodata": current_n_app_nodata,
+            "target_raster_path": str(files['current_n_app']),
+            "default_nan": current_n_app_nodata,
+            "default_inf": None,
+        },
+        task_name='current_n_app',
+        target_path_list=[files['current_n_app']],
+        dependent_task_list=[
+            warp_tasks['n_background_aligned'],
+            warp_tasks['n_current_aligned'],
+        ]
+    )
+    for use_bmps in [False, True]:
+        bmps_string = ''
+        if use_bmps:
+            bmps_string = '_bmps'
+        intensified_irrigated_key = f'intensified_irrigated{bmps_string}_n_app'
+        intensified_irrigated_task = graph.add_task(
+            intensified_irrigated_n_app,
+            kwargs={
+                'background_path': str(files['n_background_aligned']),
+                'current_path': str(files['n_current_aligned']),
+                'rainfed_path': str(files['n_rainfed_aligned']),
+                'irrigated_path': str(files['n_irrigated_aligned']),
+                'target_path': str(files[intensified_irrigated_key]),
+                'bmps': use_bmps,
+            },
+            task_name=intensified_irrigated_key,
+            target_path_list=[
+                files[intensified_irrigated_key],
+            ],
+            dependent_task_list=[
+                warp_tasks['n_background_aligned'],
+                warp_tasks['n_current_aligned'],
+                warp_tasks['n_rainfed_aligned'],
+                warp_tasks['n_irrigated_aligned'],
+            ]
+        )
+
+        intensified_rainfed_key = f'intensified_rainfed{bmps_string}_n_app'
+        intensified_rainfed_task = graph.add_task(
+            intensified_rainfed_n_app,
+            kwargs={
+                'background_path': str(files['n_background_aligned']),
+                'current_path': str(files['n_current_aligned']),
+                'rainfed_path': str(files['n_rainfed_aligned']),
+                'target_path': str(files[intensified_rainfed_key]),
+                'bmps': use_bmps,
+            },
+            task_name=f'intensified_rainfed_{use_bmps}',
+            target_path_list=[
+                files[intensified_rainfed_key],
+            ],
+            dependent_task_list=[
+                warp_tasks['n_background_aligned'],
+                warp_tasks['n_current_aligned'],
+                warp_tasks['n_rainfed_aligned'],
+            ]
+        )
+
+    # TODO: ecoshard all of the relevant rasters
 
     graph.join()
     graph.close()
