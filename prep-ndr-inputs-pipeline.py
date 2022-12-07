@@ -17,7 +17,7 @@ LOGGER = logging.getLogger(__name__)
 INPUT_FILES = {
     "base_lulc": "ESACCI-LC-L4-LCCS-Map-300m-P1Y-2015-v2.0.7_md5_1254d25f937e6d9bdee5779d377c5aa4.tif",
     "modified_lulc": "current_lulc/modifiedESA_2022_06_03.tif",
-    "potential_vegetation": "scenario_construction/potential_vegetation/potential_vegation.tif",
+    "potential_vegetation": "scenario_construction/potential_vegetation/potential_vegetation.tif",
     "slope_threshold_expansion": "scenario_construction/ag_slope_exclusion_masks/expansion_full.tif",
     "slope_threshold_intensification": "scenario_construction/ag_slope_exclusion_masks/intensification_full.tif",
     "rainfed_suitability": "scenario_construction/ag_crop_suitability_maps/rainfed_mask_ESAaligned.tif",
@@ -86,6 +86,18 @@ def extensification_current_practices_op(clm, ste, cvcm, ir, rfs, sir, ss, pa):
     result[gr_20] = 20
     gr_10 = np.all([np.isin(clm, GRAZING_LU), ste==1, cvcm>0, rfs==1, np.any([ir!=1, sir!=1], axis=0), ss==1, pa==7], axis=0)
     result[gr_10] = 10
+    return result
+
+
+def bmp_op(lu, rb, pv):
+    result = lu
+    crop_rb = np.all(
+        [np.isin(lu, [10, 11, 12, 15, 20, 25]),
+         rb==1],
+        axis=0)
+    result[crop_rb] = pv[crop_rb]
+    result[result==15] = 16
+    result[result==25] = 26
     return result
 
 
@@ -198,9 +210,30 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             ]
         )
 
-
-
-
+    for source_key, target_key in [
+            ('current_lulc_masked', 'current_bmps'),
+            ('intensification', 'intensification_bmps'),
+            ('intensification_expansion', 'intensification_expansion_bmps'),
+            ('extensification_current_practices',
+             'extensification_current_practices_bmps')]:
+        input_keys = [source_key, 'riparian_buffer', 'potential_vegetation']
+        lulc_tasks[target_key] = graph.add_task(
+            pygeoprocessing.raster_calculator,
+            kwargs={
+                "base_raster_path_band_const_list": [
+                    (str(files[key]), 1) for key in input_keys],
+                "local_op": bmp_op,
+                "target_raster_path": str(f_out[target_key]),
+                "datatype_target": base_lulc_info['datatype'],
+                "nodata_target": base_lulc_info['nodata'][0],
+                "calc_raster_stats": True,
+            },
+            task_name=target_key,
+            target_path_list=[f_out[target_key]],
+            dependent_task_list=[
+                warp_tasks[key] for key in input_keys if key in warp_tasks
+            ]
+        )
 
     graph.join()
     graph.close()
