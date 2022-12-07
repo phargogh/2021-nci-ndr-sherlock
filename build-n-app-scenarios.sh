@@ -29,6 +29,13 @@ else
     SCENARIO_OUTPUTS_DIR="$2"
 fi
 
+if [ "$3" = "" ]
+then
+    SCENARIO_LULC_DIR="$SCRATCH/NCI-lulc-scenarios"
+else
+    SCENARIO_LULC_DIR="$3"
+fi
+
 rm -r $SCENARIO_OUTPUTS_DIR || echo "Cannot delete a folder that doesn't exist"
 mkdir -p $SCENARIO_OUTPUTS_DIR
 
@@ -44,9 +51,19 @@ singularity run \
     "$GDRIVE_INPUTS_DIR" \
     "$SCENARIO_OUTPUTS_DIR"
 
-if [ "$3" != "" ]
+singularity run \
+    --env GDAL_CACHEMAX=1024 \
+    --env N_APP_DATA_FOLDER=$SCENARIO_OUTPUTS_DIR \
+    --env SCENARIO_RASTER_FOLDER=$SCENARIO_LULC_DIR \
+    --env ALIGNED_RASTER_FOLDER=$SCENARIO_OUTPUTS_DIR \
+    --env OUTPUT_ROOT=$SCENARIO_OUTPUTS_DIR/n_app \
+    --env BASE_RASTER=$SCRATCH/nci-ecoshards/modifiedESA_2022_06_03_md5_7dc8402ad44251e8021f4a72559e5f32.tif \
+    docker://$CONTAINER@$DIGEST \
+    python "natural-capital-index/src/one-off/2022-09-01_napp_wq_paper_scenarios.py"
+
+if [ "$4" != "" ]
 then
-    FINAL_RESTING_PLACE="$3"
+    FINAL_RESTING_PLACE="$4"
     GDRIVE_DIR="$(basename $FINAL_RESTING_PLACE)"
     $(pwd)/upload-to-googledrive.sh \
         "nci-ndr-stanford-gdrive:$GDRIVE_DIR" \
