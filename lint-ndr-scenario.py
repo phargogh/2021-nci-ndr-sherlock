@@ -12,7 +12,8 @@ def main(scenario_name):
     scenario = importlib.import_module(scenario_name)
     error = False
     for ndr_scenario_key, files_dict in scenario.SCENARIOS.items():
-        for file_key, file_path in files_dict.items():
+        for file_key, ecoshards_key in files_dict.items():
+            file_path = scenario.ECOSHARDS[ecoshards_key]
             if not os.path.exists(file_path):
                 LOGGER.error(
                     "File not found: "
