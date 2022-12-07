@@ -148,26 +148,6 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
         'sustainable_irrigation',
         'soil_suitability',
     ]
-    intensification_task = graph.add_task(
-        pygeoprocessing.raster_calculator,
-        kwargs={
-            "base_raster_path_band_const_list": [
-                (str(files[key]), 1) for key in intensification_keys],
-            "local_op": intensification_op,
-            "target_raster_path": str(f_out['intensification']),
-            "datatype_target": base_lulc_info['datatype'],
-            "nodata_target": base_lulc_info['nodata'][0],
-            "calc_raster_stats": True,
-        },
-        task_name='intensification',
-        target_path_list=[f_out['intensification']],
-        dependent_task_list=[
-            warp_tasks[key] for key in intensification_keys
-            if key in warp_tasks
-        ]
-    )
-
-
     intensification_expansion_keys = [
         'intensification',
         'slope_threshold_intensification',
@@ -179,25 +159,6 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
         'soil_suitability',
         'protected_areas_masked'
     ]
-    intensification_expansion_task = graph.add_task(
-        pygeoprocessing.raster_calculator,
-        kwargs={
-            "base_raster_path_band_const_list": [
-                (str(files[key]), 1) for key in intensification_expansion_keys],
-            "local_op": intensification_expansion_op,
-            "target_raster_path": str(f_out['intensification_expansion']),
-            "datatype_target": base_lulc_info['datatype'],
-            "nodata_target": base_lulc_info['nodata'][0],
-            "calc_raster_stats": True,
-        },
-        task_name='intensification_expansion',
-        target_path_list=[f_out['intensification_expansion']],
-        dependent_task_list=[
-            warp_tasks[key] for key in intensification_expansion_keys
-            if key in warp_tasks
-        ]
-    )
-
     extensification_current_practices_keys = [
         'current_lulc_masked',
         'slope_threshold_expansion',
@@ -208,26 +169,34 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
         'soil_suitability',
         'protected_areas_masked',
     ]
-    extensification_current_practices_task = graph.add_task(
-        pygeoprocessing.raster_calculator,
-        kwargs={
-            "base_raster_path_band_const_list": [
-                (str(files[key]), 1) for key in
-                extensification_current_practices_keys],
-            "local_op": extensification_current_practices_op,
-            "target_raster_path": str(f_out['extensification_current_practices']),
-            "datatype_target": base_lulc_info['datatype'],
-            "nodata_target": base_lulc_info['nodata'][0],
-            "calc_raster_stats": True,
-        },
-        task_name='extensification_current_practices',
-        target_path_list=[f_out['extensification_current_practices']],
-        dependent_task_list=[
-            warp_tasks[key] for key in extensification_current_practices_keys
-            if key in warp_tasks
-        ]
-    )
-
+    lulc_tasks = {}  # key: task
+    for lulc_key, raster_calculator_op, input_keys in [
+            ('intensification',
+                intensification_op,
+                intensification_keys),
+            ('intensification_expansion',
+                intensification_expansion_op,
+                intensification_expansion_keys),
+            ('extensification_current_practices',
+                extensification_current_practices_op,
+                extensification_current_practices_keys)]:
+        lulc_tasks[lulc_key] = graph.add_task(
+            pygeoprocessing.raster_calculator,
+            kwargs={
+                "base_raster_path_band_const_list": [
+                    (str(files[key]), 1) for key in input_keys],
+                "local_op": raster_calculator_op,
+                "target_raster_path": str(f_out[lulc_key]),
+                "datatype_target": base_lulc_info['datatype'],
+                "nodata_target": base_lulc_info['nodata'][0],
+                "calc_raster_stats": True,
+            },
+            task_name=lulc_key,
+            target_path_list=[f_out[lulc_key]],
+            dependent_task_list=[
+                warp_tasks[key] for key in input_keys if key in warp_tasks
+            ]
+        )
 
 
 
