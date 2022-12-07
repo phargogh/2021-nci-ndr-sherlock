@@ -20,6 +20,7 @@ def main(scenario_name):
                     "Key not found in ECOSHARDS: "
                     f"{ndr_scenario_key}:{file_key}")
                 error = True
+                continue
 
             if not os.path.exists(file_path):
                 LOGGER.error(
