@@ -350,9 +350,10 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                 "calc_raster_stats": True,
             },
             task_name=lulc_key,
-            target_path_list=[f_out[lulc_key]],
+            target_path_list=[str(f_out[lulc_key])],
             dependent_task_list=[
-                warp_tasks[key] for key in input_keys if key in warp_tasks
+                *[warp_tasks[key] for key in input_keys if key in warp_tasks],
+                *[lulc_tasks[key] for key in input_keys if key in lulc_tasks],
             ]
         )
 
@@ -375,7 +376,7 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                 "calc_raster_stats": True,
             },
             task_name=target_key,
-            target_path_list=[files[target_key]],
+            target_path_list=[str(files[target_key])],
             dependent_task_list=[
                 *[warp_tasks[key] for key in input_keys if key in warp_tasks],
                 *[lulc_tasks[key] for key in input_keys if key in lulc_tasks],
