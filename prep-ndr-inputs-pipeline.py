@@ -463,6 +463,16 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
         )
 
     for lulc_scenario in LULC_SCENARIOS:
+        dependent_task_list = [
+            warp_tasks['current_lulc_masked'],
+            warp_tasks['n_background_aligned'],
+            warp_tasks['n_current_aligned'],
+            warp_tasks['n_rainfed_aligned'],
+            warp_tasks['n_irrigated_aligned']
+        ]
+        if lulc_scenario in lulc_tasks:
+            dependent_task_list.append(lulc_tasks[lulc_scenario])
+
         _ = graph.add_task(
             n_app,
             kwargs={
@@ -476,12 +486,7 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             },
             task_name=f'{lulc_scenario}_n_app',
             target_path_list=[files[f'{lulc_scenario}_n_app']],
-            dependent_task_list=[
-                warp_tasks['n_background_aligned'],
-                warp_tasks['n_current_aligned'],
-                warp_tasks['n_rainfed_aligned'],
-                warp_tasks['n_irrigated_aligned']
-            ]
+            dependent_task_list=dependent_task_list
         )
 
     # TODO: ecoshard all of the relevant rasters?
