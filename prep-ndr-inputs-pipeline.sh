@@ -46,7 +46,7 @@ then
     FINAL_RESTING_PLACE="$3"
     GDRIVE_DIR=$(basename "$FINAL_RESTING_PLACE")
     $(pwd)/upload-to-googledrive.sh \
-        "nci-ndr-stanford-gdrive:$GDRIVE_DIR" \
+        "nci-ndr-stanford-gdrive:$GDRIVE_DIR/prepared-scenarios" \
         "$SCENARIO_OUTPUTS_DIR"/*.{tif,json}
 fi
 

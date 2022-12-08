@@ -42,7 +42,7 @@ PREPROCESSED_SCENARIOS_JOB=$(sbatch \
     prep-ndr-inputs-pipeline.sh \
     "$LOCAL_GDRIVE_INPUTS_DIR" \
     "$SCENARIOS_WORKSPACE" \
-    "$SCENARIOS_WORKSPACE" | grep -o "[0-9]\\+")
+    "$FULL_WQ_PIPELINE_WORKSPACE" | grep -o "[0-9]\\+")
 
 exit 0  # until I am confident about the results of the above, don't run NDR.
 
