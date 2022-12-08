@@ -1,4 +1,5 @@
 import argparse
+import json
 import logging
 import os
 import pathlib
@@ -481,16 +482,20 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             ]
         )
 
-    # TODO: ecoshard all of the relevant rasters
+    # TODO: ecoshard all of the relevant rasters?
 
     graph.join()
     graph.close()
 
+    with open(output_dir/'scenario_rasters.json', 'w') as json_file:
+        json_data = {}
+        for key, value in OUTPUT_FILES.items():
+            if 'n_app' not in key:
+                json_data[f'{key}_lulc'] = value
+            else:
+                json_data[key] = value
 
-
-
-
-
+        json.dump(json_data, json_file, indent=4)
 
 
 def main(args=None):
