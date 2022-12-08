@@ -28,10 +28,10 @@ noxn-1km:
 noxn-10km:
 	sbatch --time=2:00:00 ./execute-noxn.sh 10km
 
-all:
+all: update-submodules
 	bash ./execute-ndr-scenario-batch.sh --with-noxn 10km 2>&1 | tee -a $@-$(DATE)-$(GIT_REV).log
 
-all-1km:
+all-1km: update-submodules
 	bash ./execute-ndr-scenario-batch.sh --with-noxn 1km 2>&1 | tee -a $@-$(DATE)-$(GIT_REV).log
 
 show-job-queue:

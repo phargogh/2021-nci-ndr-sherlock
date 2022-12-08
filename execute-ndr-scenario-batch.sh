@@ -44,8 +44,6 @@ PREPROCESSED_SCENARIOS_JOB=$(sbatch \
     "$SCENARIOS_WORKSPACE" \
     "$FULL_WQ_PIPELINE_WORKSPACE" | grep -o "[0-9]\\+")
 
-exit 0  # until I am confident about the results of the above, don't run NDR.
-
 # Fetch the repository
 if [ ! -d $REPOSLUG ]
 then
