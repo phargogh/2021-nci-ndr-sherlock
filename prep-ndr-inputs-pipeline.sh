@@ -49,3 +49,9 @@ then
         "nci-ndr-stanford-gdrive:$GDRIVE_DIR" \
         "$SCENARIO_OUTPUTS_DIR"/*.{tif,json}
 fi
+
+LINT_SCRIPT="$(pwd)/lint-ndr-scenario.py"
+singularity run \
+    --env NCI_SCENARIO_LULC_N_APP_JSON="$SCENARIO_OUTPUTS_DIR/scenario_rasters.json" \
+    docker://$CONTAINER@$DIGEST \
+    python "$LINT_SCRIPT" "nci_global_dec_2022"
