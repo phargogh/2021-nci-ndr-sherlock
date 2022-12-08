@@ -72,7 +72,7 @@ popd
 # we're not supposed to call sbatch from within a loop.  A loop is the only way
 # this makes sense, though, and it isn't usually very many.  I've added a sleep
 # to help avoid a possible denial-of-service.
-NOXN_SLURM_DEPENDENCY_STRING="afterok:"
+NOXN_SLURM_DEPENDENCY_STRING="afterok"
 for NCI_SCENARIO in $SCENARIOS
 do
     # Can also redirect stdout/stderr if needed:
