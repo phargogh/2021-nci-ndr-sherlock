@@ -5,7 +5,7 @@ DATE="$(date +%F)"
 GIT_REV="rev$(git rev-parse --short HEAD)"
 REPOSLUG=ndr_plus_global_pipeline
 REPO=https://github.com/phargogh/$REPOSLUG.git
-NDR_REVISION=ec3d0f5e547985720ee3b3dd388382ace56a1a6d
+NDR_REVISION=ff8fabee1f3d8d97ca79bfb9c33625c8b8bd5fe7
 
 echo "***********************************************************************"
 echo "Beginning NDR Batch"
@@ -37,7 +37,7 @@ rm -r "$FULL_WQ_PIPELINE_WORKSPACE" || echo "Cannot remove directory that isn't 
 mkdir -p "$FULL_WQ_PIPELINE_WORKSPACE" || echo "Cannot create directory that exists."
 
 SCENARIOS_WORKSPACE="$FULL_WQ_PIPELINE_WORKSPACE/prepared-scenarios"
-SCENARIOS_JOB=$(sbatch \
+PREPROCESSED_SCENARIOS_JOB=$(sbatch \
     --job-name="NCI-WQ-create-scenarios-$GIT_REV" \
     prep-ndr-inputs-pipeline.sh \
     "$LOCAL_GDRIVE_INPUTS_DIR" \
@@ -74,7 +74,6 @@ popd
 # we're not supposed to call sbatch from within a loop.  A loop is the only way
 # this makes sense, though, and it isn't usually very many.  I've added a sleep
 # to help avoid a possible denial-of-service.
-NDR_SLURM_DEPENDENCY_STRING="afterok:$RASTER_LINTING_JOB"
 NOXN_SLURM_DEPENDENCY_STRING="afterok:"
 for NCI_SCENARIO in $SCENARIOS
 do
@@ -86,7 +85,7 @@ do
     SCENARIO_JOB_ID=$(sbatch \
         --job-name="NCI-NDR-$NCI_SCENARIO-$DATE" \
         --chdir=$REPOSLUG \
-        --dependency="$NDR_SLURM_DEPENDENCY_STRING" \
+        --dependency="afterok:$PREPROCESSED_SCENARIOS_JOB" \
         execute-ndr-specific-scenario.sh \
         "$WORKSPACE_DIR" "$NCI_SCENARIO" "$DATE" "$GIT_REV" "$FULL_WQ_PIPELINE_WORKSPACE" | grep -o "[0-9]\\+")
     NOXN_SLURM_DEPENDENCY_STRING="$NOXN_SLURM_DEPENDENCY_STRING:$SCENARIO_JOB_ID"
