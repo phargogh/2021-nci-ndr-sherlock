@@ -483,17 +483,19 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
         )
 
     # TODO: ecoshard all of the relevant rasters?
+    #    I'm leaving it out for now since all rasters are rebuilt on each run.
 
     graph.join()
     graph.close()
 
     with open(output_dir/'scenario_rasters.json', 'w') as json_file:
         json_data = {}
-        for key, value in OUTPUT_FILES.items():
+        for key in OUTPUT_FILES:
+            filepath = files[key]
             if 'n_app' not in key:
-                json_data[f'{key}_lulc'] = value
+                json_data[f'{key}_lulc'] = str(filepath)
             else:
-                json_data[key] = value
+                json_data[key] = str(filepath)
 
         json.dump(json_data, json_file, indent=4)
 
