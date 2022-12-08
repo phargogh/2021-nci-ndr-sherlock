@@ -377,8 +377,8 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             task_name=target_key,
             target_path_list=[files[target_key]],
             dependent_task_list=[
-                *[warp_tasks[key] for key in input_keys if key in warp_tasks]
-                *[lulc_tasks[key] for key in input_keys if key in lulc_tasks]
+                *[warp_tasks[key] for key in input_keys if key in warp_tasks],
+                *[lulc_tasks[key] for key in input_keys if key in lulc_tasks],
             ]
         )
 
