@@ -369,15 +369,16 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                 "base_raster_path_band_const_list": [
                     (str(files[key]), 1) for key in input_keys],
                 "local_op": bmp_op,
-                "target_raster_path": str(f_out[target_key]),
+                "target_raster_path": str(files[target_key]),
                 "datatype_target": base_lulc_info['datatype'],
                 "nodata_target": base_lulc_info['nodata'][0],
                 "calc_raster_stats": True,
             },
             task_name=target_key,
-            target_path_list=[f_out[target_key]],
+            target_path_list=[files[target_key]],
             dependent_task_list=[
-                warp_tasks[key] for key in input_keys if key in warp_tasks
+                *[warp_tasks[key] for key in input_keys if key in warp_tasks]
+                *[lulc_tasks[key] for key in input_keys if key in lulc_tasks]
             ]
         )
 
