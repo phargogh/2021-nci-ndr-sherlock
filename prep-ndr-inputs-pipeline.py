@@ -39,15 +39,19 @@ INPUT_FILES = {
     "n_irrigated": "nitrogen/finaltotalNfertratesirrigatedRevQ.tif",
 }
 
+LULC_SCENARIOS = {
+    "current_bmps",
+    "current_lulc_masked",
+    "extensification_current_practices",
+    "extensification_current_practices_bmps",
+    "intensification",
+    "intensification_bmps",
+    "intensification_expansion",
+    "intensification_expansion_bmps",
+}
 OUTPUT_FILES = {
-    "current_bmps": "current_bmps.tif",
-    "current_lulc_masked": "current_lulc_masked.tif",
-    "extensification_current_practices": "extensification_current_practices.tif",
-    "extensification_current_practices_bmps": "extensification_current_practices_bmps.tif",
-    "intensification": "intensification.tif",
-    "intensification_bmps": "intensification_bmps.tif",
-    "intensification_expansion": "intensification_expansion.tif",
-    "intensification_expansion_bmps": "intensification_expansion_bmps.tif",
+    **{key: f"{key}.tif" for key in LULC_SCENARIOS},
+    **{f'{key}_n_app': f"{key}_n_app.tif" for key in LULC_SCENARIOS},
     "current_n_app": "current_n_app.tif",
     "intensified_irrigated_n_app": "intensified_irrigated_n_app.tif",
     "intensified_irrigated_bmps_n_app": "intensified_irrigated_bmps_n_app.tif",
@@ -175,6 +179,64 @@ def intensified_rainfed_n_app(
         [(path, 1) for path in (
             background_path, current_path, rainfed_path)],
         local_op, target_path, current_raster_info['datatype'], current_nodata)
+
+
+def n_app(
+        scenario, background, current, rainfed, irrigated, output_file,
+        all_bmps=False):
+    current_codes = np.array([10, 11, 12, 19, 20, 29])
+    rf_codes = np.array([15, 16])
+    irr_codes = np.array([25, 26])
+    intense_rf_code = 15
+    intense_rf_bmp_code = 16
+    intense_irr_code = 25
+    intense_irr_bmp_code = 26
+
+    scenario_raster_info = pygeoprocessing.get_raster_info(scenario)
+    snd = scenario_raster_info["nodata"]
+    output_nd = 0
+
+    def local_op(s, b, c, r, i):
+        result = np.zeros(s.shape, dtype=numpy.float32)
+        if np.max(s) == 0:
+            # skip ocean pixels
+            return result
+
+        land_ix = np.all([s != snd, s != 210], axis=0)
+        result[land_ix] = b[land_ix]
+
+        if all_bmps:
+            ix = np.isin(s, current_codes)
+            result[ix] += .9 * c[ix]
+            ix = np.isin(s, rf_codes)
+            result[ix] += .9 * r[ix]
+            ix = np.isin(s, irr_codes)
+            result[ix] += .9 * i[ix]
+        else:
+            ix = np.isin(s, current_codes)
+            result[ix] += c[ix]
+            ix = s == intense_rf_code
+            result[ix] += r[ix]
+            ix = s == intense_rf_bmp_code
+            result[ix] += .9 * r[ix]
+            ix = s == intense_irr_code
+            result[ix] += i[ix]
+            ix = s == intense_irr_bmp_code
+            result[ix] += .9 * i[ix]
+
+        return result
+
+    src_rasters = [
+        (r, 1) for r in [scenario, background, current, rainfed, irrigated]]
+
+    pygeoprocessing.raster_calculator(
+        src_rasters,
+        local_op,
+        output_file,
+        gdal.GDT_Float32,
+        output_nd,
+        calc_raster_stats=False
+    )
 
 
 def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
@@ -394,6 +456,28 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                 warp_tasks['n_background_aligned'],
                 warp_tasks['n_current_aligned'],
                 warp_tasks['n_rainfed_aligned'],
+            ]
+        )
+
+    for lulc_scenario in LULC_SCENARIOS:
+        _ = graph.add_task(
+            n_app,
+            kwargs={
+                'scenario': str(files[lulc_scenario]),
+                'background': str(files['n_background_aligned']),
+                'current': str(files['n_current_aligned']),
+                'rainfed': str(files['n_rainfed_aligned']),
+                'irrigated': str(files['n_irrigated_aligned']),
+                'output_file': str(files[f'{lulc_scenario}_n_app']),
+                'all_bmps': 'bmp' in lulc_scenario,
+            },
+            task_name=f'{lulc_scenario}_n_app',
+            target_path_list=[files[f'{lulc_scenario}_n_app']],
+            dependent_task_list=[
+                warp_tasks['n_background_aligned'],
+                warp_tasks['n_current_aligned'],
+                warp_tasks['n_rainfed_aligned'],
+                warp_tasks['n_irrigated_aligned']
             ]
         )
 
