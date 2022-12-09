@@ -5,7 +5,6 @@ DATE="$(date +%F)"
 GIT_REV="rev$(git rev-parse --short HEAD)"
 REPOSLUG=ndr_plus_global_pipeline
 REPO=https://github.com/phargogh/$REPOSLUG.git
-NDR_REVISION=69db7d96a49ba700474d6800769e5bfd1661bc47
 
 echo "***********************************************************************"
 echo "Beginning NDR Batch"
@@ -16,18 +15,9 @@ echo "   NDR scenarios"
 echo "   Water Quality"
 echo "Started $DATE"
 echo "Sherlock repo rev: $GIT_REV"
-echo "NDR repo rev: $NDR_REVISION"
+echo "NDR repo rev: $(git -C $REPOSLUG rev-parse HEAD)"
 echo "Extra args: $1 $2"
 echo "***********************************************************************"
-
-# - [X] sbatch the 2 scenario tasks
-# - [X] make NDR scenarios dependent on the 2 scenario tasks
-# - [X] override the job name in the 2 scenario tasks
-# - [X] write the job scenario tasks to a single workspace
-# - [ ] assert that no nan or inf values are written to rasters.
-# - [X] upload all target files to a consistent place on google drive
-# - [ ] rewrite the ndr scenario to load rasters from json files (and lint before starting big jobs)
-
 
 set -x
 LOCAL_GDRIVE_INPUTS_DIR="$SCRATCH/nci-gdrive/inputs"  # A local rsync clone of the NCI google drive
@@ -51,9 +41,6 @@ then
 fi
 pushd $REPOSLUG
 
-# OK to always fetch the repo
-git fetch
-git checkout $NDR_REVISION
 # Sherlock still has python2, so need to specify python3
 module load python/3.9.0
 
