@@ -26,14 +26,6 @@ FULL_WQ_PIPELINE_WORKSPACE="$SCRATCH/NCI-WQ-full-${DATE}-${GIT_REV}"
 rm -r "$FULL_WQ_PIPELINE_WORKSPACE" || echo "Cannot remove directory that isn't there."
 mkdir -p "$FULL_WQ_PIPELINE_WORKSPACE" || echo "Cannot create directory that exists."
 
-SCENARIOS_WORKSPACE="$FULL_WQ_PIPELINE_WORKSPACE/prepared-scenarios"
-PREPROCESSED_SCENARIOS_JOB=$(sbatch \
-    --job-name="NCI-WQ-create-scenarios-$GIT_REV" \
-    prep-ndr-inputs-pipeline.sh \
-    "$LOCAL_GDRIVE_INPUTS_DIR" \
-    "$SCENARIOS_WORKSPACE" \
-    "$FULL_WQ_PIPELINE_WORKSPACE" | grep -o "[0-9]\\+")
-
 # Fetch the repository
 if [ ! -d $REPOSLUG ]
 then
@@ -54,6 +46,14 @@ module unload numpy
 # `build-n-app-scenarios.sh` tasks finish.
 SCENARIOS=$(python3 -c "import scenarios.nci_global_dec_2022 as s; print('\n'.join(k for k in s.SCENARIOS))")
 popd
+
+SCENARIOS_WORKSPACE="$FULL_WQ_PIPELINE_WORKSPACE/prepared-scenarios"
+PREPROCESSED_SCENARIOS_JOB=$(sbatch \
+    --job-name="NCI-WQ-create-scenarios-$GIT_REV" \
+    prep-ndr-inputs-pipeline.sh \
+    "$LOCAL_GDRIVE_INPUTS_DIR" \
+    "$SCENARIOS_WORKSPACE" \
+    "$FULL_WQ_PIPELINE_WORKSPACE" | grep -o "[0-9]\\+")
 
 # According to https://slurm.schedmd.com/sbatch.html#SECTION_PERFORMANCE,
 # we're not supposed to call sbatch from within a loop.  A loop is the only way
