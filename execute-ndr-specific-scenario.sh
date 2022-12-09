@@ -18,6 +18,7 @@ SCENARIO_NAME="$2"
 DATE="$3"
 GIT_REV="$4"
 FINAL_RESTING_PLACE="$5"
+SCENARIO_JSON_FILE="$6"
 
 CONTAINER=ghcr.io/phargogh/inspring-no-gcloud-keys
 DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
@@ -41,6 +42,7 @@ FAILED=0
 singularity run \
     --env WORKSPACE_DIR="$WORKSPACE_DIR" \
     --env TMPDIR="$L_SCRATCH" \
+    --env NCI_SCENARIO_LULC_N_APP_JSON="$SCENARIO_JSON_FILE" \
     docker://$CONTAINER@$DIGEST \
     global_ndr_plus_pipeline.py scenarios.nci_global_dec_2022 \
     --n_workers=25 \

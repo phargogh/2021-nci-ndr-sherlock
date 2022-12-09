@@ -72,7 +72,12 @@ do
         --chdir=$REPOSLUG \
         --dependency="afterok:$PREPROCESSED_SCENARIOS_JOB" \
         execute-ndr-specific-scenario.sh \
-        "$WORKSPACE_DIR" "$NCI_SCENARIO" "$DATE" "$GIT_REV" "$FULL_WQ_PIPELINE_WORKSPACE" | grep -o "[0-9]\\+")
+        "$WORKSPACE_DIR" \
+        "$NCI_SCENARIO" \
+        "$DATE" \
+        "$GIT_REV" \
+        "$FULL_WQ_PIPELINE_WORKSPACE" \
+        "$SCENARIOS_WORKSPACE/scenario_rasters.json" | grep -o "[0-9]\\+")
     NOXN_SLURM_DEPENDENCY_STRING="$NOXN_SLURM_DEPENDENCY_STRING:$SCENARIO_JOB_ID"
     echo "$NCI_SCENARIO $SCENARIO_JOB_ID" >> scenario_jobs.txt
 
