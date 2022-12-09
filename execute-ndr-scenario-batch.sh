@@ -65,7 +65,7 @@ module unload numpy
 # We only need the scenario names, not the keys.  We won't know all the files
 # that are used in the scenarios until the `build-ndr-scenarios.sh` and
 # `build-n-app-scenarios.sh` tasks finish.
-SCENARIOS=$(python3 -c "import scenarios.nci_global_sept_2022_scenario_redesign as s; print('\n'.join(k for k in s.SCENARIOS))")
+SCENARIOS=$(python3 -c "import scenarios.nci_global_dec_2022 as s; print('\n'.join(k for k in s.SCENARIOS))")
 popd
 
 # According to https://slurm.schedmd.com/sbatch.html#SECTION_PERFORMANCE,

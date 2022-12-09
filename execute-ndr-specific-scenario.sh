@@ -42,8 +42,8 @@ singularity run \
     --env WORKSPACE_DIR="$WORKSPACE_DIR" \
     --env TMPDIR="$L_SCRATCH" \
     docker://$CONTAINER@$DIGEST \
-    global_ndr_plus_pipeline.py scenarios.nci_global_sept_2022_scenario_redesign \
-    --n_workers=30 \
+    global_ndr_plus_pipeline.py scenarios.nci_global_dec_2022 \
+    --n_workers=25 \
     --limit_to_scenarios "$SCENARIO_NAME" || FAILED=1
 
 # copy results (regardless of job run status) to $SCRATCH
