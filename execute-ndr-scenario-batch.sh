@@ -2,7 +2,7 @@
 set -e
 
 DATE="$(date +%F)"
-GIT_REV="rev$(git rev-parse --short HEAD)"
+GIT_REV="rev$(git rev-list HEAD --count)-$(git rev-parse --short HEAD)"
 REPOSLUG=ndr_plus_global_pipeline
 REPO=https://github.com/phargogh/$REPOSLUG.git
 
