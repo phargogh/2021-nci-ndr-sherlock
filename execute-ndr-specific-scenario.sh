@@ -38,6 +38,7 @@ fi
 
 echo `pwd`
 
+set -x  # Be eXplicit about what's happening.
 FAILED=0
 singularity run \
     --env WORKSPACE_DIR="$WORKSPACE_DIR" \
@@ -45,7 +46,7 @@ singularity run \
     --env NCI_SCENARIO_LULC_N_APP_JSON="$SCENARIO_JSON_FILE" \
     docker://$CONTAINER@$DIGEST \
     global_ndr_plus_pipeline.py scenarios.nci_global_dec_2022 \
-    --n_workers=25 \
+    --n_workers=40 \
     --limit_to_scenarios "$SCENARIO_NAME" || FAILED=1
 
 # copy results (regardless of job run status) to $SCRATCH
