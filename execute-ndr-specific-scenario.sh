@@ -46,7 +46,7 @@ singularity run \
     --env NCI_SCENARIO_LULC_N_APP_JSON="$SCENARIO_JSON_FILE" \
     docker://$CONTAINER@$DIGEST \
     global_ndr_plus_pipeline.py scenarios.nci_global_dec_2022 \
-    --n_workers=40 \
+    --n_workers=25 \
     --limit_to_scenarios "$SCENARIO_NAME" || FAILED=1
 
 # copy results (regardless of job run status) to $SCRATCH
