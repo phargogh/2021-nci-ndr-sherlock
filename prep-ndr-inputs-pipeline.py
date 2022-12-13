@@ -14,7 +14,11 @@ from osgeo import gdal
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
-FLOAT32_NODATA = float(numpy.finfo(numpy.float32).min)
+N_APP_DTYPE = gdal.GDT_Float32
+N_APP_NODATA = float(numpy.finfo(numpy.float32).min)
+LULC_DTYPE = gdal.GDT_Byte
+LULC_NODATA = 0
+
 
 # These paths are relative to the NCI gdrive folder.
 INPUT_FILES = {
@@ -139,7 +143,6 @@ def intensified_irrigated_n_app(
     background_nodata = _get_nodata(background_path)
     current_nodata = _get_nodata(current_path)
     rainfed_nodata = _get_nodata(rainfed_path)
-    current_raster_info = pygeoprocessing.get_raster_info(current_path)
 
     def local_op(background, current, rainfed, irrigated):
         result = irrigated.copy()
@@ -156,7 +159,7 @@ def intensified_irrigated_n_app(
     pygeoprocessing.raster_calculator(
         [(path, 1) for path in (
             background_path, current_path, rainfed_path, irrigated_path)],
-        local_op, target_path, current_raster_info['datatype'], current_nodata)
+        local_op, target_path, N_APP_DTYPE, current_nodata)
 
 
 def intensified_rainfed_n_app(
@@ -164,7 +167,6 @@ def intensified_rainfed_n_app(
     background_nodata = _get_nodata(background_path)
     current_nodata = _get_nodata(current_path)
     rainfed_nodata = _get_nodata(rainfed_path)
-    current_raster_info = pygeoprocessing.get_raster_info(current_path)
 
     def local_op(background, current, rainfed):
         result = rainfed.copy()
@@ -179,7 +181,7 @@ def intensified_rainfed_n_app(
     pygeoprocessing.raster_calculator(
         [(path, 1) for path in (
             background_path, current_path, rainfed_path)],
-        local_op, target_path, current_raster_info['datatype'], current_nodata)
+        local_op, target_path, N_APP_DTYPE, current_nodata)
 
 
 def n_app(
@@ -234,7 +236,7 @@ def n_app(
         src_rasters,
         local_op,
         output_file,
-        gdal.GDT_Float32,
+        N_APP_DTYPE,
         output_nd,
         calc_raster_stats=False
     )
@@ -266,7 +268,9 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
     files.update(f_out)
     files.update(f_inter)
 
-    base_lulc_info = pygeoprocessing.get_raster_info(str(f_in['base_lulc']))
+    n_app_raster_info = pygeoprocessing.get_raster_info(str(f_in['n_current']))
+    base_lulc_raster_info = pygeoprocessing.get_raster_info(str(f_in['base_lulc']))
+    target_pixel_size = base_lulc_raster_info['pixel_size']
 
     warp_tasks = {}
     for input_key, warped_key in [
@@ -285,14 +289,14 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             pygeoprocessing.warp_raster,
             kwargs={
                 'base_raster_path': str(files[input_key]),
-                'target_pixel_size': base_lulc_info['pixel_size'],
+                'target_pixel_size': target_pixel_size,
                 'target_raster_path': str(files[warped_key]),
                 'resample_method': 'near',
-                'target_bb': base_lulc_info['bounding_box'],
-                'target_projection_wkt': base_lulc_info['projection_wkt'],
+                'target_bb': n_app_raster_info['bounding_box'],
+                'target_projection_wkt': n_app_raster_info['projection_wkt'],
             },
             task_name=f'Warp {input_key}',
-            target_path_list=[files[warped_key]]
+            target_path_list=[str(files[warped_key])]
         )
 
     intensification_keys = [
@@ -345,8 +349,8 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                     (str(files[key]), 1) for key in input_keys],
                 "local_op": raster_calculator_op,
                 "target_raster_path": str(f_out[lulc_key]),
-                "datatype_target": base_lulc_info['datatype'],
-                "nodata_target": base_lulc_info['nodata'][0],
+                "datatype_target": LULC_DTYPE,
+                "nodata_target": LULC_NODATA,
                 "calc_raster_stats": True,
             },
             task_name=lulc_key,
@@ -371,8 +375,8 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                     (str(files[key]), 1) for key in input_keys],
                 "local_op": bmp_op,
                 "target_raster_path": str(files[target_key]),
-                "datatype_target": base_lulc_info['datatype'],
-                "nodata_target": base_lulc_info['nodata'][0],
+                "datatype_target": LULC_DTYPE,
+                "nodata_target": LULC_NODATA,
                 "calc_raster_stats": True,
             },
             task_name=target_key,
@@ -392,7 +396,7 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
         str(files['n_current']))
     current_n_app_nodata = current_n_app_raster_info['nodata'][0]
     if current_n_app_nodata is None:
-        current_n_app_nodata = float(numpy.finfo(numpy.float32).min)
+        current_n_app_nodata = N_APP_NODATA
 
     current_n_app_task = graph.add_task(
         pygeoprocessing.symbolic.evaluate_raster_calculator_expression,
