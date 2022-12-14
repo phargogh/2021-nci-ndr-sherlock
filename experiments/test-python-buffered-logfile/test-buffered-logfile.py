@@ -6,7 +6,7 @@ import sys
 import tempfile
 import time
 
-N_LOOPS = 10000
+N_LOOPS = 1000000
 
 LOGGER = logging.getLogger(__name__)
 
