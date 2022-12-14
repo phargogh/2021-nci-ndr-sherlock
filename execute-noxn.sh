@@ -24,7 +24,7 @@ then
 fi
 
 SHERLOCK_REPO_REV="$2"
-FINAL_RESTING_PLACE="$3"  # final location of pipeline outputs
+NOXN_WORKSPACE="$3"  # final location of pipeline outputs
 NCI_WORKSPACE="$4"
 
 # Container configuration
@@ -68,7 +68,7 @@ find "$NCI_WORKSPACE" -name "compressed_*.tif" | parallel -j 10 rsync -avzm --up
 ls -la "$NDR_OUTPUTS_DIR"
 
 # run job
-WORKSPACE_DIR="$FINAL_WORKSPACE"
+WORKSPACE_DIR="$NOXN_WORKSPACE"
 mkdir -p "$WORKSPACE_DIR" || echo "could not create workspace dir"
 
 DECAYED_FLOWACCUM_WORKSPACE_DIR=$WORKSPACE_DIR/decayed_flowaccum
@@ -91,12 +91,12 @@ then
     # Useful to back up the workspace to $SCRATCH for reference, even though we
     # only need the drinking water rasters uploaded to GDrive.
     # Create folders first so rsync only has to worry about files
-    find "$WORKSPACE_DIR/" -type d | sed "s|$WORKSPACE_DIR|$FINAL_RESTING_PLACE/$ARCHIVE_DIR/|g" | xargs mkdir -p
+    find "$WORKSPACE_DIR/" -type d | sed "s|$WORKSPACE_DIR|$NOXN_WORKSPACE/$ARCHIVE_DIR/|g" | xargs mkdir -p
 
     # rsync -avz is equivalent to rsync -rlptgoDvz
     # Preserves permissions, timestamps, etc, which is better for taskgraph.
     # TODO: maybe don't copy the workspace directory to scratch if the workspace is already on scratch?
-    find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$FINAL_RESTING_PLACE/$ARCHIVE_DIR/"
+    find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$NOXN_WORKSPACE/$ARCHIVE_DIR/"
 fi
 
 # Echo out the latest git log to make what's in this commit a little more readable.
@@ -106,7 +106,7 @@ git log -n1 >> "$GIT_LOG_MSG_FILE"
 
 # Copy geotiffs AND logfiles, if any, to google drive.
 # $file should be the complete path to the file (it is in my tests anyways)
-# This will upload to a workspace with the same dirname as $FINAL_RESTING_PLACE.
+# This will upload to a workspace with the same dirname as $NOXN_WORKSPACE.
 module load system rclone
 GDRIVE_DIR="nci-ndr-stanford-gdrive:$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR"
 $(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*_noxn_in_drinking_water_$RESOLUTION.tif")
@@ -120,6 +120,6 @@ $(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/covariates-$RESOLUTION" $(find "
 #$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/ndrplus-outputs-raw" $(find "$NDR_OUTPUTS_DIR" -name "*.tif")  # SLOW - outputs are tens of GB
 
 module load system jq
-gdrivedir=$(rclone lsjson "nci-ndr-stanford-gdrive:/" | jq -r --arg path "$(basename $FINAL_RESTING_PLACE)/$ARCHIVE_DIR" '.[] | select(.Path==$path)'.ID)
+gdrivedir=$(rclone lsjson "nci-ndr-stanford-gdrive:/" | jq -r --arg path "$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR" '.[] | select(.Path==$path)'.ID)
 echo "Files uploaded to GDrive available at https://drive.google.com/drive/u/0/folders/$gdrivedir"
 echo "NCI NOXN done!"
