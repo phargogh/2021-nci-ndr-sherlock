@@ -25,6 +25,7 @@ fi
 
 SHERLOCK_REPO_REV="$2"
 FINAL_RESTING_PLACE="$3"  # final location of pipeline outputs
+NCI_WORKSPACE="$4"
 
 # Container configuration
 #
@@ -56,30 +57,19 @@ DATE="$(date +%F)"
 GIT_REV="rev$(git rev-parse --short HEAD)"
 
 # copy files from scratch workspaces to local machine.
-NDR_OUTPUTS_DIR=$SCRATCH/NCI-ndr-plus-outputs
+NDR_OUTPUTS_DIR="$NCI_WORKSPACE/ndr-plus-outputs"
 mkdir -p "$NDR_OUTPUTS_DIR"
 
 # Copy files, preserving permissions.
 # Also only copy files over if they're newer than the ones already there.
 # This should be faster than simply copying individual files.
-find "$SCRATCH" -path "$SCRATCH/2021-NCI-NCI-NDRplus-rev$SHERLOCK_REPO_REV-*" -name "compressed_*.tif" | parallel -j 10 rsync -avzm --update --no-relative --human-readable {} "$NDR_OUTPUTS_DIR"
+find "$NCI_WORKSPACE" -name "compressed_*.tif" | parallel -j 10 rsync -avzm --update --no-relative --human-readable {} "$NDR_OUTPUTS_DIR"
 
 ls -la "$NDR_OUTPUTS_DIR"
 
 # run job
-WORKSPACE_DIRNAME=NCI-NOXN-workspace-$DATE-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION
-WORKSPACE_DIR=$SCRATCH/$WORKSPACE_DIRNAME
-if [ -d "$SCRATCH/$WORKSPACE_DIRNAME" ]
-then
-    # if there's already a workspace on $SCRATCH, copy it into $L_SCRATCH so we
-    # can reuse the task graph.  Preserve permissions and timestamps too during
-    # copy.
-    #find "$SCRATCH/$WORKSPACE_DIRNAME" | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$WORKSPACE_DIR"
-    echo "not worth it to copy files to $L_SCRATCH -- too big for what we need to compute."
-else
-    # Otherwise, create the new workspace, skipping if already there.
-    mkdir -p "$WORKSPACE_DIR"
-fi
+WORKSPACE_DIR="$FINAL_WORKSPACE"
+mkdir -p "$WORKSPACE_DIR" || echo "could not create workspace dir"
 
 DECAYED_FLOWACCUM_WORKSPACE_DIR=$WORKSPACE_DIR/decayed_flowaccum
 singularity run \
@@ -118,7 +108,7 @@ git log -n1 >> "$GIT_LOG_MSG_FILE"
 # $file should be the complete path to the file (it is in my tests anyways)
 # This will upload to a workspace with the same dirname as $FINAL_RESTING_PLACE.
 module load system rclone
-GDRIVE_DIR="nci-ndr-stanford-gdrive:$(basename $FINAL_RESTING_PLACE)/$ARCHIVE_DIR"
+GDRIVE_DIR="nci-ndr-stanford-gdrive:$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR"
 $(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*_noxn_in_drinking_water_$RESOLUTION.tif")
 $(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/predicted_noxn_in_surfacewater" $(find "$WORKSPACE_DIR" -name "*_surfacewater_predicted_noxn_*.tif")
 $(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/predicted_noxn_in_groundwater" $(find "$WORKSPACE_DIR" -name "*_groundwater_predicted_noxn_*.tif")

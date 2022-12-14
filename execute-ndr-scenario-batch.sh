@@ -93,5 +93,5 @@ then
     # passes, then we'll trigger the NOXN pipeline.
     sbatch \
         --dependency="$NOXN_SLURM_DEPENDENCY_STRING" \
-        ./execute-noxn.sh "$2" "$GIT_REV" "$FULL_WQ_PIPELINE_WORKSPACE"
+        ./execute-noxn.sh "$2" "$GIT_REV" "$FULL_WQ_PIPELINE_WORKSPACE/noxn" "$FULL_WQ_PIPELINE_WORKSPACE"
 fi
