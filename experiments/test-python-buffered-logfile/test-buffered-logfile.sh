@@ -11,11 +11,12 @@
 
 set -x
 module load python/3.9.0
-python --version
+PYTHON=python3
+$PYTHON --version
 
 RESULTS_CSV="results.csv"
 for _ in {0..100}
 do
-    python test-buffered-logfile.py $RESULTS_CSV
+    $PYTHON test-buffered-logfile.py $RESULTS_CSV
 done
 echo "done!"
