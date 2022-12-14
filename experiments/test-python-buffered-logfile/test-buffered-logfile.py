@@ -65,7 +65,7 @@ def main():
                 'baseline,std_scratch,buf_scratch,std_lscratch,buf_lscratch\n')
 
     with open(sys.argv[1], 'a') as result_csv:
-        result_csv.write(','.join(row) + '\n')
+        result_csv.write(','.join([str(val) for val in row]) + '\n')
 
 
 if __name__ == '__main__':
