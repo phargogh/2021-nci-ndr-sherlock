@@ -91,7 +91,12 @@ if [ "$1" = "--with-noxn" ]
 then
     # --dependency=afterok:<id1>:<id2>... means that if the whole NDR pipeline
     # passes, then we'll trigger the NOXN pipeline.
-    sbatch \
+    NOXN_JOB_ID=$(sbatch \
         --dependency="$NOXN_SLURM_DEPENDENCY_STRING" \
-        ./execute-noxn.sh "$2" "$GIT_REV" "$FULL_WQ_PIPELINE_WORKSPACE/noxn" "$FULL_WQ_PIPELINE_WORKSPACE"
+        ./execute-noxn.sh "$2" "$GIT_REV" "$FULL_WQ_PIPELINE_WORKSPACE/noxn" "$FULL_WQ_PIPELINE_WORKSPACE")
 fi
+
+# copy the whole job over to oak once it's all complete.
+sbatch \
+    --dependency="afterok:$NOXN_JOB_ID" \
+    ./copy-workspace-to-oak.sh $FULL_WQ_PIPELINE_WORKSPACE
