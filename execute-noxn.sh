@@ -109,13 +109,7 @@ git log -n1 >> "$GIT_LOG_MSG_FILE"
 # This will upload to a workspace with the same dirname as $NOXN_WORKSPACE.
 module load system rclone
 GDRIVE_DIR="nci-ndr-stanford-gdrive:$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR"
-$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/predicted_noxn_in_surfacewater" $(find "$WORKSPACE_DIR" -name "*_surfacewater_predicted_noxn_*.tif")
-$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/predicted_noxn_in_groundwater" $(find "$WORKSPACE_DIR" -name "*_groundwater_predicted_noxn_*.tif")
-$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/predicted_noxn_in_drinkingwater" $(find "$WORKSPACE_DIR" -name "*_noxn_in_drinking_water_$RESOLUTION.tif")
-$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/" $(find "$WORKSPACE_DIR" -name "*.png" -o -name "*.txt" -o -name "*.json")
-$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/ndrplus-outputs-aligned-to-flowdir" $(find "$DECAYED_FLOWACCUM_WORKSPACE_DIR" -name "aligned_export*.tif")
-$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/ndrplus-decayed-accumulation" $(find "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs" -name "*.tif")
-$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/covariates-$RESOLUTION" $(find "$WORKSPACE_DIR/aligned" -name "*.tif")
+$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/" $(find "$WORKSPACE_DIR")  # just upload the whole workspace.
 #$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/ndrplus-outputs-raw" $(find "$NDR_OUTPUTS_DIR" -name "*.tif")  # SLOW - outputs are tens of GB
 
 module load system jq
