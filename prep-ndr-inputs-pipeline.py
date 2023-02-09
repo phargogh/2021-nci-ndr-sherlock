@@ -134,12 +134,12 @@ def _get_nodata(raster_path):
 def _equals_nodata(array, nodata):
     if nodata is None:
         return False
-    return numpy.isclose(array, nodata)
+    return numpy.isclose(array, nodata, equal_nan=True)
 
 
 def intensified_irrigated_n_app(
         background_path, current_path, rainfed_path, irrigated_path,
-        target_path, bmps=False):
+        target_path):
     background_nodata = _get_nodata(background_path)
     current_nodata = _get_nodata(current_path)
     rainfed_nodata = _get_nodata(rainfed_path)
@@ -151,10 +151,7 @@ def intensified_irrigated_n_app(
         ix = np.isnan(result) | _equals_nodata(current, current_nodata)
         result[ix] = current[ix]
 
-        if bmps:
-            return 0.9 * result + background
-        else:
-            return result + background
+        return result + background
 
     pygeoprocessing.raster_calculator(
         [(path, 1) for path in (
@@ -163,7 +160,7 @@ def intensified_irrigated_n_app(
 
 
 def intensified_rainfed_n_app(
-        background_path, current_path, rainfed_path, target_path, bmps=False):
+        background_path, current_path, rainfed_path, target_path):
     background_nodata = _get_nodata(background_path)
     current_nodata = _get_nodata(current_path)
     rainfed_nodata = _get_nodata(rainfed_path)
@@ -173,10 +170,7 @@ def intensified_rainfed_n_app(
         ix = np.isnan(result) | _equals_nodata(current, current_nodata)
         result[ix] = current[ix]
 
-        if bmps:
-            return 0.9 * result + background
-        else:
-            return result + background
+        return result + background
 
     pygeoprocessing.raster_calculator(
         [(path, 1) for path in (
@@ -210,22 +204,22 @@ def n_app(
 
         if all_bmps:
             ix = np.isin(s, current_codes)
-            result[ix] += .9 * c[ix]
+            result[ix] += c[ix]
             ix = np.isin(s, rf_codes)
-            result[ix] += .9 * r[ix]
+            result[ix] += r[ix]
             ix = np.isin(s, irr_codes)
-            result[ix] += .9 * i[ix]
+            result[ix] += i[ix]
         else:
             ix = np.isin(s, current_codes)
             result[ix] += c[ix]
             ix = s == intense_rf_code
             result[ix] += r[ix]
             ix = s == intense_rf_bmp_code
-            result[ix] += .9 * r[ix]
+            result[ix] += r[ix]
             ix = s == intense_irr_code
             result[ix] += i[ix]
             ix = s == intense_irr_bmp_code
-            result[ix] += .9 * i[ix]
+            result[ix] += i[ix]
 
         return result
 
@@ -342,6 +336,10 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             ('extensification_current_practices',
                 extensification_current_practices_op,
                 extensification_current_practices_keys)]:
+        LOGGER.info(f"LULC key: {lulc_key}")
+        for path_key in input_keys:
+            LOGGER.info(f"{files[path_key]}: "
+                        f"{pygeoprocessing.get_raster_info(str(files[path_key]))['raster_size']}")
         lulc_tasks[lulc_key] = graph.add_task(
             pygeoprocessing.raster_calculator,
             kwargs={
