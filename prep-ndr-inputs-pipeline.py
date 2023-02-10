@@ -49,10 +49,10 @@ LULC_SCENARIOS = {
     "current_lulc_masked",
     "extensification_current_practices",
     "extensification_current_practices_bmps",
-    "intensification",
-    "intensification_bmps",
-    "intensification_expansion",
-    "intensification_expansion_bmps",
+    "intensification_optimized",
+    "intensification_optimized_bmps",
+    "intensification_optimized_expansion",
+    "intensification_optimized_expansion_bmps",
 }
 OUTPUT_FILES = {
     **{key: f"{key}.tif" for key in LULC_SCENARIOS},
@@ -305,7 +305,7 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
         'soil_suitability',
     ]
     intensification_expansion_keys = [
-        'intensification',
+        'intensification_optimized',
         'slope_threshold_intensification',
         'crop_value_intensified_rainfed_masked',
         'crop_value_intensified_irrigated_masked',
@@ -327,19 +327,17 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
     ]
     lulc_tasks = {}  # key: task
     for lulc_key, raster_calculator_op, input_keys in [
-            ('intensification',
+            ('intensification_optimized',
                 intensification_op,
                 intensification_keys),
-            ('intensification_expansion',
+            ('intensification_optimized_expansion',
                 intensification_expansion_op,
                 intensification_expansion_keys),
             ('extensification_current_practices',
                 extensification_current_practices_op,
                 extensification_current_practices_keys)]:
         LOGGER.info(f"LULC key: {lulc_key}")
-        for path_key in input_keys:
-            LOGGER.info(f"{files[path_key]}: "
-                        f"{pygeoprocessing.get_raster_info(str(files[path_key]))['raster_size']}")
+
         lulc_tasks[lulc_key] = graph.add_task(
             pygeoprocessing.raster_calculator,
             kwargs={
@@ -361,8 +359,8 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
 
     for source_key, target_key in [
             ('current_lulc_masked', 'current_bmps'),
-            ('intensification', 'intensification_bmps'),
-            ('intensification_expansion', 'intensification_expansion_bmps'),
+            ('intensification_optimized', 'intensification_optimized_bmps'),
+            ('intensification_optimized_expansion', 'intensification_optimized_expansion_bmps'),
             ('extensification_current_practices',
              'extensification_current_practices_bmps')]:
         input_keys = [source_key, 'riparian_buffer', 'potential_vegetation']
@@ -429,7 +427,6 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                 'rainfed_path': str(files['n_rainfed_aligned']),
                 'irrigated_path': str(files['n_irrigated_aligned']),
                 'target_path': str(files[intensified_irrigated_key]),
-                'bmps': use_bmps,
             },
             task_name=intensified_irrigated_key,
             target_path_list=[
@@ -451,7 +448,6 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                 'current_path': str(files['n_current_aligned']),
                 'rainfed_path': str(files['n_rainfed_aligned']),
                 'target_path': str(files[intensified_rainfed_key]),
-                'bmps': use_bmps,
             },
             task_name=f'intensified_rainfed_{use_bmps}',
             target_path_list=[
