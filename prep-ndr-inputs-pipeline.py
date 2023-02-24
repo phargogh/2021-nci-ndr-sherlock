@@ -4,6 +4,7 @@ import logging
 import os
 import pathlib
 import pprint
+import shutil
 
 import numpy
 import numpy as np
@@ -47,6 +48,10 @@ INPUT_FILES = {
 LULC_SCENARIOS = {
     "current_bmps",
     "current_lulc_masked",
+    "intensification",
+    "intensification_bmps",
+    "intensification_expansion",
+    "intensification_expansion_bmps",
     "extensification_current_practices",
     "extensification_current_practices_bmps",
     "intensification_optimized",
@@ -125,6 +130,31 @@ def bmp_op(lu, rb, pv):
     result[result==15] = 16
     result[result==25] = 26
     return result
+
+
+def intensification_n_app(scenario_lulc, baseline_n_app, optimized_n_app,
+                          target_n_app):
+    scenario_nodata = _get_nodata(scenario_lulc)
+    baseline_n_app_nodata = _get_nodata(baseline_n_app)
+    optimized_n_app_nodata = _get_nodata(optimized_n_app)
+
+    def _intensification_n_app(lulc, baseline, optimized):
+        result = numpy.full(lulc.shape, N_APP_NODATA, dtype=numpy.float32)
+        valid_pixels = (
+            ~_equals_nodata(lulc, scenario_nodata) &
+            ~_equals_nodata(baseline, baseline_n_app_nodata) &
+            ~_equals_nodata(optimized, optimized_n_app_nodata))
+
+        result[valid_pixels] = optimized[valid_pixels]
+
+        ag = (numpy.isin(scenario_lulc, AG_LUCODES) & valid_pixels)
+        result[ag] = numpy.maximum(baseline[ag], optimized[ag])
+
+        return result
+
+    pygeoprocessing.raster_calculator(
+        [(scenario_lulc, 1), (baseline_n_app, 1), (optimized_n_app, 1)],
+        _intensification_n_app, target_n_app, N_APP_DTYPE, N_APP_NODATA)
 
 
 def _get_nodata(raster_path):
@@ -357,12 +387,26 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             ]
         )
 
+    # These LULCs are just copies.
+    for source_key, target_key in (
+            ('intensification_optimized', 'intensification'),
+            ('intensification_optimized_expansion', 'intensification_expansion')):
+        LOGGER.info(f"LULC key: {target_key}")
+        lulc_tasks[target_key] = graph.add_task(
+            shutil.copyfile,
+            args=(str(files[source_key]), files[target_key]),
+            task_name=target_key,
+            target_path_list=[str(files[target_key])],
+            dependent_task_list=[lulc_tasks[source_key]]
+        )
+
     for source_key, target_key in [
             ('current_lulc_masked', 'current_bmps'),
+            ('intensification', 'intensification_bmps'),
+            ('intensification_expansion', 'intensification_expansion_bmps'),
             ('intensification_optimized', 'intensification_optimized_bmps'),
             ('intensification_optimized_expansion', 'intensification_optimized_expansion_bmps'),
-            ('extensification_current_practices',
-             'extensification_current_practices_bmps')]:
+            ('extensification_current_practices', 'extensification_current_practices_bmps')]:
         input_keys = [source_key, 'riparian_buffer', 'potential_vegetation']
         lulc_tasks[target_key] = graph.add_task(
             pygeoprocessing.raster_calculator,
@@ -449,7 +493,7 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                 'rainfed_path': str(files['n_rainfed_aligned']),
                 'target_path': str(files[intensified_rainfed_key]),
             },
-            task_name=f'intensified_rainfed_{use_bmps}',
+            task_name=f'intensified_rainfed_bmps_{use_bmps}',
             target_path_list=[
                 files[intensified_rainfed_key],
             ],
@@ -460,7 +504,14 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             ]
         )
 
+    lulc_scenario_n_app_tasks = []
     for lulc_scenario in LULC_SCENARIOS:
+        # The non-optimized intensification scenarios require the
+        # optimized intensification scenarios to have already been created.
+        if (lulc_scenario.startswith('intensification')
+                and 'optimized' in lulc_scenario):
+            continue
+
         dependent_task_list = [
             warp_tasks['current_lulc_masked'],
             warp_tasks['n_background_aligned'],
@@ -471,7 +522,7 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
         if lulc_scenario in lulc_tasks:
             dependent_task_list.append(lulc_tasks[lulc_scenario])
 
-        _ = graph.add_task(
+        lulc_scenario_n_app_tasks.append(graph.add_task(
             n_app,
             kwargs={
                 'scenario': str(files[lulc_scenario]),
@@ -485,6 +536,24 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             task_name=f'{lulc_scenario}_n_app',
             target_path_list=[files[f'{lulc_scenario}_n_app']],
             dependent_task_list=dependent_task_list
+        ))
+
+    for lulc_scenario in [lulc for lulc in LULC_SCENARIOS
+                          if lulc.startswith('intensification')
+                          and 'optimized' not in lulc]:
+        optimized_key = lulc_scenario.replace('intensification',
+                                              'intensification_optimized')
+        _ = graph.add_task(
+            intensification_n_app,
+            kwargs={
+                'scenario_lulc': str(files[lulc_scenario]),
+                'baseline_n_app': str(files['current_n_app']),
+                'optimized_n_app': str(files[f'{optimized_key}_n_app']),
+                'target_n_app': str(files[f'{lulc_scenario}_n_app']),
+            },
+            task_name=f'{lulc_scenario}_n_app',
+            target_path_list=[str(files[f'{lulc_scenario}_n_app'])],
+            dependent_task_list=lulc_scenario_n_app_tasks
         )
 
     # TODO: ecoshard all of the relevant rasters?
