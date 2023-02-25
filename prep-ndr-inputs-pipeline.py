@@ -506,10 +506,10 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
 
     lulc_scenario_n_app_tasks = []
     for lulc_scenario in LULC_SCENARIOS:
-        # The non-optimized intensification scenarios require the
-        # optimized intensification scenarios to have already been created.
-        if (lulc_scenario.startswith('intensification')
-                and 'optimized' in lulc_scenario):
+        # OK to do intensification_optimized_*
+        # Skip intensification*
+        if (lulc_scenario.startswith('intensification') and not
+                lulc_scenario.startswith('intensification_optimized')):
             continue
 
         dependent_task_list = [
@@ -538,6 +538,8 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             dependent_task_list=dependent_task_list
         ))
 
+    # Here we create the n_app scenarios for intensification*
+    # (NOT intensification_optimized*)
     for lulc_scenario in [lulc for lulc in LULC_SCENARIOS
                           if lulc.startswith('intensification')
                           and 'optimized' not in lulc]:
