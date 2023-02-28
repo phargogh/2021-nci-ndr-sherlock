@@ -20,3 +20,6 @@ rm -r "${TARGET_PARENT_DIR:?}/*" || echo "Directory not found; skipping: $TARGET
 
 mkdir -p "$TARGET_PARENT_DIR" || echo "Directory already exists: $TARGET_PARENT_DIR"
 cp -rv "$SOURCE_NCI_WQ_WORKSPACE" "$TARGET_PARENT_DIR/$BASENAME"
+
+echo "Copy complete!"
+echo "View the outputs at $TARGET_PARENT_DIR/$BASENAME"
