@@ -16,5 +16,7 @@ BASENAME=$(basename "$1")
 TARGET_PARENT_DIR="$OAK/nci/wq-latest"
 
 # We only want to keep the latest workspace around, so just delete the prior one
-rm -r "${TARGET_PARENT_DIR:?}/*"
+rm -r "${TARGET_PARENT_DIR:?}/*" || echo "Directory not found; skipping: $TARGET_PARENT_DIR"
+
+mkdir -p "$TARGET_PARENT_DIR" || echo "Directory already exists: $TARGET_PARENT_DIR"
 cp -rv "$SOURCE_NCI_WQ_WORKSPACE" "$TARGET_PARENT_DIR/$BASENAME"
