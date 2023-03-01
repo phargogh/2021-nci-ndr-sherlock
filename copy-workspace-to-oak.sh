@@ -12,7 +12,7 @@
 
 set -x
 
-SOURCE_NCI_WQ_WORKSPACE=$(cat "$1" | sed "s|$SCRATCH||g")
+SOURCE_NCI_WQ_WORKSPACE="${1//$SCRATCH/}"  # replace $SCRATCH with empty string
 BASENAME=$(basename "$1")
 
 TARGET_PARENT_DIR="$OAK/nci/wq-latest"
