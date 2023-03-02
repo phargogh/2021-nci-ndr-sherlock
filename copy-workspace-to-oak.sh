@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#SBATCH --time=1:00:00
+#SBATCH --time=0:10:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=4G
@@ -30,3 +30,4 @@ rm -r "${OAK_TARGET_PARENT_DIR:?}/*" || echo "Could not remove $OAK_TARGET_PAREN
 globus transfer "$GLOBUS_SCRATCH_ENDPOINT:$SOURCE_NCI_WQ_WORKSPACE" "$GLOBUS_OAK_ENDPOINT:/$TARGET_PARENT_DIR/$BASENAME"
 
 echo "Transfer request submitted for $OAK_TARGET_PARENT_DIR/$BASENAME"
+echo "Done!"
