@@ -27,7 +27,9 @@ GLOBUS_SCRATCH_ENDPOINT="6881ae2e-db26-11e5-9772-22000b9da45e"
 # There's so much to delete that the globus job will time out!
 rm -r "${OAK_TARGET_PARENT_DIR:?}/*" || echo "Could not remove $OAK_TARGET_PARENT_DIR"
 
-globus transfer "$GLOBUS_SCRATCH_ENDPOINT:$SOURCE_NCI_WQ_WORKSPACE" "$GLOBUS_OAK_ENDPOINT:/$TARGET_PARENT_DIR/$BASENAME"
+globus transfer --recursive \
+    "$GLOBUS_SCRATCH_ENDPOINT:$SOURCE_NCI_WQ_WORKSPACE" \
+    "$GLOBUS_OAK_ENDPOINT:/$TARGET_PARENT_DIR/$BASENAME"
 
 echo "Transfer request submitted for $OAK_TARGET_PARENT_DIR/$BASENAME"
 echo "Done!"
