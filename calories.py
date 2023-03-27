@@ -1,9 +1,17 @@
 import logging
+import os
+import shutil
+import sys
+import tempfile
+import time
 
+import numpy
 import pygeoprocessing
 from osgeo import gdal
+from osgeo import osr
 
 logging.basicConfig(level=logging.INFO)
+LOGGER = logging.getLogger(__name__)
 
 # Maps lucode to the proportion of calories produced.
 AG_INTENSITY = {
@@ -18,20 +26,27 @@ AG_INTENSITY = {
     30: 0.75,  # Mosaic cropland (>50%)
     40: 0.25,  # Mosaic cropland (<50%)
 }
+TARGET_NODATA = float(numpy.finfo(numpy.float32).min)
+
 
 def calories(lulc_raster_path, base_calories_raster_path,
-             target_raster_path, scalar=1):
+             target_raster_path, scalar=1, multiprocessed=False):
     lulc_nodata = pygeoprocessing.get_raster_info(
         lulc_raster_path)['nodata'][0]
     calories_nodata = pygeoprocessing.get_raster_info(
         base_calories_raster_path)['nodata'][0]
-    target_nodata = gdal.GDT_Float32
 
     def _get_calories(lulc, calories):
-        result = numpy.full(lulc.shape, target_nodata, dtype=numpy.float32)
-        valid_mask = (
-            ~numpy.isclose(lulc, lulc_nodata, equal_nan=True) &
-            ~numpy.isclose(calories, calories_nodata, equal_nan=True))
+        result = numpy.full(lulc.shape, TARGET_NODATA, dtype=numpy.float32)
+        valid_mask = ~numpy.isclose(lulc, lulc_nodata, equal_nan=True)
+
+        # handle the likely case where nodata is represented by nan and the
+        # nodata value is unset.
+        if calories_nodata is None:
+            valid_mask &= (~numpy.isnan(calories))
+        else:
+            valid_mask &= (~numpy.isclose(calories, calories_nodata,
+                                          equal_nan=True))
 
         # Any non-ag pixels produce no calories.
         result[valid_mask] = 0
@@ -43,4 +58,48 @@ def calories(lulc_raster_path, base_calories_raster_path,
 
     pygeoprocessing.raster_calculator(
         [(lulc_raster_path, 1), (base_calories_raster_path, 1)],
-        _get_calories, target_raster_path, target_nodata)
+        _get_calories, target_raster_path, gdal.GDT_Float32, TARGET_NODATA,
+        use_shared_memory=True)
+
+
+def main_vrt():
+    lulc_path = sys.argv[1]
+    base_calories_path = sys.argv[2]
+
+    temp_dir = tempfile.mkdtemp(dir=os.getcwd(), prefix='aligned-calories-')
+    temp_calories = os.path.join(temp_dir, "calories_aligned.vrt")
+    LOGGER.info(f"Building temp calories raster at {temp_calories}")
+
+    lulc_info = pygeoprocessing.get_raster_info(lulc_path)
+    target_srs = osr.SpatialReference()
+    target_srs.ImportFromWkt(lulc_info['projection_wkt'])
+
+    times = []
+    start_time = time.time()
+    gdal.BuildVRT(
+        temp_calories,
+        [base_calories_path],
+        outputBounds=lulc_info['bounding_box'],
+        xRes=abs(lulc_info['pixel_size'][0]),
+        yRes=abs(lulc_info['pixel_size'][1]),
+        allowProjectionDifference=True,
+        resampleAlg='near',
+        VRTNodata=TARGET_NODATA,
+        outputSRS=target_srs)
+    times.append(time.time() - start_time)
+
+    start_time = time.time()
+    calories(lulc_path, temp_calories, 'calories.tif', scalar=1)
+    times.append(time.time() - start_time)
+    shutil.rmtree(temp_dir, ignore_errors=True)
+    return times
+
+
+if __name__ == '__main__':
+    start_time = time.time()
+    vrt_times_array = main_vrt()
+    vrt_time = time.time() - start_time
+
+    print(f"VRT time:  {vrt_time}")
+    print(f"  * VRT:  {vrt_times_array[0]}")
+    print(f"  * Calc: {vrt_times_array[1]}")
