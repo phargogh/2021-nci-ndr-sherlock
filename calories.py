@@ -12,47 +12,78 @@ from osgeo import osr
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
+logging.getLogger('pygeoprocessing').setLevel(logging.DEBUG)
 
 # Maps lucode to the proportion of calories produced.
 AG_INTENSITY = {
-    10: 1,     # Cropland, rainfed
-    11: 1,     # Cropland, rainfed, herbaceous cover
-    12: 1,     # Cropland, rainfed, tree or shrub cover
+    10: 1,     # Cropland, rainfed (TREAT AS CURRENT)
+    11: 1,     # Cropland, rainfed, herbaceous cover (TREAT AS CURRENT)
+    12: 1,     # Cropland, rainfed, tree or shrub cover (TREAT AS CURRENT)
     15: 1,     # Intensified agriculture, irrigated
     16: 1,     # Intensified agriculture, with BMPs, rainfed
-    20: 1,     # Cropland, irrigated or post-flooding
+    20: 1,     # Cropland, irrigated or post-flooding (TREAT AS CURRENT)
     25: 1,     # Intensified agriculture, irrigated
     26: 1,     # Intensified agriculture with BMPs, irrigated
     30: 0.75,  # Mosaic cropland (>50%)
     40: 0.25,  # Mosaic cropland (<50%)
 }
+AG_CURRENT = {10, 11, 12, 20}
+AG_IRRIGATED = {15, 25, 26}
+AG_RAINFED = {16}
+assert (
+    len(AG_CURRENT.intersection(AG_IRRIGATED).intersection(AG_RAINFED)) == 0)
+assert (
+    AG_CURRENT.union(AG_IRRIGATED).union(AG_RAINFED) ==
+    set(AG_INTENSITY.keys()))
 TARGET_NODATA = float(numpy.finfo(numpy.float32).min)
 
 
-def calories(lulc_raster_path, base_calories_raster_path,
-             target_raster_path, scalar=1, multiprocessed=False):
+def calories(lulc_raster_path,
+             current_calories_raster_path,
+             irrigated_calories_raster_path,
+             rainfed_calories_raster_path,
+             target_raster_path,
+             scalar=1):
     lulc_nodata = pygeoprocessing.get_raster_info(
         lulc_raster_path)['nodata'][0]
-    calories_nodata = pygeoprocessing.get_raster_info(
-        base_calories_raster_path)['nodata'][0]
+    current_calories_nodata = pygeoprocessing.get_raster_info(
+        current_calories_raster_path)['nodata'][0]
+    irrigated_calories_nodata = pygeoprocessing.get_raster_info(
+        irrigated_calories_raster_path)['nodata'][0]
+    rainfed_calories_nodata = pygeoprocessing.get_raster_info(
+        rainfed_calories_raster_path)['nodata'][0]
 
-    def _get_calories(lulc, calories):
+    def _get_calories(lulc, current_calories, irrigated_calories,
+                      rainfed_calories):
         result = numpy.full(lulc.shape, TARGET_NODATA, dtype=numpy.float32)
         valid_mask = ~numpy.isclose(lulc, lulc_nodata, equal_nan=True)
 
         # handle the likely case where nodata is represented by nan and the
         # nodata value is unset.
-        if calories_nodata is None:
-            valid_mask &= (~numpy.isnan(calories))
-        else:
-            valid_mask &= (~numpy.isclose(calories, calories_nodata,
-                                          equal_nan=True))
+        for calories_array, calories_nodata in (
+                (current_calories, current_calories_nodata),
+                (irrigated_calories, irrigated_calories_nodata),
+                (rainfed_calories, rainfed_calories_nodata)):
+            if calories_nodata is None:
+                valid_mask &= (~numpy.isnan(calories_array))
+            else:
+                valid_mask &= (~numpy.isclose(calories_array, calories_nodata,
+                                              equal_nan=True))
 
         # Any non-ag pixels produce no calories.
         result[valid_mask] = 0
+
+        # Ag pixels have calories, so pull from the correct rasters depending
+        # on the case.
         for ag_lucode, ag_proportion in AG_INTENSITY.items():
             this_class = (lulc == ag_lucode)
-            result[this_class] = calories[this_class] * ag_proportion * scalar
+            if ag_lucode in AG_IRRIGATED:
+                result[this_class] = irrigated_calories[this_class]
+            elif ag_lucode in AG_RAINFED:
+                result[this_class] = rainfed_calories[this_class]
+            else:  # Use the current calories
+                result[this_class] = current_calories[this_class]
+            result[this_class] *= (ag_proportion * scalar)
 
         return result
 
