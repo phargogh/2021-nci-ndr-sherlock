@@ -20,5 +20,4 @@ CPUCORES=$(cat $outfile | grep noxn | awk '{ print $5 }' | paste -sd+ - | bc)
 echo "Total NOXN cpu cores requested: $CPUCORES"
 
 ELAPSEDTIME=$(cat $outfile | grep -i nci | awk '{ print $9 }' | python sum_slurm_cputime.py)
-echo "Total requested time: $ELAPSEDTIME"
-
+echo "Total execution time: $ELAPSEDTIME"
