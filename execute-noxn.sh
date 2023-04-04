@@ -23,9 +23,10 @@ then
     exit 1
 fi
 
-SHERLOCK_REPO_REV="$2"
-NOXN_WORKSPACE="$3"  # final location of pipeline outputs
-NCI_WORKSPACE="$4"
+# "${ENVVAR:-DEFAULT}" means use ENVVAR if present, DEFAULT if not.
+SHERLOCK_REPO_REV="${SHERLOCK_REPO_REV:-$2}"
+NOXN_WORKSPACE="${NOXN_WORKSPACE:-$3}"  # final location of pipeline outputs
+NCI_WORKSPACE="${NCI_WORKSPACE:-$4}"
 
 # Container configuration
 #
@@ -42,7 +43,7 @@ DIGEST=sha256:a9e09ff873407ce9e315504b019c616bf59095d65dcff4f31e1d4886722c8b46
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=638cc6ae7c80bd732f64237112c7deb20cfd600d
+REVISION=7015620578720409e1b284847857a598229c719a
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
