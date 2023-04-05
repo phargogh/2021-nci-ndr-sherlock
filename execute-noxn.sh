@@ -37,7 +37,7 @@ NCI_WORKSPACE="${NCI_WORKSPACE:-$4}"
 # See the singularity docs on the subject for more info:
 # https://sylabs.io/guides/3.0/user-guide/singularity_and_docker.html#making-use-of-private-images-from-docker-hub
 CONTAINER=ghcr.io/natcap/natcap-noxn-levels
-DIGEST=sha256:a9e09ff873407ce9e315504b019c616bf59095d65dcff4f31e1d4886722c8b46
+DIGEST=sha256:9d882225e78c63511b4568f9ffd548d42a24d2ed687e736d4c8f38d1cb42043c
 
 # Fetch the repository
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
@@ -75,11 +75,11 @@ mkdir -p "$WORKSPACE_DIR" || echo "could not create workspace dir"
 DECAYED_FLOWACCUM_WORKSPACE_DIR=$WORKSPACE_DIR/decayed_flowaccum
 singularity run \
     docker://$CONTAINER@$DIGEST \
-    pipeline-decayed-export.py --n_workers="$SLURM_CPUS_PER_TASK" "$DECAYED_FLOWACCUM_WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
+    python pipeline-decayed-export.py --n_workers="$SLURM_CPUS_PER_TASK" "$DECAYED_FLOWACCUM_WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
 singularity run \
     docker://$CONTAINER@$DIGEST \
-    pipeline.py --n_workers="$SLURM_CPUS_PER_TASK" --resolution="$RESOLUTION" "$WORKSPACE_DIR" "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs"
+    python pipeline.py --n_workers="$SLURM_CPUS_PER_TASK" --resolution="$RESOLUTION" "$WORKSPACE_DIR" "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs"
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
