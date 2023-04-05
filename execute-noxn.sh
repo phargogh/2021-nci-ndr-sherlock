@@ -37,7 +37,7 @@ NCI_WORKSPACE="${NCI_WORKSPACE:-$4}"
 # See the singularity docs on the subject for more info:
 # https://sylabs.io/guides/3.0/user-guide/singularity_and_docker.html#making-use-of-private-images-from-docker-hub
 CONTAINER=ghcr.io/natcap/natcap-noxn-levels
-DIGEST=sha256:9d882225e78c63511b4568f9ffd548d42a24d2ed687e736d4c8f38d1cb42043c
+DIGEST=sha256:74f434bd743e834120604e6a73a144260c953df5b7bcb23b8ea677346ca037a3
 
 # Fetch the repository
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
