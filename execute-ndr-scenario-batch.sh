@@ -21,7 +21,7 @@ echo "***********************************************************************"
 
 set -x
 LOCAL_GDRIVE_INPUTS_DIR="$SCRATCH/nci-gdrive/inputs"  # A local rsync clone of the NCI google drive
-LOCAL_GDRIVE_CALORIES_DIR="$SCRATCH/nci-gdrive/inputs"  # A local rsync clone of the NCI google drive
+LOCAL_GDRIVE_CALORIES_DIR="$SCRATCH/nci-gdrive/calories"  # A local rsync clone of the NCI google drive
 
 FULL_WQ_PIPELINE_WORKSPACE="$SCRATCH/NCI-WQ-full-${DATE}-${GIT_REV}"
 rm -r "$FULL_WQ_PIPELINE_WORKSPACE" || echo "Cannot remove directory that isn't there."
