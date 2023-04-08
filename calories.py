@@ -4,10 +4,10 @@ import os
 import shutil
 import sys
 import tempfile
-import time
 
 import numpy
 import pygeoprocessing
+import taskgraph
 from osgeo import gdal
 from osgeo import osr
 from pygeoprocessing import geoprocessing
@@ -41,6 +41,7 @@ assert (
     == set(AG_INTENSITY.keys()))
 TARGET_NODATA = float(numpy.finfo(numpy.float32).min)
 FLOAT32_NODATA = TARGET_NODATA
+CALORIES_TYPES = {'current', 'irrigated', 'rainfed'}
 
 
 def calories(lulc_raster_path,
@@ -178,15 +179,76 @@ def _align_pixel_counts_covariate_raster(
 
 
 def calories_pipeline(
-        scenario_lulc_raster_list,
-        source_calories_raster_list,
-        target_workspace, n_workers=-1):
-    pass
+        scenario_lulc_raster_list, source_calories_raster_dict, workspace,
+        n_workers=-1):
 
+    os.makedirs(workspace, exist_ok=True)
 
+    assert set(source_calories_raster_dict.keys()) == CALORIES_TYPES
 
+    graph = taskgraph.TaskGraph(
+        os.path.join(workspace, '.taskgraph'), n_workers=n_workers)
 
+    # assumes that the bounding boxes are all the same
+    reference_bounding_box = None
+    for scenario_lulc in scenario_lulc_raster_list:
+        scenario_info = pygeoprocessing.get_raster_info(scenario_lulc)
+        scenario_bounding_box = scenario_info['bounding_box']
 
+        # sanity check: verify that all of the lulcs are the same size
+        if reference_bounding_box is None:
+            reference_bounding_box = scenario_bounding_box
+        else:
+            numpy.testing.assert_allclose(reference_bounding_box,
+                                          scenario_bounding_box)
+
+    # we only need to align the source calories rasters once.
+    aligned_calories = {}
+    for calorie_type in CALORIES_TYPES:
+        basename = os.path.basename(source_calories_raster_dict[calorie_type])
+        aligned_calories[calorie_type] = os.path.join(
+            workspace, f'aligned_calories_{basename}')
+
+        _ = graph.add_task(
+            _align_pixel_counts_covariate_raster,
+            kwargs={
+                'source_covariate_raster_path':
+                    source_calories_raster_dict[calorie_type],
+                'target_covariate_raster_path': aligned_calories[calorie_type],
+                'target_pixel_size': scenario_info['pixel_size'],
+                'target_bounding_box': scenario_info['bounding_box'],
+                'target_srs_wkt': scenario_info['projection_wkt'],
+                'working_dir': workspace,
+            },
+            task_name=f'Align {basename}',
+            target_path_list=[aligned_calories[calorie_type]],
+            dependent_task_list=[]
+        )
+
+    # We need to wait on the calories alignment before proceeding.
+    graph.join()
+
+    for scenario_lulc in scenario_lulc_raster_list:
+        target_filepath = os.path.join(
+            workspace, f'calories-{os.path.basename(scenario_lulc)}')
+        _ = graph.add_task(
+            calories,
+            kwargs={
+                'lulc_raster_path': scenario_lulc,
+                'current_calories_raster_path': aligned_calories['current'],
+                'irrigated_calories_raster_path':
+                    aligned_calories['irrigated'],
+                'rainfed_calories_raster_path': aligned_calories['rainfed'],
+                'target_raster_path': target_filepath,
+            },
+            task_name=(
+                f'Calculate calories - {os.path.basename(target_filepath)}'),
+            target_path_list=[target_filepath],
+            dependent_task_list=[]
+        )
+
+    graph.close()
+    graph.join()
 
 
 CALORIELAYERS = '/Users/jdouglass/Downloads/April21_2022_CalorieLayers'
@@ -199,3 +261,5 @@ if __name__ == '__main__':
             CALORIELAYERS, 'caloriemapsirrigatedRevQ.tif'),
         'rainfed': os.path.join(CALORIELAYERS, 'caloriemapsrainfedRevQ.tif'),
     }
+    calories_pipeline([lulc], calories_layers, 'calories-workspace',
+                      n_workers=3)
