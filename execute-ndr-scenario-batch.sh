@@ -21,6 +21,7 @@ echo "***********************************************************************"
 
 set -x
 LOCAL_GDRIVE_INPUTS_DIR="$SCRATCH/nci-gdrive/inputs"  # A local rsync clone of the NCI google drive
+LOCAL_GDRIVE_CALORIES_DIR="$SCRATCH/nci-gdrive/inputs"  # A local rsync clone of the NCI google drive
 
 FULL_WQ_PIPELINE_WORKSPACE="$SCRATCH/NCI-WQ-full-${DATE}-${GIT_REV}"
 rm -r "$FULL_WQ_PIPELINE_WORKSPACE" || echo "Cannot remove directory that isn't there."
@@ -97,7 +98,9 @@ then
         "$2" \
         "$GIT_REV" \
         "$FULL_WQ_PIPELINE_WORKSPACE/noxn" \
-        "$FULL_WQ_PIPELINE_WORKSPACE" | grep -o "[0-9]\\+")
+        "$FULL_WQ_PIPELINE_WORKSPACE" \
+        "$LOCAL_GDRIVE_CALORIES_DIR" \
+        "$SCENARIOS_WORKSPACE/scenario_rasters.json" | grep -o "[0-9]\\+")
 fi
 
 # copy the whole job over to oak once it's all complete.

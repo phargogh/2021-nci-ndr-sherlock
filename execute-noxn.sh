@@ -27,6 +27,8 @@ fi
 SHERLOCK_REPO_REV="${SHERLOCK_REPO_REV:-$2}"
 NOXN_WORKSPACE="${NOXN_WORKSPACE:-$3}"  # final location of pipeline outputs
 NCI_WORKSPACE="${NCI_WORKSPACE:-$4}"
+CALORIES_DIR="${CALORIES_DIR:-$5}"
+SCENARIO_JSON="${SCENARIO_JSON:-$6}"
 
 # Container configuration
 #
@@ -79,7 +81,11 @@ singularity run \
 
 singularity run \
     docker://$CONTAINER@$DIGEST \
-    python pipeline.py --n_workers="$SLURM_CPUS_PER_TASK" --resolution="$RESOLUTION" "$WORKSPACE_DIR" "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs"
+    python pipeline.py --n_workers="$SLURM_CPUS_PER_TASK" --resolution="$RESOLUTION" \
+    "$WORKSPACE_DIR" \
+    "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs" \
+    "$CALORIES_DIR" \
+    "$SCENARIO_JSON"
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.

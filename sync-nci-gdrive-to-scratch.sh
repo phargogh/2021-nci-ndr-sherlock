@@ -16,4 +16,5 @@ set -e
 set -x
 module load system rclone
 rclone sync nci-whole-project-stanford-gdrive:/inputs/ "$SCRATCH/nci-gdrive/inputs/"
+rclone sync "nci-whole-project-stanford-gdrive:/Archive/Core data/Calorie Production/April21_2022_CalorieLayers" "$SCRATCH/nci-gdrive/calories/"
 echo "Finished syncing NCI gdrive inputs to SCRATCH"
