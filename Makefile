@@ -23,7 +23,7 @@ ndr-batch: update-submodules
 	bash ./execute-ndr-scenario-batch.sh 2>&1 | tee -a $@-$(DATE)-$(GIT_REV).log
 
 noxn-1km:
-	sbatch --time=16:00:00 ./execute-noxn.sh 1km
+	sbatch --time=6:00:00 ./execute-noxn.sh 1km
 
 noxn-10km:
 	sbatch --time=2:00:00 ./execute-noxn.sh 10km
