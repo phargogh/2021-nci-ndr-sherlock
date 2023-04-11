@@ -56,7 +56,7 @@ then
     globus transfer --fail-on-quota-errors \
         --batch="$TEMPFILE" \
         "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$SCENARIO_OUTPUTS_DIR/" \
-        "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$GDRIVE_DIR/prepared-scenarios"
+        "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$GLOBUS_STANFORD_GDRIVE_RUN_ARCHIVE/$GDRIVE_DIR/prepared-scenarios"
 fi
 
 LINT_SCRIPT="$(pwd)/lint-ndr-scenario.py"
