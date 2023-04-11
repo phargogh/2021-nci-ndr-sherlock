@@ -121,6 +121,7 @@ module load system rclone
 module load system py-globus-cli
 GDRIVE_DIR="nci-ndr-stanford-gdrive:$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR"
 globus transfer --fail-on-quota-errors --recursive \
+    --label="NCI WQ NOXN rev$GIT_REV" \
     "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$WORKSPACE_DIR" \
     "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR" || echo "Globus transfer failed!"
 
