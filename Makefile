@@ -46,5 +46,5 @@ show-job-status:
 sync-input-data:
 	sbatch ./sync-nci-gdrive-to-scratch.sh
 
-prep-ndr-inputs: update-submodules
+prep-ndr-inputs: update-submodules globus-login
 	sbatch ./prep-ndr-inputs-pipeline.sh
