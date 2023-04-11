@@ -90,10 +90,17 @@ done
 # --dependency=afterok:<jobid>
 if [ "$1" = "--with-noxn" ]
 then
+    if [ "$2" = "1km" ]
+    then
+        NOXN_TIME="6:00:00"
+    else
+        NOXN_TIME="2:00:00"
+    fi
     # --dependency=afterok:<id1>:<id2>... means that if the whole NDR pipeline
     # passes, then we'll trigger the NOXN pipeline.
     NOXN_JOB_ID=$(sbatch \
         --dependency="$NOXN_SLURM_DEPENDENCY_STRING" \
+        --time="$NOXN_TIME" \
         ./execute-noxn.sh \
         "$2" \
         "$GIT_REV" \
