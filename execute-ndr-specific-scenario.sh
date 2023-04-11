@@ -26,6 +26,9 @@ CONTAINER=ghcr.io/phargogh/inspring-no-gcloud-keys
 DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
 WORKSPACE_DIR="$L_SCRATCH/$WORKSPACE_NAME"
 
+# load configuration for globus
+source globus-endpoints.env
+
 if [ -d "$SCRATCH/$WORKSPACE_NAME" ]
 then
     # If there's already a workspace on $SCRATCH, then copy it into $L_SCRATCH
@@ -65,7 +68,8 @@ rsync -az \
 
 # The trailing slash means that files will be copied into this directory.
 # Don't need to name the files explicitly.
-GDRIVE_DIR="$(basename $FINAL_RESTING_PLACE)/$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME/"
+ARCHIVE_DIR="$DATE-nci-ndr-$GIT_REV/$SCENARIO_NAME"
+GDRIVE_DIR="$(basename $FINAL_RESTING_PLACE)/$ARCHIVE_DIR"
 
 # Copy geotiffs AND logfiles to google drive.
 #$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.{tif,out}
@@ -76,8 +80,18 @@ GDRIVE_DIR="$(basename $FINAL_RESTING_PLACE)/$DATE-nci-ndr-$GIT_REV/$SCENARIO_NA
 #
 # Only uploading the logfiles and the compressed geotiffs should keep things below our max limit,
 # about 14 scenarios, 15 GB apiece, so 210GB for a complete NDR run.
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.out
-$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/compressed_*.tif
+module load system py-globus-cli
+TEMPFILE="$WORKSPACE_DIR/globus-filerequest.txt"
+basename $(ls $WORKSPACE_DIR/compressed_*.tif) | awk '$2=$1' >> $TEMPFILE
+basename $(ls $WORKSPACE_DIR/*.out) | awk '$2=$1' >> $TEMPFILE
+globus transfer --fail-on-quota-errors --recursive \
+    --label="NCI WQ NDR rev$GIT_REV $SCENARIO_NAME" \
+    --batch="$TEMPFILE" \
+    "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$WORKSPACE_DIR" \
+    "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$(basename $FINAL_RESTING_PLACE)/$ARCHIVE_DIR" || echo "Globus transfer failed!"
+
+#$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.out
+#$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/compressed_*.tif
 
 # If NDR failed, we want that to be reflected in the email I get on exit.
 if [ "$FAILED" -gt "0" ]
