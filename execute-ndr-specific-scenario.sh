@@ -84,7 +84,7 @@ module load system py-globus-cli
 TEMPFILE="$WORKSPACE_DIR/globus-filerequest.txt"
 basename $(ls $WORKSPACE_DIR/compressed_*.tif) | awk '$2=$1' >> $TEMPFILE
 basename $(ls $WORKSPACE_DIR/*.out) | awk '$2=$1' >> $TEMPFILE
-globus transfer --fail-on-quota-errors --recursive \
+globus transfer --fail-on-quota-errors \
     --label="NCI WQ NDR rev$GIT_REV $SCENARIO_NAME" \
     --batch="$TEMPFILE" \
     "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$WORKSPACE_DIR" \

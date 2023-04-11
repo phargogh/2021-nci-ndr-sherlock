@@ -45,9 +45,18 @@ if [ "$3" != "" ]
 then
     FINAL_RESTING_PLACE="$3"
     GDRIVE_DIR=$(basename "$FINAL_RESTING_PLACE")
-    $(pwd)/upload-to-googledrive.sh \
-        "nci-ndr-stanford-gdrive:$GDRIVE_DIR/prepared-scenarios" \
-        "$SCENARIO_OUTPUTS_DIR"/*.{tif,json}
+    #$(pwd)/upload-to-googledrive.sh \
+    #    "nci-ndr-stanford-gdrive:$GDRIVE_DIR/prepared-scenarios" \
+    #    "$SCENARIO_OUTPUTS_DIR"/*.{tif,json}
+    module load system py-globus-cli
+    source globus-endpoints.env
+    TEMPFILE="$SCENARIO_OUTPUTS_DIR/globus-filerequest.txt"
+    basename $(ls $SCENARIO_OUTPUTS_DIR/*.tif) | awk '$2=$1' >> $TEMPFILE
+    basename $(ls $SCENARIO_OUTPUTS_DIR/*.json) | awk '$2=$1' >> $TEMPFILE
+    globus transfer --fail-on-quota-errors \
+        --batch="$TEMPFILE" \
+        "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$SCENARIO_OUTPUTS_DIR/" \
+        "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$GDRIVE_DIR/prepared-scenarios"
 fi
 
 LINT_SCRIPT="$(pwd)/lint-ndr-scenario.py"
