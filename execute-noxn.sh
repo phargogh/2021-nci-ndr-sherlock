@@ -30,6 +30,9 @@ NCI_WORKSPACE="${NCI_WORKSPACE:-$4}"
 CALORIES_DIR="${CALORIES_DIR:-$5}"
 SCENARIO_JSON="${SCENARIO_JSON:-$6}"
 
+# load configuration for globus
+source globus-endpoints.env
+
 # Container configuration
 #
 # NOTE: this is currently a private repository, so it'll be easier to cache
@@ -115,8 +118,13 @@ git log -n1 >> "$GIT_LOG_MSG_FILE"
 # $file should be the complete path to the file (it is in my tests anyways)
 # This will upload to a workspace with the same dirname as $NOXN_WORKSPACE.
 module load system rclone
+module load system py-globus-cli
 GDRIVE_DIR="nci-ndr-stanford-gdrive:$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR"
-$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/" $(find "$WORKSPACE_DIR")  # just upload the whole workspace.
+globus transfer --fail-on-quota-errors --recursive \
+    "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$WORKSPACE_DIR" \
+    "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR" || echo "Globus transfer failed!"
+
+#$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/" $(find "$WORKSPACE_DIR")  # just upload the whole workspace.
 #$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/ndrplus-outputs-raw" $(find "$NDR_OUTPUTS_DIR" -name "*.tif")  # SLOW - outputs are tens of GB
 
 module load system jq
