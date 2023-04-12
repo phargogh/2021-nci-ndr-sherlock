@@ -16,3 +16,8 @@ I expect that `export`ing these variables will make them available to the
 calling script.
 
 ## Results
+
+`export`ing is not needed; regular `source`ing works fine!  The thing is that I
+need to be careful about relative/absolute filepaths and other things
+tangentially related to loading the file itself.
+
