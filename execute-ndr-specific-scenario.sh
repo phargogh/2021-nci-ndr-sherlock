@@ -26,7 +26,7 @@ CONTAINER=ghcr.io/phargogh/inspring-no-gcloud-keys
 DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
 WORKSPACE_DIR="$L_SCRATCH/$WORKSPACE_NAME"
 
-# load configuration for globus
+# load configuration for globus based on the path to this script.
 SCRIPT_PATH="$(dirname $(realpath -s $0))"
 source "$SCRIPT_PATH/globus-endpoints.env"
 
