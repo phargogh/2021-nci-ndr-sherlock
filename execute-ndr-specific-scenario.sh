@@ -27,7 +27,8 @@ DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
 WORKSPACE_DIR="$L_SCRATCH/$WORKSPACE_NAME"
 
 # load configuration for globus
-source globus-endpoints.env
+SCRIPT_PATH="$(dirname $(realpath -s $0))"
+source "$SCRIPT_PATH/globus-endpoints.env"
 
 if [ -d "$SCRATCH/$WORKSPACE_NAME" ]
 then
@@ -82,7 +83,7 @@ GDRIVE_DIR="$(basename $FINAL_RESTING_PLACE)/$ARCHIVE_DIR"
 # about 14 scenarios, 15 GB apiece, so 210GB for a complete NDR run.
 module load system py-globus-cli
 TEMPFILE="$WORKSPACE_DIR/globus-filerequest.txt"
-basename $(ls $WORKSPACE_DIR/compressed_*.tif $WORKSPACE_DIR/*.out) | awk '$2=$1' > $TEMPFILE
+ls $WORKSPACE_DIR/compressed_*.tif $WORKSPACE_DIR/*.out | xargs basename | awk '$2=$1' > $TEMPFILE
 globus transfer --fail-on-quota-errors \
     --label="NCI WQ NDR rev$GIT_REV $SCENARIO_NAME" \
     --batch="$TEMPFILE" \
