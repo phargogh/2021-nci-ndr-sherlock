@@ -15,7 +15,8 @@ set -ex
 GLOBUS_OAK_COLLECTION_ID="8b3a8b64-d4ab-4551-b37e-ca0092f769a7"  # as of writing, Oak uses GCS v5
 GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID="6881ae2e-db26-11e5-9772-22000b9da45e"  # As of writing, Sherlock uses GCS v4
 
-SOURCE_NCI_WQ_WORKSPACE="${1:Source path required as arg1?}"
+# Error with message if arg1 not present.
+SOURCE_NCI_WQ_WORKSPACE="${1?Source path required as arg1}"
 BASENAME=$(basename "$1")
 
 
