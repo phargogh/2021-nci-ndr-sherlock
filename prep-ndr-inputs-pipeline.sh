@@ -51,7 +51,7 @@ then
     module load system py-globus-cli
     source "./globus-endpoints.env"
     TEMPFILE="$SCENARIO_OUTPUTS_DIR/globus-filerequest.txt"
-    find "$SCENARIO_OUTPUTS_DIR" -print0 -name "*.tif" -o -name "*.out" -o -name "*.json" | xargs -0 basename | awk '$2=$1' > "$TEMPFILE"
+    find "$SCENARIO_OUTPUTS_DIR" -name "*.tif" -o -name "*.out" -o -name "*.json" | xargs basename -a | awk '$2=$1' > "$TEMPFILE"
     globus transfer --fail-on-quota-errors \
         --batch="$TEMPFILE" \
         "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$SCENARIO_OUTPUTS_DIR/" \
