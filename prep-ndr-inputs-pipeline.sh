@@ -49,8 +49,7 @@ then
     #    "nci-ndr-stanford-gdrive:$GDRIVE_DIR/prepared-scenarios" \
     #    "$SCENARIO_OUTPUTS_DIR"/*.{tif,json}
     module load system py-globus-cli
-    SCRIPT_PATH="$(dirname $(realpath -s $0))"
-    source "$SCRIPT_PATH/globus-endpoints.env"
+    source "./globus-endpoints.env"
     TEMPFILE="$SCENARIO_OUTPUTS_DIR/globus-filerequest.txt"
     ls $WORKSPACE_DIR/compressed_*.tif $WORKSPACE_DIR/*.out | xargs basename | awk '$2=$1' > $TEMPFILE
     globus transfer --fail-on-quota-errors \

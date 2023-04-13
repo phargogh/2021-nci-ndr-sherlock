@@ -26,9 +26,8 @@ CONTAINER=ghcr.io/phargogh/inspring-no-gcloud-keys
 DIGEST=sha256:66c4a760dece610f992ee2f2aa4fff6a8d9e96951bf6f9a81bf16779aa7f26c4
 WORKSPACE_DIR="$L_SCRATCH/$WORKSPACE_NAME"
 
-# load configuration for globus based on the path to this script.
-SCRIPT_PATH="$(dirname $(realpath -s $0))"
-source "$SCRIPT_PATH/globus-endpoints.env"
+# This script is executed from within the ndr repo, so the globus config is one dir up.
+source "../globus-endpoints.env"
 
 if [ -d "$SCRATCH/$WORKSPACE_NAME" ]
 then

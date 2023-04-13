@@ -31,8 +31,7 @@ CALORIES_DIR="${CALORIES_DIR:-$5}"
 SCENARIO_JSON="${SCENARIO_JSON:-$6}"
 
 # load configuration for globus
-SCRIPT_PATH="$(dirname $(realpath -s $0))"
-source "$SCRIPT_PATH/globus-endpoints.env"
+source "./globus-endpoints.env"
 
 # Container configuration
 #
