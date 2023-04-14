@@ -14,12 +14,12 @@ for our purposes, but it'd be great to do better.
 normally like to do, but through an array-like object.  Would that work for our
 purposes here?
 
-# Hypothesis
+## Hypothesis
 
 I am expecting that `numpy.memmap` will work as expected and the memory for the
 process will not be exhausted, even on a very fine resolution raster.
 
-# Experiment
+## Experiment
 
 We will use these configuration constants:
 
@@ -40,3 +40,18 @@ Once we have verified `oom-killer` swooped in a terminated the job:
 1. `ReadAsArray` the whole raster, but pass in a preallocated `numpy.memmap` object.
 2. Write the array to a 300dpi PNG in CWD.
 
+## Results
+
+As expected, the `ReadAsArray` for the whole raster quickly caused `oom-killer`
+to kill the process.
+
+When I preallocated a `numpy.memmap` array and passed that to `ReadAsArray`,
+GDAL needed to first _copy_ the entire array into the new numpy object.  This copy
+operation took quite some time (about 10 minutes, probably due to network speeds
+writing to SCRATCH).  While this copy operation _did_ allocate about 32 GB of
+virtual memory, `oom-killer` didn't kill the process.  Once the memmapped array
+had loaded, it was passed to `matplotlib` which was promptly killed by the
+`oom-killer`.  So, matplotlib is loading the entire array.
+
+I have not yet found a good workaround for this for plots like matplotlib,
+except to use overviews or some other kind of downscaled derivative.
