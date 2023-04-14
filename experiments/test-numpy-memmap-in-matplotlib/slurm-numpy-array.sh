@@ -7,7 +7,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
 #SBATCH --partition=hns,normal
-#SBATCH --job-name="Test-memmap"
+#SBATCH --job-name="Test-array"
 
 CONTAINER=ghcr.io/natcap/devstack
 DIGEST=sha256:961c937a55ac8ff99219afeffe0f8509e4f142061cd3302c8133dfbe94574657
