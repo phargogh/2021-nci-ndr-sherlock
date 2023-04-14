@@ -82,7 +82,7 @@ GDRIVE_DIR="$(basename $FINAL_RESTING_PLACE)/$ARCHIVE_DIR"
 # about 14 scenarios, 15 GB apiece, so 210GB for a complete NDR run.
 module load system py-globus-cli
 TEMPFILE="$WORKSPACE_DIR/globus-filerequest.txt"
-find "$WORKSPACE_DIR" -maxdepth 1 -name "compressed_*.tif" -o -name "*.out" | xargs basename -a | awk '$2=$1' > "$TEMPFILE"
+find "$FINAL_RESTING_PLACE/$WORKSPACE_NAME" -maxdepth 1 -name "compressed_*.tif" -o -name "*.out" | xargs basename -a | awk '$2=$1' > "$TEMPFILE"
 globus transfer --fail-on-quota-errors \
     --label="NCI WQ NDR rev$GIT_REV $SCENARIO_NAME" \
     --batch="$TEMPFILE" \
