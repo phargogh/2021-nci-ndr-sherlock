@@ -26,7 +26,7 @@ ndr-batch: update-submodules globus-login
 	bash ./execute-ndr-scenario-batch.sh 2>&1 | tee -a $@-$(DATE)-$(GIT_REV).log
 
 noxn-1km: globus-login
-	sbatch --time=6:30:00 ./execute-noxn.sh 1km
+	sbatch --time=7:00:00 ./execute-noxn.sh 1km
 
 noxn-10km: globus-login
 	sbatch --time=2:00:00 ./execute-noxn.sh 10km
