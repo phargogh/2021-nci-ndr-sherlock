@@ -92,9 +92,9 @@ if [ "$1" = "--with-noxn" ]
 then
     if [ "$2" = "1km" ]
     then
-        NOXN_TIME="6:00:00"
+        NOXN_TIME="10:00:00"
     else
-        NOXN_TIME="2:00:00"
+        NOXN_TIME="5:00:00"
     fi
     # --dependency=afterok:<id1>:<id2>... means that if the whole NDR pipeline
     # passes, then we'll trigger the NOXN pipeline.
