@@ -13,11 +13,11 @@ do
     done
 done
 
-CPUCORES=$(cat $outfile | grep NDR | awk '{ print $5 }' | paste -sd+ - | bc)
+CPUCORES=$(cat $outfile | grep -i NDR | awk '{ print $5 }' | paste -sd+ - | bc)
 echo "Total NDR cpu cores requested: $CPUCORES"
 
-CPUCORES=$(cat $outfile | grep noxn | awk '{ print $5 }' | paste -sd+ - | bc)
+CPUCORES=$(cat $outfile | grep -i noxn | awk '{ print $5 }' | paste -sd+ - | bc)
 echo "Total NOXN cpu cores requested: $CPUCORES"
 
-ELAPSEDTIME=$(cat $outfile | grep -i nci | awk '{ print $9 }' | python sum_slurm_cputime.py)
+ELAPSEDTIME=$(cat $outfile | grep -i nci | awk '{ print $10 }' | python sum_slurm_cputime.py)
 echo "Total execution time: $ELAPSEDTIME"
