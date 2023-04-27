@@ -10,6 +10,7 @@ do
             --starttime $yyyy-$mm-01 \
             --endtime $yyyy-$mm-31 \
             --delimiter='|' \
+            --parsable2 \
             --format jobid,jobname%60,partition,account,alloccpus,state%40,exitcode,reserved%20,cputime%20 >> $outfile
     done
 done
