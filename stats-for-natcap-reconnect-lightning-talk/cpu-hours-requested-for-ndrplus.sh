@@ -2,7 +2,7 @@
 
 outfile="ndr_runs.txt"
 rm -f $outfile
-for yyyy in {2021..2022}
+for yyyy in {2021..2023}
 do
     for mm in {01..12}
     do
