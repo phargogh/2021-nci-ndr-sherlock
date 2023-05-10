@@ -81,12 +81,12 @@ GDRIVE_DIR="$(basename $FINAL_RESTING_PLACE)/$ARCHIVE_DIR"
 # Only uploading the logfiles and the compressed geotiffs should keep things below our max limit,
 # about 14 scenarios, 15 GB apiece, so 210GB for a complete NDR run.
 module load system py-globus-cli
-TEMPFILE="$WORKSPACE_DIR/globus-filerequest.txt"
+TEMPFILE="$FINAL_RESTING_PLACE/$WORKSPACE_NAME/globus-filerequest.txt"
 find "$FINAL_RESTING_PLACE/$WORKSPACE_NAME" -maxdepth 1 -name "compressed_*.tif" -o -name "*.out" | xargs basename -a | awk '$2=$1' > "$TEMPFILE"
 globus transfer --fail-on-quota-errors \
     --label="NCI WQ NDR rev$GIT_REV $SCENARIO_NAME" \
     --batch="$TEMPFILE" \
-    "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$WORKSPACE_DIR" \
+    "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$FINAL_RESTING_PLACE/$WORKSPACE_NAME" \
     "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$(basename $FINAL_RESTING_PLACE)/$ARCHIVE_DIR" || echo "Globus transfer failed!"
 
 #$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.out
