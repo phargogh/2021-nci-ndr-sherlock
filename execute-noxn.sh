@@ -3,7 +3,7 @@
 #SBATCH --time=10:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=20
-#SBATCH --mem-per-cpu=8G
+#SBATCH --mem-per-cpu=16G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
 #SBATCH --partition=hns,normal
@@ -42,13 +42,13 @@ source "./globus-endpoints.env"
 # See the singularity docs on the subject for more info:
 # https://sylabs.io/guides/3.0/user-guide/singularity_and_docker.html#making-use-of-private-images-from-docker-hub
 CONTAINER=ghcr.io/natcap/natcap-noxn-levels
-DIGEST=sha256:74f434bd743e834120604e6a73a144260c953df5b7bcb23b8ea677346ca037a3
+DIGEST=sha256:2a92ced1387bbfe580065ef98a61f6d360daf90f3afa54cf4383b0becf7480e86
 
 # Fetch the repository
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=db0046b5b087e9f1c2bf9aacc550a7d7000002ef
+REVISION=54a90ec02982ba80fe7318ae7df63712f0b5f9f5
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
