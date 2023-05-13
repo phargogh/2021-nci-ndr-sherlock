@@ -42,7 +42,7 @@ source "./globus-endpoints.env"
 # See the singularity docs on the subject for more info:
 # https://sylabs.io/guides/3.0/user-guide/singularity_and_docker.html#making-use-of-private-images-from-docker-hub
 CONTAINER=ghcr.io/natcap/natcap-noxn-levels
-DIGEST=sha256:2a92ced1387bbfe580065ef98a61f6d360daf90f3afa54cf4383b0becf7480e86
+DIGEST=sha256:2a92ced1387bbfe580065ef98a61f6d360daf90f3afa54cf4383b0becf7480e8
 
 # Fetch the repository
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
