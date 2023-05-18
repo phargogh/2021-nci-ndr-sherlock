@@ -48,7 +48,7 @@ DIGEST=sha256:2a92ced1387bbfe580065ef98a61f6d360daf90f3afa54cf4383b0becf7480e8
 # NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
 REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=abb9bafc7b4fbeb60b1aecd314d8bf1e0cc003b5
+REVISION=1c418d8b1638cc2744f499b4d15097af3f940ca8
 if [ ! -d $REPOSLUG ]
 then
     git clone $REPO
