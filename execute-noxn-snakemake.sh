@@ -27,6 +27,7 @@ set -x
 #            slurm_partition=normal,hns \
 
 # goal: get calories to run within snakemake
+cd nci-noxn-levels
 snakemake calories \
     --slurm \
     --default-resources slurm_partition=normal,hns slurm_extra="--mail-type=ALL" \
