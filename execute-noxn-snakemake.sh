@@ -28,9 +28,9 @@ set -x
 
 # goal: get calories to run within snakemake
 cd nci-noxn-levels
+snakemake --unlock
 snakemake calories \
     --slurm \
-    --default-resources=slurm_partition="normal,hns" \
     --singularity-prefix="$SCRATCH/singularity-cache" \
     --jobs=10 \
     --configfile=Snakefile.config.sherlock.json \
