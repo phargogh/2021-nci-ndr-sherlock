@@ -30,7 +30,8 @@ set -x
 cd nci-noxn-levels
 snakemake calories \
     --slurm \
-    --default-resources slurm_partition=normal,hns slurm_extra="--mail-type=ALL" \
+    --default-resources slurm_partition="normal,hns" \
+    --default-resources slurm_extra="--mail-type=ALL" \
     --singularity-prefix="$SCRATCH/singularity-cache" \
     --jobs=10 \
     --configfile=Snakefile.config.sherlock.json \
