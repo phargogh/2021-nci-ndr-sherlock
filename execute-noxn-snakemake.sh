@@ -3,11 +3,11 @@
 #SBATCH --time=10:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=16G
+#SBATCH --mem-per-cpu=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
 #SBATCH --partition=hns,normal
-#SBATCH --job-name="NCI-NOXN-snakemake"
+#SBATCH --job-name="NCI-NOXN-calories-snakemake"
 #SBATCH --output=/scratch/users/jadoug06/slurm-logfiles/slurm-%j.%x.out
 #
 # This script assumes that the task name will be set by the calling sbatch command.
