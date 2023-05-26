@@ -30,6 +30,7 @@ set -x
 cd nci-noxn-levels
 snakemake --unlock
 snakemake calories \
+    --cores=4 \
     --slurm \
     --singularity-prefix="$SCRATCH/singularity-cache" \
     --jobs=10 \
