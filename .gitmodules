@@ -13,3 +13,6 @@
 [submodule "NCI_Score"]
 	path = NCI_Score
 	url = git@github.com:natcap-nci/NCI_Score.git
+[submodule "nci-noxn-levels"]
+	path = nci-noxn-levels
+	url = git@github.com:natcap/nci-noxn-levels.git
