@@ -70,12 +70,11 @@ singularity run \
     python pipeline-decayed-export.py --n_workers="$SLURM_CPUS_PER_TASK" "$DECAYED_FLOWACCUM_WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
 singularity run \
+    --env-file="singularity-containers.env" \
     docker://$NOXN_DOCKER_CONTAINER \
     python pipeline.py --n_workers="$SLURM_CPUS_PER_TASK" --resolution="$RESOLUTION" \
     "$WORKSPACE_DIR" \
-    "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs" \
-    "$CALORIES_DIR" \
-    "$SCENARIO_JSON"
+    "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs"
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
