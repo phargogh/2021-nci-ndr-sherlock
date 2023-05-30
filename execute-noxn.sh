@@ -28,18 +28,8 @@ SHERLOCK_REPO_REV="${SHERLOCK_REPO_REV:-$2}"
 NOXN_WORKSPACE="${NOXN_WORKSPACE:-$3}"  # final location of pipeline outputs
 NCI_WORKSPACE="${NCI_WORKSPACE:-$4}"
 
-# load configuration for globus
-source "./globus-endpoints.env"
-
-# Container configuration
-#
-# NOTE: this is currently a private repository, so it'll be easier to cache
-# this locally before the NOXN run.  I did this with:
-#    $ singularity pull --docker-login docker://ghcr.io/natcap/natcap-noxn-levels
-# which then prompted me for my username and GHCR password (authentication token).
-# See the singularity docs on the subject for more info:
-# https://sylabs.io/guides/3.0/user-guide/singularity_and_docker.html#making-use-of-private-images-from-docker-hub
-source "./singularity-containers.env"
+# load configuration for globus, singularity, etc.
+source "env-sherlock.env"
 
 REPOSLUG=nci-noxn-levels
 pushd $REPOSLUG

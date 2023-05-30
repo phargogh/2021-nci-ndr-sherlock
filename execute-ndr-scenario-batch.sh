@@ -93,8 +93,10 @@ then
     if [ "$2" = "1km" ]
     then
         NOXN_TIME="10:00:00"
+        NOXN_SPATIAL_CONFIG_FILE="nci-noxn-levels/pipeline.config-sherlock-1km.json"
     else
         NOXN_TIME="5:00:00"
+        NOXN_SPATIAL_CONFIG_FILE="nci-noxn-levels/pipeline.config-sherlock-10km.json"
     fi
     # --dependency=afterok:<id1>:<id2>... means that if the whole NDR pipeline
     # passes, then we'll trigger the NOXN pipeline.
@@ -108,9 +110,20 @@ then
         "$FULL_WQ_PIPELINE_WORKSPACE" \
         "$LOCAL_GDRIVE_CALORIES_DIR" \
         "$SCENARIOS_WORKSPACE/scenario_rasters.json" | grep -o "[0-9]\\+")
+
+    # Calories relies only on the preprocessed scenarios job.
+    CALORIES_JOB=$(sbatch \
+        --job-name="NCI-WQ-calories-$GIT_REV" \
+        execute-calories.sh \
+        "$FULL_WQ_PIPELINE_WORKSPACE/calories" \
+        "$FULL_WQ_PIPELINE_WORKSPACE" \
+        "$LOCAL_GDRIVE_CALORIES_DIR" \
+        "$SCENARIOS_WORKSPACE/scenario_rasters.json" \
+        "$NOXN_SPATIAL_CONFIG_FILE" | grep -o "[0-9]\\+")
+
 fi
 
 # copy the whole job over to oak once it's all complete.
 sbatch \
-    --dependency="afterok:$NOXN_JOB_ID" \
+    --dependency="afterok:$NOXN_JOB_ID:$CALORIES_JOB" \
     ./copy-workspace-to-oak.sh "$FULL_WQ_PIPELINE_WORKSPACE"

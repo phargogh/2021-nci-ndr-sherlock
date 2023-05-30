@@ -21,16 +21,12 @@ WORKSPACE_DIR="${WORKSPACE_DIR:-$1}"  # The absolute path to where calories rast
 NCI_WORKSPACE="${NCI_WORKSPACE:-$2}"  # Where the whole NCI workspace is located (absolute path)
 CALORIES_DIR="${CALORIES_DIR:-$3}"    # Where the source calories rasters are located  (absolute path)
 SCENARIO_JSON="${SCENARIO_JSON:-$4}"  # Where the Scenario JSON file is located (absolute path)
+SPATIAL_CONFIG_FILE="${SPATIAL_CONFIG_FILE:-$5}"
 
-# load configuration for globus
-source "./globus-endpoints.env"
-
-# load container information
-source "./singularity-containers.env"
+source "./env-sherlock.env"
 
 pushd nci-noxn-levels
 
-SPATIAL_CONFIG_FILE="./pipeline.config.json"
 singularity run \
     "docker://$NOXN_DOCKER_CONTAINER" \
     python calories.py \
@@ -42,15 +38,18 @@ singularity run \
         --spatial_config="$SPATIAL_CONFIG_FILE" \
         "$WORKSPACE_DIR"
 
-# Copy geotiffs AND logfiles, if any, to google drive.
-# $file should be the complete path to the file (it is in my tests anyways)
-# This will upload to a workspace with the same dirname as $NOXN_WORKSPACE.
-module load system rclone
-module load system py-globus-cli
-module load system jq
-RESOLUTION=$(jq -r .resolution $SPATIAL_CONFIG_FILE)  # load resolution string from config
-ARCHIVE_DIR="$DATE-nci-calories-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION"
-globus transfer --fail-on-quota-errors --recursive \
-    --label="NCI WQ Calories $GIT_REV" \
-    "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$WORKSPACE_DIR" \
-    "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$GLOBUS_STANFORD_GDRIVE_RUN_ARCHIVE/$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR" || echo "Globus transfer failed!"
+if [ "$NCI_USE_GLOBUS" = "1" ]
+then
+    # Copy geotiffs AND logfiles, if any, to google drive.
+    # $file should be the complete path to the file (it is in my tests anyways)
+    # This will upload to a workspace with the same dirname as $NOXN_WORKSPACE.
+    module load system rclone
+    module load system py-globus-cli
+    module load system jq
+    RESOLUTION=$(jq -r .resolution $SPATIAL_CONFIG_FILE)  # load resolution string from config
+    ARCHIVE_DIR="$DATE-nci-calories-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION"
+    globus transfer --fail-on-quota-errors --recursive \
+        --label="NCI WQ Calories $GIT_REV" \
+        "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$WORKSPACE_DIR" \
+        "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$GLOBUS_STANFORD_GDRIVE_RUN_ARCHIVE/$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR" || echo "Globus transfer failed!"
+fi
