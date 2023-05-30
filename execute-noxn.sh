@@ -44,15 +44,7 @@ source "./globus-endpoints.env"
 CONTAINER=ghcr.io/natcap/natcap-noxn-levels
 DIGEST=sha256:2a92ced1387bbfe580065ef98a61f6d360daf90f3afa54cf4383b0becf7480e8
 
-# Fetch the repository
-# NOTE: This repo is private and so requires that sherlock is configured for SSH access.
 REPOSLUG=nci-noxn-levels
-REPO=git@github.com:natcap/$REPOSLUG.git
-REVISION=ac60c9c5e70305f915405151ccb89d008be62401
-if [ ! -d $REPOSLUG ]
-then
-    git clone $REPO
-fi
 pushd $REPOSLUG
 
 # OK to always fetch the repo
