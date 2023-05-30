@@ -27,8 +27,6 @@ fi
 SHERLOCK_REPO_REV="${SHERLOCK_REPO_REV:-$2}"
 NOXN_WORKSPACE="${NOXN_WORKSPACE:-$3}"  # final location of pipeline outputs
 NCI_WORKSPACE="${NCI_WORKSPACE:-$4}"
-CALORIES_DIR="${CALORIES_DIR:-$5}"
-SCENARIO_JSON="${SCENARIO_JSON:-$6}"
 
 # load configuration for globus
 source "./globus-endpoints.env"

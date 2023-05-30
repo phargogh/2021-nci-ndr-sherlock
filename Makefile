@@ -31,6 +31,9 @@ noxn-1km: globus-login
 noxn-10km: globus-login
 	sbatch --time=4:00:00 ./execute-noxn.sh 10km
 
+calories:
+	sbatch ./execute-calories.sh
+
 all: update-submodules globus-login
 	bash ./execute-ndr-scenario-batch.sh --with-noxn 10km 2>&1 | tee -a $@-$(DATE)-$(GIT_REV).log
 
