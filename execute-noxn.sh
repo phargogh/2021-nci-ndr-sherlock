@@ -41,15 +41,10 @@ source "./globus-endpoints.env"
 # which then prompted me for my username and GHCR password (authentication token).
 # See the singularity docs on the subject for more info:
 # https://sylabs.io/guides/3.0/user-guide/singularity_and_docker.html#making-use-of-private-images-from-docker-hub
-CONTAINER=ghcr.io/natcap/natcap-noxn-levels
-DIGEST=sha256:2a92ced1387bbfe580065ef98a61f6d360daf90f3afa54cf4383b0becf7480e8
+source "./singularity-containers.env"
 
 REPOSLUG=nci-noxn-levels
 pushd $REPOSLUG
-
-# OK to always fetch the repo
-git fetch
-git checkout $REVISION
 
 DATE="$(date +%F)"
 GIT_REV="rev$(git rev-parse --short HEAD)"
@@ -71,11 +66,11 @@ mkdir -p "$WORKSPACE_DIR" || echo "could not create workspace dir"
 
 DECAYED_FLOWACCUM_WORKSPACE_DIR=$WORKSPACE_DIR/decayed_flowaccum
 singularity run \
-    docker://$CONTAINER@$DIGEST \
+    docker://$NOXN_DOCKER_CONTAINER \
     python pipeline-decayed-export.py --n_workers="$SLURM_CPUS_PER_TASK" "$DECAYED_FLOWACCUM_WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
 singularity run \
-    docker://$CONTAINER@$DIGEST \
+    docker://$NOXN_DOCKER_CONTAINER \
     python pipeline.py --n_workers="$SLURM_CPUS_PER_TASK" --resolution="$RESOLUTION" \
     "$WORKSPACE_DIR" \
     "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs" \
