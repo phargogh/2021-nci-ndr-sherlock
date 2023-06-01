@@ -15,6 +15,7 @@
 # --partition=hns,normal means that this will be submitted to both queues, whichever gets to it first will be used.
 set -e
 set -x
+module load system jq
 
 RESOLUTION="$1"
 if [ "$RESOLUTION" = "" ]
@@ -64,45 +65,42 @@ singularity run \
     "$WORKSPACE_DIR" \
     "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs"
 
-# rclone the files to google drive
-# The trailing slash means that files will be copied into this directory.
-# Don't need to name the files explicitly.
-ARCHIVE_DIR="$DATE-nci-noxn-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION"
+PREDICTION_PICKLES_FILE=$WORKSPACE_DIR/$(python -c "import pipeline; print(pipeline.PREDICTION_SLURM_JOBS_FILENAME)")
+PREDICTION_JOBS_STRING="afterok:"
+CONFIG_FILE="pipeline.config-sherlock-$RESOLUTION.json"
+cat "$PREDICTION_PICKLES_FILE" | while read prediction_pickle_file
+do
+    sleep 3  # give the scheduler a break; lots of jobs to schedule
+    PREDICTION_JOB_ID=$(sbatch \
+        --time="$(jq -rj .prediction.prediction_runtime $CONFIG_FILE)" \
+        --ntasks=1 \
+        --cpus-per-task="$(jq -rj .prediction.prediction_n_workers $CONFIG_FILE)" \
+        --mem-per-cpu="8GB" \
+        --mail-type=ALL \
+        --partition=hns,normal \
+        --job-name="NCI-NOXN-prediction-$(basename $prediction_pickle_file)" \
+        --output="$SCRATCH/slurm-logfiles/slurm-%j.%x.out" \
+        singularity run docker://$NOXN_DOCKER_CONTAINER \
+            python cli-wrap.py pipeline._wrapped_slurm_cmd_function \
+            --target="pipeline.predict" \
+            --kwargs_pickle_file="$prediction_pickle_file" | grep -o "[0-9]\\+")
+    PREDICTION_JOBS_STRING="$PREDICTION_JOBS_STRING:$PREDICTION_JOB_ID"
+done
 
-# Check to see if the workspace is on scratch.  If it isn't, rsync the workspace over to scratch.
-if [[ $WORKSPACE_DIR != $SCRATCH/* ]]
-then
-    # Useful to back up the workspace to $SCRATCH for reference, even though we
-    # only need the drinking water rasters uploaded to GDrive.
-    # Create folders first so rsync only has to worry about files
-    find "$WORKSPACE_DIR/" -type d | sed "s|$WORKSPACE_DIR|$NOXN_WORKSPACE/$ARCHIVE_DIR/|g" | xargs mkdir -p
+# Execute post-prediction script
+sbatch \
+    --dependency="$PREDICTION_JOBS_STRING" \
+    --time=$(jq -rj .post_prediction.runtime $CONFIG_FILE) \
+    ../execute-noxn-post-prediction.sh "$WORKSPACE_DIR"
 
-    # rsync -avz is equivalent to rsync -rlptgoDvz
-    # Preserves permissions, timestamps, etc, which is better for taskgraph.
-    # TODO: maybe don't copy the workspace directory to scratch if the workspace is already on scratch?
-    find "$WORKSPACE_DIR/" -type f | parallel -j 10 rsync -avzm --no-relative --human-readable {} "$NOXN_WORKSPACE/$ARCHIVE_DIR/"
-fi
+# Upload files to globus
+sbatch \
+    --dependency="$PHASE2_JOB_ID" \
+    ../execute-noxn-upload-to-globus.sh \
+    "$DATE" \
+    "$GIT_REV" \
+    "$RESOLUTION" \
+    "$WORKSPACE_DIR" \
+    "$NOXN_WORKSPACE"
 
-# Echo out the latest git log to make what's in this commit a little more readable.
-GIT_LOG_MSG_FILE="$WORKSPACE_DIR/_which_commit_is_this.txt"
-git remote -v >> "$GIT_LOG_MSG_FILE"
-git log -n1 >> "$GIT_LOG_MSG_FILE"
 
-# Copy geotiffs AND logfiles, if any, to google drive.
-# $file should be the complete path to the file (it is in my tests anyways)
-# This will upload to a workspace with the same dirname as $NOXN_WORKSPACE.
-module load system rclone
-module load system py-globus-cli
-GDRIVE_DIR="nci-ndr-stanford-gdrive:$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR"
-globus transfer --fail-on-quota-errors --recursive \
-    --label="NCI WQ NOXN $GIT_REV" \
-    "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$WORKSPACE_DIR" \
-    "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$GLOBUS_STANFORD_GDRIVE_RUN_ARCHIVE/$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR" || echo "Globus transfer failed!"
-
-#$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/" $(find "$WORKSPACE_DIR")  # just upload the whole workspace.
-#$(pwd)/../upload-to-googledrive.sh "$GDRIVE_DIR/ndrplus-outputs-raw" $(find "$NDR_OUTPUTS_DIR" -name "*.tif")  # SLOW - outputs are tens of GB
-
-module load system jq
-gdrivedir=$(rclone lsjson "nci-ndr-stanford-gdrive:/" | jq -r --arg path "$(basename $NCI_WORKSPACE)/$ARCHIVE_DIR" '.[] | select(.Path==$path)'.ID)
-echo "Files uploaded to GDrive available at https://drive.google.com/drive/u/0/folders/$gdrivedir"
-echo "NCI NOXN done!"
