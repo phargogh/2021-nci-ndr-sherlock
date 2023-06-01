@@ -75,17 +75,9 @@ while read -r prediction_pickle_file; do
     sleep 3  # give the scheduler a break; lots of jobs to schedule
     PREDICTION_JOB_ID=$(sbatch \
         --time="$(jq -rj .prediction.prediction_runtime $CONFIG_FILE)" \
-        --ntasks=1 \
         --cpus-per-task="$(jq -rj .prediction.prediction_n_workers $CONFIG_FILE)" \
-        --mem-per-cpu="8GB" \
-        --mail-type=ALL \
-        --partition=hns,normal \
         --job-name="NCI-NOXN-prediction-$(basename $prediction_pickle_file)" \
-        --output="$SCRATCH/slurm-logfiles/slurm-%j.%x.out" \
-        singularity run "docker://$NOXN_DOCKER_CONTAINER" \
-            python cli-wrap.py pipeline._wrapped_slurm_cmd_function \
-            --target="pipeline.predict" \
-            --kwargs_pickle_file="$prediction_pickle_file" | grep -o "[0-9]\\+")
+        ../execute-noxn-prediction.sh "$prediction_pickle_file" | grep -o "[0-9]\\+")
     PREDICTION_JOBS_STRING="$PREDICTION_JOBS_STRING:$PREDICTION_JOB_ID"
 done < "$PREDICTION_PICKLES_FILE"
 
