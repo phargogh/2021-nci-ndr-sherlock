@@ -23,3 +23,5 @@ singularity run "docker://$NOXN_DOCKER_CONTAINER" \
     python cli-wrap.py pipeline._wrapped_slurm_cmd_function \
     --target="pipeline.predict" \
     --kwargs_pickle_file="$PREDICTION_PICKLE_FILE" | grep -o "[0-9]\\+"
+
+echo "Completed prediction for $PREDICTION_PICKLE_FILE"

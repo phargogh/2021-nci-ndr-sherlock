@@ -26,3 +26,5 @@ singularity run \
     python cli-wrap.py pipeline.execute_phase2 \
     --workspace="$WORKSPACE" \
     --n_workers="$SLURM_CPUS_PER_TASK"
+
+echo "Completed noxn post-prediction"

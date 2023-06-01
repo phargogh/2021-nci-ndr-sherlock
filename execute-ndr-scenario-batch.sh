@@ -95,7 +95,7 @@ then
         NOXN_TIME="10:00:00"
         NOXN_SPATIAL_CONFIG_FILE="nci-noxn-levels/pipeline.config-sherlock-1km.json"
     else
-        NOXN_TIME="2:00:00"
+        NOXN_TIME="4:00:00"
         NOXN_SPATIAL_CONFIG_FILE="nci-noxn-levels/pipeline.config-sherlock-10km.json"
     fi
     # --dependency=afterok:<id1>:<id2>... means that if the whole NDR pipeline

@@ -97,3 +97,5 @@ sbatch \
     "$WORKSPACE_DIR" \
     "$NOXN_WORKSPACE" \
     "$NCI_WORKSPACE"
+
+echo "Completed noxn sbatch script"
