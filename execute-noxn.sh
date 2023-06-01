@@ -71,8 +71,7 @@ singularity run \
 
 PREDICTION_PICKLES_FILE=$WORKSPACE_DIR/$(python -c "import pipeline; print(pipeline.PREDICTION_SLURM_JOBS_FILENAME)")
 PREDICTION_JOBS_STRING="afterok:"
-cat "$PREDICTION_PICKLES_FILE" | while read prediction_pickle_file
-do
+while read -r prediction_pickle_file; do
     sleep 3  # give the scheduler a break; lots of jobs to schedule
     PREDICTION_JOB_ID=$(sbatch \
         --time="$(jq -rj .prediction.prediction_runtime $CONFIG_FILE)" \
@@ -88,7 +87,7 @@ do
             --target="pipeline.predict" \
             --kwargs_pickle_file="$prediction_pickle_file" | grep -o "[0-9]\\+")
     PREDICTION_JOBS_STRING="$PREDICTION_JOBS_STRING:$PREDICTION_JOB_ID"
-done
+done < "$PREDICTION_PICKLES_FILE"
 
 # Execute post-prediction script
 sbatch \
