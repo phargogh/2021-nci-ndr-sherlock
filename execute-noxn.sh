@@ -103,6 +103,5 @@ sbatch \
     "$GIT_REV" \
     "$RESOLUTION" \
     "$WORKSPACE_DIR" \
-    "$NOXN_WORKSPACE"
-
-
+    "$NOXN_WORKSPACE" \
+    "$NCI_WORKSPACE"

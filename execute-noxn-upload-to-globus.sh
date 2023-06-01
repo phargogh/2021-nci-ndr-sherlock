@@ -21,8 +21,9 @@ GIT_REV="$2"
 RESOLUTION="$3"
 WORKSPACE_DIR="$4"
 NOXN_WORKSPACE="$5"
+NCI_WORKSPACE="$6"
 
-source "env-sherlock.env"
+source "../env-sherlock.env"
 
 # rclone the files to google drive
 # The trailing slash means that files will be copied into this directory.
