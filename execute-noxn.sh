@@ -60,7 +60,7 @@ singularity run \
 
 CONFIG_FILE="pipeline.config-sherlock-$RESOLUTION.json"
 singularity run \
-    --env-file="../env-sherlock.env" \
+    --env-file="../singularity-containers.env" \
     docker://$NOXN_DOCKER_CONTAINER \
     python pipeline.py \
     --n_workers="$SLURM_CPUS_PER_TASK" \
