@@ -58,16 +58,19 @@ singularity run \
     docker://$NOXN_DOCKER_CONTAINER \
     python pipeline-decayed-export.py --n_workers="$SLURM_CPUS_PER_TASK" "$DECAYED_FLOWACCUM_WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
+CONFIG_FILE="pipeline.config-sherlock-$RESOLUTION.json"
 singularity run \
     --env-file="singularity-containers.env" \
     docker://$NOXN_DOCKER_CONTAINER \
-    python pipeline.py --n_workers="$SLURM_CPUS_PER_TASK" --resolution="$RESOLUTION" \
+    python pipeline.py \
+    --n_workers="$SLURM_CPUS_PER_TASK" \
+    --slurm \
+    "$CONFIG_FILE" \
     "$WORKSPACE_DIR" \
     "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs"
 
 PREDICTION_PICKLES_FILE=$WORKSPACE_DIR/$(python -c "import pipeline; print(pipeline.PREDICTION_SLURM_JOBS_FILENAME)")
 PREDICTION_JOBS_STRING="afterok:"
-CONFIG_FILE="pipeline.config-sherlock-$RESOLUTION.json"
 cat "$PREDICTION_PICKLES_FILE" | while read prediction_pickle_file
 do
     sleep 3  # give the scheduler a break; lots of jobs to schedule
@@ -80,7 +83,7 @@ do
         --partition=hns,normal \
         --job-name="NCI-NOXN-prediction-$(basename $prediction_pickle_file)" \
         --output="$SCRATCH/slurm-logfiles/slurm-%j.%x.out" \
-        singularity run docker://$NOXN_DOCKER_CONTAINER \
+        singularity run "docker://$NOXN_DOCKER_CONTAINER" \
             python cli-wrap.py pipeline._wrapped_slurm_cmd_function \
             --target="pipeline.predict" \
             --kwargs_pickle_file="$prediction_pickle_file" | grep -o "[0-9]\\+")
