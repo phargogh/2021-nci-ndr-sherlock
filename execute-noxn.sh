@@ -45,7 +45,7 @@ mkdir -p "$NDR_OUTPUTS_DIR"
 # Copy files, preserving permissions.
 # Also only copy files over if they're newer than the ones already there.
 # This should be faster than simply copying individual files.
-find "$NCI_WORKSPACE" -name "compressed_*.tif" | parallel -j 10 rsync -avzm --update --no-relative --human-readable {} "$NDR_OUTPUTS_DIR"
+find "$NCI_WORKSPACE/NCI-NDRplus-*" -name "compressed_*.tif" | parallel -j 10 rsync -avzm --update --no-relative --human-readable {} "$NDR_OUTPUTS_DIR"
 
 ls -la "$NDR_OUTPUTS_DIR"
 
