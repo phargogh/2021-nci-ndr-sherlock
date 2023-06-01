@@ -70,7 +70,7 @@ singularity run \
     "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs"
 
 PREDICTION_PICKLES_FILE=$WORKSPACE_DIR/$(singularity run docker://$NOXN_DOCKER_CONTAINER python -c "import pipeline; print(pipeline.PREDICTION_SLURM_JOBS_FILENAME)")
-PREDICTION_JOBS_STRING="afterok:"
+PREDICTION_JOBS_STRING="afterok"
 while read -r prediction_pickle_file; do
     sleep 3  # give the scheduler a break; lots of jobs to schedule
     PREDICTION_JOB_ID=$(sbatch \
