@@ -82,10 +82,10 @@ while read -r prediction_pickle_file; do
 done < "$PREDICTION_PICKLES_FILE"
 
 # Execute post-prediction script
-sbatch \
+PHASE2_JOB_ID=$(sbatch \
     --dependency="$PREDICTION_JOBS_STRING" \
     --time=$(jq -rj .post_prediction.runtime $CONFIG_FILE) \
-    ../execute-noxn-post-prediction.sh "$WORKSPACE_DIR"
+    ../execute-noxn-post-prediction.sh "$WORKSPACE_DIR" | grep -o "[0-9]\\+")
 
 # Upload files to globus
 sbatch \
