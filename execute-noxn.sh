@@ -89,7 +89,7 @@ PHASE2_JOB_ID=$(sbatch \
 
 # Upload files to globus
 sbatch \
-    --dependency="$PHASE2_JOB_ID" \
+    --dependency="afterok:$PHASE2_JOB_ID" \
     ../execute-noxn-upload-to-globus.sh \
     "$DATE" \
     "$GIT_REV" \

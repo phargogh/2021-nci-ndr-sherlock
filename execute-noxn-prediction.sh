@@ -6,7 +6,7 @@
 #SBATCH --mem-per-cpu=6G
 #SBATCH --mail-type=ALL
 #SBATCH --partition=hns,normal
-#SBATCH --job-name="NCI-NOXN-pipeline"
+#SBATCH --job-name="NCI-NOXN-prediction"
 #SBATCH --output=/scratch/users/jadoug06/slurm-logfiles/slurm-%j.%x.out
 #
 # This script assumes that the task name will be set by the calling sbatch command.
