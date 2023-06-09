@@ -27,6 +27,9 @@ source "./env-sherlock.env"
 
 pushd nci-noxn-levels
 
+# File is local to the nci-noxn-levels repo.
+CONFIG_BASENAME="$(basename $(SPATIAL_CONFIG_FILE))"
+
 singularity run \
     "docker://$NOXN_DOCKER_CONTAINER" \
     python calories.py \
@@ -35,7 +38,7 @@ singularity run \
         --irrigated="$CALORIES_DIR/caloriemapsirrigatedRevQ.tif" \
         --rainfed="$CALORIES_DIR/caloriemapsrainfedRevQ.tif" \
         --scenario_json="$NCI_WORKSPACE/prepared-scenarios/scenario_rasters.json" \
-        --spatial_config="$(basename $SPATIAL_CONFIG_FILE)" \
+        --spatial_config="$CONFIG_BASENAME" \
         "$WORKSPACE_DIR"
 
 if [ "$NCI_USE_GLOBUS" = "1" ]
@@ -46,7 +49,7 @@ then
     module load system rclone
     module load system py-globus-cli
     module load system jq
-    RESOLUTION=$(jq -r .resolution $SPATIAL_CONFIG_FILE)  # load resolution string from config
+    RESOLUTION=$(jq -r .resolution $CONFIG_BASENAME)  # load resolution string from config
     ARCHIVE_DIR="$DATE-nci-calories-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION"
     globus transfer --fail-on-quota-errors --recursive \
         --label="NCI WQ Calories $GIT_REV" \
