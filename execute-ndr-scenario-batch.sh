@@ -114,7 +114,7 @@ then
     # Calories relies only on the preprocessed scenarios job.
     CALORIES_JOB=$(sbatch \
         --job-name="NCI-WQ-calories-$GIT_REV" \
-        --dependency="$PREPROCESSED_SCENARIOS_JOB" \
+        --dependency="afterok:$PREPROCESSED_SCENARIOS_JOB" \
         execute-calories.sh \
         "$FULL_WQ_PIPELINE_WORKSPACE/calories" \
         "$FULL_WQ_PIPELINE_WORKSPACE" \
