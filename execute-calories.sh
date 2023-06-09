@@ -22,6 +22,7 @@ NCI_WORKSPACE="${NCI_WORKSPACE:-$2}"  # Where the whole NCI workspace is located
 CALORIES_DIR="${CALORIES_DIR:-$3}"    # Where the source calories rasters are located  (absolute path)
 SCENARIO_JSON="${SCENARIO_JSON:-$4}"  # Where the Scenario JSON file is located (absolute path)
 SPATIAL_CONFIG_FILE="${SPATIAL_CONFIG_FILE:-$5}"
+GIT_REV="${GIT_REV:-$6}"
 
 source "./env-sherlock.env"
 

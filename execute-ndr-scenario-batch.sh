@@ -120,7 +120,8 @@ then
         "$FULL_WQ_PIPELINE_WORKSPACE" \
         "$LOCAL_GDRIVE_CALORIES_DIR" \
         "$SCENARIOS_WORKSPACE/scenario_rasters.json" \
-        "$NOXN_SPATIAL_CONFIG_FILE" | grep -o "[0-9]\\+")
+        "$NOXN_SPATIAL_CONFIG_FILE"
+        "$GIT_REV"  | grep -o "[0-9]\\+")
 
 fi
 
