@@ -35,7 +35,7 @@ singularity run \
         --irrigated="$CALORIES_DIR/caloriemapsirrigatedRevQ.tif" \
         --rainfed="$CALORIES_DIR/caloriemapsrainfedRevQ.tif" \
         --scenario_json="$NCI_WORKSPACE/prepared-scenarios/scenario_rasters.json" \
-        --spatial_config="$SPATIAL_CONFIG_FILE" \
+        --spatial_config="$(basename $SPATIAL_CONFIG_FILE)" \
         "$WORKSPACE_DIR"
 
 if [ "$NCI_USE_GLOBUS" = "1" ]
