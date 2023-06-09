@@ -28,7 +28,7 @@ source "./env-sherlock.env"
 pushd nci-noxn-levels
 
 # File is local to the nci-noxn-levels repo.
-CONFIG_BASENAME="$(basename $(SPATIAL_CONFIG_FILE))"
+CONFIG_BASENAME="$(basename $SPATIAL_CONFIG_FILE)"
 
 singularity run \
     "docker://$NOXN_DOCKER_CONTAINER" \
