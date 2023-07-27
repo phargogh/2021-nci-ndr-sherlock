@@ -145,10 +145,12 @@ def intensification_n_app(scenario_lulc, baseline_n_app, optimized_n_app,
             ~_equals_nodata(baseline, baseline_n_app_nodata) &
             ~_equals_nodata(optimized, optimized_n_app_nodata))
 
-        result[valid_pixels] = optimized[valid_pixels]
+        # if non-ag, use given baseline (should be current n_app)
+        result[valid_pixels] = baseline[valid_pixels]
 
-        ag = (numpy.isin(scenario_lulc, AG_LUCODES) & valid_pixels)
-        result[ag] = numpy.maximum(baseline[ag], optimized[ag])
+        # if ag, use optimized n_app
+        ag = (numpy.isin(lulc, AG_LUCODES) & valid_pixels)
+        result[ag] = optimized[ag]
 
         return result
 
@@ -210,7 +212,7 @@ def intensified_rainfed_n_app(
 
 def n_app(
         scenario, background, current, rainfed, irrigated, output_file,
-        all_bmps=False):
+        all_bmps=False, is_optimized=False):
     current_codes = np.array([10, 11, 12, 19, 20, 29])
     rf_codes = np.array([15, 16])
     irr_codes = np.array([25, 26])
@@ -250,6 +252,10 @@ def n_app(
             result[ix] += i[ix]
             ix = s == intense_irr_bmp_code
             result[ix] += i[ix]
+
+        if is_optimized:
+            ix = np.isin(s, current_codes)
+            result[ix] *= 0.9
 
         return result
 
@@ -532,6 +538,7 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                 'irrigated': str(files['n_irrigated_aligned']),
                 'output_file': str(files[f'{lulc_scenario}_n_app']),
                 'all_bmps': 'bmp' in lulc_scenario,
+                'is_optimized': 'optimized' in lulc_scenario,
             },
             task_name=f'{lulc_scenario}_n_app',
             target_path_list=[files[f'{lulc_scenario}_n_app']],
