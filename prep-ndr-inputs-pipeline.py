@@ -70,9 +70,13 @@ OUTPUT_FILES = {
 }
 
 INTERM_FILES = {
+    **{f'{key}_raw_n_app': f"{key}_raw_n_app.tif" for key in LULC_SCENARIOS
+       if key.startswith('intensification') and 'optimized' not in key},
     'crop_value_current_masked': "crop_value_current_masked.tif",
-    'crop_value_intensified_rainfed_masked': "crop_value_intensified_rainfed_masked.tif",
-    'crop_value_intensified_irrigated_masked': "crop_value_intensified_irrigated_masked.tif",
+    'crop_value_intensified_rainfed_masked':
+        "crop_value_intensified_rainfed_masked.tif",
+    'crop_value_intensified_irrigated_masked':
+        "crop_value_intensified_irrigated_masked.tif",
     'protected_areas_masked': "protected_areas_masked.tif",
     'cropland_current_practices_suitability': "current_practices.tif",
     'cropland_intensified_rainfed_suitability': "intensified_rainfed.tif",
@@ -132,31 +136,46 @@ def bmp_op(lu, rb, pv):
     return result
 
 
-def intensification_n_app(scenario_lulc, baseline_n_app, optimized_n_app,
-                          target_n_app):
+def intensification_n_app(scenario_lulc, current_n_app,
+                          intensification_raw_n_app, target_n_app):
     scenario_nodata = _get_nodata(scenario_lulc)
-    baseline_n_app_nodata = _get_nodata(baseline_n_app)
-    optimized_n_app_nodata = _get_nodata(optimized_n_app)
+    current_n_app_nodata = _get_nodata(current_n_app)
+    intensification_raw_n_app_nodata = _get_nodata(intensification_raw_n_app)
 
-    def _intensification_n_app(lulc, baseline, optimized):
+    def _intensification_n_app(lulc, current, intensification_raw):
         result = numpy.full(lulc.shape, N_APP_NODATA, dtype=numpy.float32)
         valid_pixels = (
             ~_equals_nodata(lulc, scenario_nodata) &
-            ~_equals_nodata(baseline, baseline_n_app_nodata) &
-            ~_equals_nodata(optimized, optimized_n_app_nodata))
+            ~_equals_nodata(current, current_n_app_nodata) &
+            ~_equals_nodata(intensification_raw,
+                            intensification_raw_n_app_nodata))
 
-        # if non-ag, use given baseline (should be current n_app)
-        result[valid_pixels] = baseline[valid_pixels]
+        # if non-ag, use given current (should be current n_app)
+        result[valid_pixels] = current[valid_pixels]
 
-        # if ag, use optimized n_app
+        # if ag, use intensification_raw n_app
         ag = (numpy.isin(lulc, AG_LUCODES) & valid_pixels)
-        result[ag] = optimized[ag]
+        result[ag] = numpy.maximum(intensification_raw[ag], current[ag])
 
         return result
 
     pygeoprocessing.raster_calculator(
-        [(scenario_lulc, 1), (baseline_n_app, 1), (optimized_n_app, 1)],
+        [(scenario_lulc, 1), (current_n_app, 1),
+         (intensification_raw_n_app, 1)],
         _intensification_n_app, target_n_app, N_APP_DTYPE, N_APP_NODATA)
+
+
+def intensification_optimized_n_app(intensification_n_app, target_n_app):
+    def _intensification_optimized_n_app_op(intensification):
+        result = numpy.full(intensification.shape, N_APP_NODATA,
+                            dtype=numpy.float32)
+        valid_pixels = ~_equals_nodata(intensification, N_APP_NODATA)
+        result[valid_pixels] = intensification[valid_pixels] * 0.8
+        return result
+
+    pygeoprocessing.raster_calculator(
+        [(intensification_n_app, 1)], _intensification_optimized_n_app_op,
+        target_n_app, gdal.GDT_Float32, N_APP_NODATA)
 
 
 def _get_nodata(raster_path):
@@ -212,7 +231,7 @@ def intensified_rainfed_n_app(
 
 def n_app(
         scenario, background, current, rainfed, irrigated, output_file,
-        all_bmps=False, is_optimized=False):
+        all_bmps=False):
     current_codes = np.array([10, 11, 12, 19, 20, 29])
     rf_codes = np.array([15, 16])
     irr_codes = np.array([25, 26])
@@ -253,10 +272,6 @@ def n_app(
             ix = s == intense_irr_bmp_code
             result[ix] += i[ix]
 
-        if is_optimized:
-            ix = np.isin(s, current_codes)
-            result[ix] *= 0.9
-
         return result
 
     src_rasters = [
@@ -285,7 +300,8 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
     if n_workers is None:
         n_workers = -1
     graph = taskgraph.TaskGraph(output_dir/'.taskgraph',
-                                n_workers=int(n_workers))
+                                n_workers=int(n_workers),
+                                reporting_interval=10)
 
     ####################
     # Saleh's scenario generation scripts
@@ -433,6 +449,11 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             ]
         )
 
+    # Lazy, but clearly separates LULC scenarios from the n_app steps.
+    LOGGER.info("Waiting for LULC tasks to finish")
+    graph.join()
+    LOGGER.info("Starting n_app tasks")
+
     ####################
     # Peter's N Application scripts
     #
@@ -510,25 +531,18 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             ]
         )
 
-    lulc_scenario_n_app_tasks = []
-    for lulc_scenario in LULC_SCENARIOS:
-        # OK to do intensification_optimized_*
-        # Skip intensification*
-        if (lulc_scenario.startswith('intensification') and not
-                lulc_scenario.startswith('intensification_optimized')):
-            continue
-
-        dependent_task_list = [
+    lulc_scenario_dependent_task_list = [
             warp_tasks['current_lulc_masked'],
             warp_tasks['n_background_aligned'],
             warp_tasks['n_current_aligned'],
             warp_tasks['n_rainfed_aligned'],
             warp_tasks['n_irrigated_aligned']
         ]
-        if lulc_scenario in lulc_tasks:
-            dependent_task_list.append(lulc_tasks[lulc_scenario])
 
-        lulc_scenario_n_app_tasks.append(graph.add_task(
+    for lulc_scenario in filter(
+            lambda scenario: not scenario.startswith('intensification'),
+            LULC_SCENARIOS):
+        graph.add_task(
             n_app,
             kwargs={
                 'scenario': str(files[lulc_scenario]),
@@ -538,36 +552,60 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                 'irrigated': str(files['n_irrigated_aligned']),
                 'output_file': str(files[f'{lulc_scenario}_n_app']),
                 'all_bmps': 'bmp' in lulc_scenario,
-                'is_optimized': 'optimized' in lulc_scenario,
             },
             task_name=f'{lulc_scenario}_n_app',
             target_path_list=[files[f'{lulc_scenario}_n_app']],
-            dependent_task_list=dependent_task_list
-        ))
+            dependent_task_list=[
+                *lulc_scenario_dependent_task_list]
+        )
 
-    # Here we create the n_app scenarios for intensification*
-    # (NOT intensification_optimized*)
-    for lulc_scenario in [lulc for lulc in LULC_SCENARIOS
-                          if lulc.startswith('intensification')
-                          and 'optimized' not in lulc]:
-        optimized_key = lulc_scenario.replace('intensification',
-                                              'intensification_optimized')
-        _ = graph.add_task(
+    for lulc_scenario in filter(
+            lambda scenario: (
+                scenario.startswith('intensification')
+                and 'optimized' not in scenario),
+            LULC_SCENARIOS):
+        intensification_raw_task = graph.add_task(
+            n_app,
+            kwargs={
+                'scenario': str(files[lulc_scenario]),
+                'background': str(files['n_background_aligned']),
+                'current': str(files['n_current_aligned']),
+                'rainfed': str(files['n_rainfed_aligned']),
+                'irrigated': str(files['n_irrigated_aligned']),
+                'output_file': str(files[f'{lulc_scenario}_raw_n_app']),
+            },
+            task_name=f'{lulc_scenario}_raw_n_app',
+            target_path_list=[files[f'{lulc_scenario}_raw_n_app']],
+            dependent_task_list=[
+                *lulc_scenario_dependent_task_list]
+        )
+        intensification_task = graph.add_task(
             intensification_n_app,
             kwargs={
                 'scenario_lulc': str(files[lulc_scenario]),
-                'baseline_n_app': str(files['current_n_app']),
-                'optimized_n_app': str(files[f'{optimized_key}_n_app']),
+                'current_n_app': str(files['current_n_app']),
+                'intensification_raw_n_app':
+                    str(files[f'{lulc_scenario}_raw_n_app']),
                 'target_n_app': str(files[f'{lulc_scenario}_n_app']),
             },
             task_name=f'{lulc_scenario}_n_app',
-            target_path_list=[str(files[f'{lulc_scenario}_n_app'])],
-            dependent_task_list=lulc_scenario_n_app_tasks
+            target_path_list=[files[f'{lulc_scenario}_n_app']],
+            dependent_task_list=[
+                intensification_raw_task,
+                *lulc_scenario_dependent_task_list]
         )
-
-    # TODO: ecoshard all of the relevant rasters?
-    #    I'm leaving it out for now since all rasters are rebuilt on each run.
-
+        optimized_scenario = lulc_scenario.replace(
+            'intensification', 'intensification_optimized')
+        _ = graph.add_task(
+            intensification_optimized_n_app,
+            kwargs={
+                'intensification_n_app': str(files[f'{lulc_scenario}_n_app']),
+                'target_n_app': str(files[f'{optimized_scenario}_n_app']),
+            },
+            task_name=f'{optimized_scenario}_n_app',
+            target_path_list=[files[f'{optimized_scenario}_n_app']],
+            dependent_task_list=[intensification_task]
+        )
     graph.join()
     graph.close()
 
