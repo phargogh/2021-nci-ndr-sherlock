@@ -51,7 +51,7 @@ then
     module load system py-globus-cli
     module load system jq
     RESOLUTION=$(jq -r .resolution $CONFIG_BASENAME)  # load resolution string from config
-    ARCHIVE_DIR="$DATE-nci-calories-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION"
+    ARCHIVE_DIR="$NCI_DATE-nci-calories-$GIT_REV-slurm$SLURM_JOB_ID-$RESOLUTION"
     globus transfer --fail-on-quota-errors --recursive \
         --label="NCI WQ Calories $GIT_REV" \
         "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$WORKSPACE_DIR" \
