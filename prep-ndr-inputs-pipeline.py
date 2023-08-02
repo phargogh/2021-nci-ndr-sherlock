@@ -583,7 +583,7 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
             intensification_n_app,
             kwargs={
                 'scenario_lulc': str(files[lulc_scenario]),
-                'current_n_app': str(files['current_n_app']),
+                'current_n_app': str(files['n_current_aligned']),
                 'intensification_raw_n_app':
                     str(files[f'{lulc_scenario}_raw_n_app']),
                 'target_n_app': str(files[f'{lulc_scenario}_n_app']),
