@@ -301,7 +301,7 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
         n_workers = -1
     graph = taskgraph.TaskGraph(output_dir/'.taskgraph',
                                 n_workers=int(n_workers),
-                                reporting_interval=10)
+                                reporting_interval=30)
 
     ####################
     # Saleh's scenario generation scripts

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#SBATCH --time=1:00:00
+#SBATCH --time=2:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=12
 #SBATCH --mem-per-cpu=4G
@@ -39,7 +39,7 @@ singularity run \
     python prep-ndr-inputs-pipeline.py \
         --input-dir="$GDRIVE_INPUTS_DIR" \
         --output-dir="$SCENARIO_OUTPUTS_DIR" \
-        --n-workers=8
+        --n-workers=10
 
 if [ "$3" != "" ]
 then
