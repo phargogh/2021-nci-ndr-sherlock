@@ -302,8 +302,9 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
 
     if n_workers is None:
         n_workers = -1
+    n_workers = int(n_workers)
     graph = taskgraph.TaskGraph(output_dir/'.taskgraph',
-                                n_workers=int(n_workers),
+                                n_workers=n_workers,
                                 reporting_interval=30)
 
     ####################
@@ -458,7 +459,8 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
     graph.close()
 
     graph = taskgraph.TaskGraph(output_dir/'.taskgraph',
-                                n_workers=int(n_workers // PARALLEL_WORKERS),
+                                n_workers=int(
+                                    n_workers // PARALLEL_WORKERS),
                                 reporting_interval=30)
     LOGGER.info("Starting n_app tasks")
 
