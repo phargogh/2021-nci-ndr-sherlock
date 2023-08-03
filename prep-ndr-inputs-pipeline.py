@@ -9,6 +9,7 @@ import shutil
 import numpy
 import numpy as np
 import pygeoprocessing
+import pygeoprocessing.multiprocessing
 import pygeoprocessing.symbolic
 import taskgraph
 from osgeo import gdal
@@ -19,7 +20,7 @@ N_APP_DTYPE = gdal.GDT_Float32
 N_APP_NODATA = float(numpy.finfo(numpy.float32).min)
 LULC_DTYPE = gdal.GDT_Byte
 LULC_NODATA = 0
-
+PARALLEL_WORKERS = 4
 
 # These paths are relative to the NCI gdrive folder.
 INPUT_FILES = {
@@ -159,10 +160,11 @@ def intensification_n_app(scenario_lulc, current_n_app,
 
         return result
 
-    pygeoprocessing.raster_calculator(
+    pygeoprocessing.multiprocessing.raster_calculator(
         [(scenario_lulc, 1), (current_n_app, 1),
          (intensification_raw_n_app, 1)],
-        _intensification_n_app, target_n_app, N_APP_DTYPE, N_APP_NODATA)
+        _intensification_n_app, target_n_app, N_APP_DTYPE, N_APP_NODATA,
+        n_workers=PARALLEL_WORKERS)
 
 
 def intensification_optimized_n_app(intensification_n_app, target_n_app):
@@ -173,9 +175,10 @@ def intensification_optimized_n_app(intensification_n_app, target_n_app):
         result[valid_pixels] = intensification[valid_pixels] * 0.8
         return result
 
-    pygeoprocessing.raster_calculator(
+    pygeoprocessing.multiprocessing.raster_calculator(
         [(intensification_n_app, 1)], _intensification_optimized_n_app_op,
-        target_n_app, gdal.GDT_Float32, N_APP_NODATA)
+        target_n_app, gdal.GDT_Float32, N_APP_NODATA,
+        n_workers=PARALLEL_WORKERS)
 
 
 def _get_nodata(raster_path):
@@ -452,6 +455,11 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
     # Lazy, but clearly separates LULC scenarios from the n_app steps.
     LOGGER.info("Waiting for LULC tasks to finish")
     graph.join()
+    graph.close()
+
+    graph = taskgraph.TaskGraph(output_dir/'.taskgraph',
+                                n_workers=int(n_workers // PARALLEL_WORKERS),
+                                reporting_interval=30)
     LOGGER.info("Starting n_app tasks")
 
     ####################

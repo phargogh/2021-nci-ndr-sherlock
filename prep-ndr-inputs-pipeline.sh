@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-#SBATCH --time=4:00:00
+#SBATCH --time=8:00:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=16
 #SBATCH --mem-per-cpu=4G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
@@ -28,18 +28,15 @@ else
     SCENARIO_OUTPUTS_DIR="$2"
 fi
 
-CONTAINER=ghcr.io/natcap-nci/devstack
-DIGEST=sha256:6c4a3233395b304a9d2eac57f954acf63b8dc477f5b997857a8a89f135cb5f34
-
 export APPTAINER_DOCKER_USERNAME="$GHCR_USERNAME"  # My github username
 export APPTAINER_DOCKER_PASSWORD="$GHCR_TOKEN"     # My GHCR token
 singularity run \
     --env GDAL_CACHEMAX=1024 \
-    docker://$CONTAINER@$DIGEST \
+    docker://$NOXN_DOCKER_CONTAINER \
     python prep-ndr-inputs-pipeline.py \
         --input-dir="$GDRIVE_INPUTS_DIR" \
         --output-dir="$SCENARIO_OUTPUTS_DIR" \
-        --n-workers=10
+        --n-workers=$SLURM_CPUS_PER_TASK
 
 if [ "$3" != "" ]
 then
