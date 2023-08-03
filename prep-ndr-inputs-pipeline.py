@@ -137,48 +137,56 @@ def bmp_op(lu, rb, pv):
     return result
 
 
+def _intensification_n_app(lulc, current, intensification_raw,
+                           scenario_nodata, current_n_app_nodata,
+                           intensification_raw_n_app_nodata):
+    result = numpy.full(lulc.shape, N_APP_NODATA, dtype=numpy.float32)
+    valid_pixels = (
+        ~_equals_nodata(lulc, scenario_nodata) &
+        ~_equals_nodata(current, current_n_app_nodata) &
+        ~_equals_nodata(intensification_raw,
+                        intensification_raw_n_app_nodata))
+
+    # if non-ag, use given current (should be current n_app)
+    result[valid_pixels] = current[valid_pixels]
+
+    # if ag, use intensification_raw n_app
+    ag = (numpy.isin(lulc, AG_LUCODES) & valid_pixels)
+    result[ag] = numpy.maximum(intensification_raw[ag], current[ag])
+
+    return result
+
+
 def intensification_n_app(scenario_lulc, current_n_app,
                           intensification_raw_n_app, target_n_app):
     scenario_nodata = _get_nodata(scenario_lulc)
     current_n_app_nodata = _get_nodata(current_n_app)
     intensification_raw_n_app_nodata = _get_nodata(intensification_raw_n_app)
 
-    def _intensification_n_app(lulc, current, intensification_raw):
-        result = numpy.full(lulc.shape, N_APP_NODATA, dtype=numpy.float32)
-        valid_pixels = (
-            ~_equals_nodata(lulc, scenario_nodata) &
-            ~_equals_nodata(current, current_n_app_nodata) &
-            ~_equals_nodata(intensification_raw,
-                            intensification_raw_n_app_nodata))
-
-        # if non-ag, use given current (should be current n_app)
-        result[valid_pixels] = current[valid_pixels]
-
-        # if ag, use intensification_raw n_app
-        ag = (numpy.isin(lulc, AG_LUCODES) & valid_pixels)
-        result[ag] = numpy.maximum(intensification_raw[ag], current[ag])
-
-        return result
-
     pygeoprocessing.multiprocessing.raster_calculator(
-        [(scenario_lulc, 1), (current_n_app, 1),
-         (intensification_raw_n_app, 1)],
+        [(scenario_lulc, 1),
+         (current_n_app, 1),
+         (intensification_raw_n_app, 1),
+         (scenario_nodata, 'raw'),
+         (current_n_app_nodata, 'raw'),
+         (intensification_raw_n_app_nodata, 'raw')],
         _intensification_n_app, target_n_app, N_APP_DTYPE, N_APP_NODATA,
-        n_workers=PARALLEL_WORKERS)
+        n_workers=PARALLEL_WORKERS, use_shared_memory=False)
+
+
+def _intensification_optimized_n_app_op(intensification):
+    result = numpy.full(intensification.shape, N_APP_NODATA,
+                        dtype=numpy.float32)
+    valid_pixels = ~_equals_nodata(intensification, N_APP_NODATA)
+    result[valid_pixels] = intensification[valid_pixels] * 0.8
+    return result
 
 
 def intensification_optimized_n_app(intensification_n_app, target_n_app):
-    def _intensification_optimized_n_app_op(intensification):
-        result = numpy.full(intensification.shape, N_APP_NODATA,
-                            dtype=numpy.float32)
-        valid_pixels = ~_equals_nodata(intensification, N_APP_NODATA)
-        result[valid_pixels] = intensification[valid_pixels] * 0.8
-        return result
-
     pygeoprocessing.multiprocessing.raster_calculator(
         [(intensification_n_app, 1)], _intensification_optimized_n_app_op,
         target_n_app, gdal.GDT_Float32, N_APP_NODATA,
-        n_workers=PARALLEL_WORKERS)
+        n_workers=PARALLEL_WORKERS, use_shared_memory=False)
 
 
 def _get_nodata(raster_path):
