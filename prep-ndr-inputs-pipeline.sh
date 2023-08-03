@@ -28,6 +28,9 @@ else
     SCENARIO_OUTPUTS_DIR="$2"
 fi
 
+# load configuration for globus, singularity, etc.
+source "env-sherlock.env"
+
 export APPTAINER_DOCKER_USERNAME="$GHCR_USERNAME"  # My github username
 export APPTAINER_DOCKER_PASSWORD="$GHCR_TOKEN"     # My GHCR token
 singularity run \
