@@ -455,8 +455,9 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
 
     # Lazy, but clearly separates LULC scenarios from the n_app steps.
     LOGGER.info("Waiting for LULC tasks to finish")
-    graph.join()
     graph.close()
+    graph.join()
+    graph = None
 
     graph = taskgraph.TaskGraph(output_dir/'.taskgraph',
                                 n_workers=int(
