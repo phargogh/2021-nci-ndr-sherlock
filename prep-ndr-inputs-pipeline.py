@@ -9,7 +9,6 @@ import shutil
 import numpy
 import numpy as np
 import pygeoprocessing
-import pygeoprocessing.multiprocessing
 import pygeoprocessing.symbolic
 import taskgraph
 from osgeo import gdal
@@ -20,7 +19,7 @@ N_APP_DTYPE = gdal.GDT_Float32
 N_APP_NODATA = float(numpy.finfo(numpy.float32).min)
 LULC_DTYPE = gdal.GDT_Byte
 LULC_NODATA = 0
-PARALLEL_WORKERS = 4
+
 
 # These paths are relative to the NCI gdrive folder.
 INPUT_FILES = {
@@ -137,56 +136,46 @@ def bmp_op(lu, rb, pv):
     return result
 
 
-def _intensification_n_app(lulc, current, intensification_raw,
-                           scenario_nodata, current_n_app_nodata,
-                           intensification_raw_n_app_nodata):
-    result = numpy.full(lulc.shape, N_APP_NODATA, dtype=numpy.float32)
-    valid_pixels = (
-        ~_equals_nodata(lulc, scenario_nodata) &
-        ~_equals_nodata(current, current_n_app_nodata) &
-        ~_equals_nodata(intensification_raw,
-                        intensification_raw_n_app_nodata))
-
-    # if non-ag, use given current (should be current n_app)
-    result[valid_pixels] = current[valid_pixels]
-
-    # if ag, use intensification_raw n_app
-    ag = (numpy.isin(lulc, AG_LUCODES) & valid_pixels)
-    result[ag] = numpy.maximum(intensification_raw[ag], current[ag])
-
-    return result
-
-
 def intensification_n_app(scenario_lulc, current_n_app,
                           intensification_raw_n_app, target_n_app):
     scenario_nodata = _get_nodata(scenario_lulc)
     current_n_app_nodata = _get_nodata(current_n_app)
     intensification_raw_n_app_nodata = _get_nodata(intensification_raw_n_app)
 
-    pygeoprocessing.multiprocessing.raster_calculator(
-        [(scenario_lulc, 1),
-         (current_n_app, 1),
-         (intensification_raw_n_app, 1),
-         (scenario_nodata, 'raw'),
-         (current_n_app_nodata, 'raw'),
-         (intensification_raw_n_app_nodata, 'raw')],
-        _intensification_n_app, target_n_app, N_APP_DTYPE, N_APP_NODATA,
-        n_workers=PARALLEL_WORKERS, use_shared_memory=False)
+    def _intensification_n_app(lulc, current, intensification_raw):
+        result = numpy.full(lulc.shape, N_APP_NODATA, dtype=numpy.float32)
+        valid_pixels = (
+            ~_equals_nodata(lulc, scenario_nodata) &
+            ~_equals_nodata(current, current_n_app_nodata) &
+            ~_equals_nodata(intensification_raw,
+                            intensification_raw_n_app_nodata))
 
+        # if non-ag, use given current (should be current n_app)
+        result[valid_pixels] = current[valid_pixels]
 
-def _intensification_optimized_n_app_op(intensification):
-    result = numpy.full(intensification.shape, N_APP_NODATA,
-                        dtype=numpy.float32)
-    valid_pixels = ~_equals_nodata(intensification, N_APP_NODATA)
-    result[valid_pixels] = intensification[valid_pixels] * 0.8
-    return result
+        # if ag, use intensification_raw n_app
+        ag = (numpy.isin(lulc, AG_LUCODES) & valid_pixels)
+        result[ag] = numpy.maximum(intensification_raw[ag], current[ag])
+
+        return result
+
+    pygeoprocessing.raster_calculator(
+        [(scenario_lulc, 1), (current_n_app, 1),
+         (intensification_raw_n_app, 1)],
+        _intensification_n_app, target_n_app, N_APP_DTYPE, N_APP_NODATA)
 
 
 def intensification_optimized_n_app(intensification_n_app, target_n_app):
-    pygeoprocessing.multiprocessing.raster_calculator(
+    def _intensification_optimized_n_app_op(intensification):
+        result = numpy.full(intensification.shape, N_APP_NODATA,
+                            dtype=numpy.float32)
+        valid_pixels = ~_equals_nodata(intensification, N_APP_NODATA)
+        result[valid_pixels] = intensification[valid_pixels] * 0.8
+        return result
+
+    pygeoprocessing.raster_calculator(
         [(intensification_n_app, 1)], _intensification_optimized_n_app_op,
-        target_n_app, gdal.GDT_Float32, N_APP_NODATA,
-        n_workers=PARALLEL_WORKERS, use_shared_memory=False)
+        target_n_app, gdal.GDT_Float32, N_APP_NODATA)
 
 
 def _get_nodata(raster_path):
@@ -310,9 +299,8 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
 
     if n_workers is None:
         n_workers = -1
-    n_workers = int(n_workers)
     graph = taskgraph.TaskGraph(output_dir/'.taskgraph',
-                                n_workers=n_workers,
+                                n_workers=int(n_workers),
                                 reporting_interval=30)
 
     ####################
@@ -463,14 +451,7 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
 
     # Lazy, but clearly separates LULC scenarios from the n_app steps.
     LOGGER.info("Waiting for LULC tasks to finish")
-    graph.close()
     graph.join()
-    graph = None
-
-    graph = taskgraph.TaskGraph(output_dir/'.taskgraph',
-                                n_workers=int(
-                                    n_workers // PARALLEL_WORKERS),
-                                reporting_interval=30)
     LOGGER.info("Starting n_app tasks")
 
     ####################
