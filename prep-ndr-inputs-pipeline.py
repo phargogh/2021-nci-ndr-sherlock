@@ -242,7 +242,7 @@ def intensified_rainfed_n_app(
 
 def n_app(
         scenario, background, current, rainfed, irrigated, output_file,
-        all_bmps=False):
+        all_bmps=False, mask_to_current=False):
     current_codes = np.array([10, 11, 12, 19, 20, 29])
     rf_codes = np.array([15, 16])
     irr_codes = np.array([25, 26])
@@ -255,8 +255,27 @@ def n_app(
     snd = scenario_raster_info["nodata"]
     output_nd = 0
 
+    scenario_nodata = _get_nodata(scenario)
+    current_nodata = _get_nodata(current)
+
     def local_op(s, b, c, r, i):
+        if mask_to_current:
+            # The intensification scenarios only really care about whether the
+            # lulc and the current layers have valid pixels, so just limit to
+            # those.
+            valid_mask = (
+                ~_equals_nodata(s, scenario_nodata) &
+                ~_equals_nodata(c, current_nodata))
+            s = s[valid_mask]
+            b = b[valid_mask]
+            c = c[valid_mask]
+            r = r[valid_mask]
+            i = i[valid_mask]
+            if numpy.sum(valid_mask) == 0:
+                return numpy.zeros(valid_mask.shape, dtype=numpy.float32)
+
         result = np.zeros(s.shape, dtype=numpy.float32)
+
         if np.max(s) == 0:
             # skip ocean pixels
             return result
@@ -283,7 +302,12 @@ def n_app(
             ix = s == intense_irr_bmp_code
             result[ix] += i[ix]
 
-        return result
+        if mask_to_current:
+            masked_result = numpy.zeros(valid_mask.shape, dtype=numpy.float32)
+            masked_result[valid_mask] = result
+            return masked_result
+        else:
+            return result
 
     src_rasters = [
         (r, 1) for r in [scenario, background, current, rainfed, irrigated]]
@@ -584,6 +608,7 @@ def prepare_ndr_inputs(nci_gdrive_inputs_dir, target_outputs_dir,
                 'rainfed': str(files['n_rainfed_aligned']),
                 'irrigated': str(files['n_irrigated_aligned']),
                 'output_file': str(files[f'{lulc_scenario}_raw_n_app']),
+                'mask_to_current': True,
             },
             task_name=f'{lulc_scenario}_raw_n_app',
             target_path_list=[files[f'{lulc_scenario}_raw_n_app']],
