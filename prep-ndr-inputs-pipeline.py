@@ -188,8 +188,14 @@ def _get_nodata(raster_path):
 
 
 def _equals_nodata(array, nodata):
+    # If nodata is undefined, nothing matches nodata.
     if nodata is None:
-        return False
+        return numpy.zeros(array.shape, dtype=bool)
+
+    # comparing an integer array against numpy.nan works correctly and is
+    # faster than using numpy.isclose().
+    if numpy.issubdtype(array.dtype, numpy.integer):
+        return array == nodata
     return numpy.isclose(array, nodata, equal_nan=True)
 
 
