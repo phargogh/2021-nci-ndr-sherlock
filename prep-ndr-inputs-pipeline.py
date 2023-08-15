@@ -136,13 +136,15 @@ def bmp_op(lu, rb, pv):
     return result
 
 
-def _intensification_n_app(lulc, current, intensification_raw, scenario_nodata,
+def _intensification_n_app(lulc, current, intensification_raw,
+                           scenario_nodata,
                            current_n_app_nodata,
                            intensification_raw_n_app_nodata):
     result = numpy.full(lulc.shape, N_APP_NODATA, dtype=numpy.float32)
     valid_pixels = (
         ~_equals_nodata(lulc, scenario_nodata) &
         ~_equals_nodata(current, current_n_app_nodata) &
+        ~numpy.isnan(current) &  # current n_app to has nan values
         ~_equals_nodata(intensification_raw,
                         intensification_raw_n_app_nodata))
 
