@@ -15,6 +15,8 @@ NCI_WORKSPACE="${NCI_WORKSPACE:-$2}"
 # load configuration for globus, singularity, etc.
 source "env-sherlock.env"
 
+pushd nci-noxn-levels
+
 DATE="$(date +%F)"
 GIT_REV="rev$(git rev-parse --short HEAD)"
 
