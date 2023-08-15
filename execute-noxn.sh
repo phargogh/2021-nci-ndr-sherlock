@@ -53,15 +53,20 @@ ls -la "$NDR_OUTPUTS_DIR"
 WORKSPACE_DIR="$NOXN_WORKSPACE"
 mkdir -p "$WORKSPACE_DIR" || echo "could not create workspace dir"
 
+# The model analysis script can start any time after the NDR outputs are in the right place.
+sbatch execute-model-analysis.sh \
+    "$NCI_WORKSPACE/noxn-model-analysis" \
+    "$NCI_WORKSPACE"
+
 DECAYED_FLOWACCUM_WORKSPACE_DIR=$WORKSPACE_DIR/decayed_flowaccum
 singularity run \
-    docker://$NOXN_DOCKER_CONTAINER \
+    "docker://$NOXN_DOCKER_CONTAINER" \
     python pipeline-decayed-export.py --n_workers="$SLURM_CPUS_PER_TASK" "$DECAYED_FLOWACCUM_WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
 CONFIG_FILE="pipeline.config-sherlock-$RESOLUTION.json"
 singularity run \
     --env-file="../singularity-containers.env" \
-    docker://$NOXN_DOCKER_CONTAINER \
+    "docker://$NOXN_DOCKER_CONTAINER" \
     python pipeline.py \
     --n_workers="$SLURM_CPUS_PER_TASK" \
     --slurm \
