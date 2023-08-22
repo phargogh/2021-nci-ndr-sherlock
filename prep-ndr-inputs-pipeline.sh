@@ -41,6 +41,10 @@ singularity run \
         --output-dir="$SCENARIO_OUTPUTS_DIR" \
         --n-workers=$SLURM_CPUS_PER_TASK
 
+module load system py-globus-cli
+source "./globus-endpoints.env"
+TEMPFILE="$SCENARIO_OUTPUTS_DIR/globus-filerequest.txt"
+find "$SCENARIO_OUTPUTS_DIR" -maxdepth 1 -name "*.tif" -o -name "*.out" -o -name "*.json" | xargs basename -a | awk '$2=$1' > "$TEMPFILE"
 if [ "$3" != "" ]
 then
     FINAL_RESTING_PLACE="$3"
@@ -48,14 +52,17 @@ then
     #$(pwd)/upload-to-googledrive.sh \
     #    "nci-ndr-stanford-gdrive:$GDRIVE_DIR/prepared-scenarios" \
     #    "$SCENARIO_OUTPUTS_DIR"/*.{tif,json}
-    module load system py-globus-cli
-    source "./globus-endpoints.env"
-    TEMPFILE="$SCENARIO_OUTPUTS_DIR/globus-filerequest.txt"
-    find "$SCENARIO_OUTPUTS_DIR" -maxdepth 1 -name "*.tif" -o -name "*.out" -o -name "*.json" | xargs basename -a | awk '$2=$1' > "$TEMPFILE"
     globus transfer --fail-on-quota-errors \
         --batch="$TEMPFILE" \
         "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$SCENARIO_OUTPUTS_DIR/" \
         "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$GLOBUS_STANFORD_GDRIVE_RUN_ARCHIVE/$GDRIVE_DIR/prepared-scenarios"
+else
+    DATE="$(date +%F)"
+    GIT_REV="rev$(git rev-list HEAD --count)-$(git rev-parse --short HEAD)"
+    globus transfer --fail-on-quota-errors \
+        --batch="$TEMPFILE" \
+        "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$SCENARIO_OUTPUTS_DIR/" \
+        "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$GLOBUS_STANFORD_GDRIVE_RUN_ARCHIVE/$DATE-$GIT_REV-prepared-scenarios"
 fi
 
 LINT_SCRIPT="$(pwd)/lint-ndr-scenario.py"
