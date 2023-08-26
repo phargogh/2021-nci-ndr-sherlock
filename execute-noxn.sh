@@ -57,7 +57,8 @@ mkdir -p "$WORKSPACE_DIR" || echo "could not create workspace dir"
 popd
 sbatch execute-model-analysis.sh \
     "$NCI_WORKSPACE/noxn-model-analysis" \
-    "$NCI_WORKSPACE"
+    "$NCI_WORKSPACE" \
+    "$RESOLUTION"
 pushd $REPOSLUG
 
 DECAYED_FLOWACCUM_WORKSPACE_DIR=$WORKSPACE_DIR/decayed_flowaccum

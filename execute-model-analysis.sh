@@ -13,6 +13,7 @@ set -ex
 # "${ENVVAR:-DEFAULT}" means use ENVVAR if present, DEFAULT if not.
 MODEL_ANALYSIS_WORKSPACE="${NOXN_WORKSPACE:-$1}"  # final location of pipeline outputs
 NCI_WORKSPACE="${NCI_WORKSPACE:-$2}"
+RESOLUTION="${10km:-$3}"
 
 # load configuration for globus, singularity, etc.
 echo "$(pwd)"
