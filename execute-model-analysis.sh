@@ -15,6 +15,7 @@ MODEL_ANALYSIS_WORKSPACE="${NOXN_WORKSPACE:-$1}"  # final location of pipeline o
 NCI_WORKSPACE="${NCI_WORKSPACE:-$2}"
 
 # load configuration for globus, singularity, etc.
+echo "$(pwd)"
 source "env-sherlock.env"
 
 pushd nci-noxn-levels
