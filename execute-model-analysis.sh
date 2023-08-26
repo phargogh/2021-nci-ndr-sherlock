@@ -8,6 +8,8 @@
 #SBATCH --job-name="NCI-NOXN-model-analysis"
 #SBATCH --output=/scratch/users/jadoug06/slurm-logfiles/slurm-%j.%x.out
 
+set -ex
+
 # "${ENVVAR:-DEFAULT}" means use ENVVAR if present, DEFAULT if not.
 MODEL_ANALYSIS_WORKSPACE="${NOXN_WORKSPACE:-$1}"  # final location of pipeline outputs
 NCI_WORKSPACE="${NCI_WORKSPACE:-$2}"
