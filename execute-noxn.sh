@@ -54,7 +54,7 @@ WORKSPACE_DIR="$NOXN_WORKSPACE"
 mkdir -p "$WORKSPACE_DIR" || echo "could not create workspace dir"
 
 # The model analysis script can start any time after the NDR outputs are in the right place.
-sbatch execute-model-analysis.sh \
+sbatch ../execute-model-analysis.sh \
     "$NCI_WORKSPACE/noxn-model-analysis" \
     "$NCI_WORKSPACE"
 
