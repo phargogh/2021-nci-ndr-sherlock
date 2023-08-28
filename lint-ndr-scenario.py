@@ -37,12 +37,18 @@ def main(scenario_name):
             if file_path.endswith('.tif'):
                 n_valid_pixels = 0
                 files_checked.add(file_path)
-                raster_nodata = pygeoprocessing.get_raster_info(
+                nodata = pygeoprocessing.get_raster_info(
                     file_path)['nodata'][0]
-                for _, block in pygeoprocessing.iterblocks((file_path, 1)):
-                    valid_mask = (
-                        ~numpy.isclose(block, raster_nodata, equal_nan=True) &
-                        ~numpy.isnan(block))
+                for _, array in pygeoprocessing.iterblocks((file_path, 1)):
+                    if nodata is None:
+                        valid_mask = numpy.ones(array.shape, dtype=bool)
+                    elif numpy.issubdtype(array.dtype, numpy.integer):
+                        valid_mask = ~(array == nodata)
+                    else:  # defined nodata value, float array
+                        valid_mask = (
+                            ~numpy.isclose(array, nodata, equal_nan=True) &
+                            ~numpy.isnan(array))
+
                     n_valid_pixels += numpy.count_nonzero(valid_mask)
                 if n_valid_pixels == 0:
                     LOGGER.error(
