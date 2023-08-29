@@ -164,6 +164,12 @@ def intensification_n_app(scenario_lulc, current_n_app,
     current_n_app_nodata = _get_nodata(current_n_app)
     intensification_raw_n_app_nodata = _get_nodata(intensification_raw_n_app)
 
+    LOGGER.info(
+        f"Creating intensification raster {target_n_app}\n"
+        f"    Scenario:      {scenario_lulc}\n"
+        f"    Current n_app: {current_n_app}\n"
+        f"    Intens. raw:   {intensification_raw_n_app}")
+
     pygeoprocessing.raster_calculator(
         [(scenario_lulc, 1), (current_n_app, 1),
          (intensification_raw_n_app, 1), (scenario_nodata, 'raw'),
