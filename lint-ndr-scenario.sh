@@ -18,7 +18,7 @@ DIGEST=sha256:6c4a3233395b304a9d2eac57f954acf63b8dc477f5b997857a8a89f135cb5f34
 export APPTAINER_DOCKER_USERNAME="$GHCR_USERNAME"  # My github username
 export APPTAINER_DOCKER_PASSWORD="$GHCR_TOKEN"     # My GHCR token
 LINT_SCRIPT="$(pwd)/lint-ndr-scenario.py"
-SCENARIO_TO_LINT="nci_global_dec_2022"
+SCENARIO_TO_LINT="nci_global_aug_2023_wq_paper"
 singularity run \
     --pwd "ndr_plus_global_pipeline"
     --env NCI_NDR_LULC_JSON="$1" \

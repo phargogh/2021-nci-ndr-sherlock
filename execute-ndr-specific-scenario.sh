@@ -50,7 +50,7 @@ singularity run \
     --env TMPDIR="$L_SCRATCH" \
     --env NCI_SCENARIO_LULC_N_APP_JSON="$SCENARIO_JSON_FILE" \
     docker://$CONTAINER@$DIGEST \
-    global_ndr_plus_pipeline.py scenarios.nci_global_dec_2022 \
+    global_ndr_plus_pipeline.py scenarios.nci_global_aug_2023_wq_paper \
     --n_workers=20 \
     --limit_to_scenarios "$SCENARIO_NAME" || FAILED=1
 
