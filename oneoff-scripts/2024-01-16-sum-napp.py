@@ -1,11 +1,15 @@
+import logging
 import os
 import sys
+import time
 
 import numpy
 import pygeoprocessing
 import pygeoprocessing.geoprocessing
 from osgeo import gdal
 from osgeo import osr
+
+LOGGER = logging.getLogger(os.path.basename(__file__))
 
 gdal.SetCacheMax(512)  # low enough number, assumes in MB
 
@@ -23,10 +27,18 @@ band = raster.GetRasterBand(1)
 
 pixel_sum = 0
 pixel_sum_adjusted_by_area = 0
+last_read_time = time.time()
+n_pixels = numpy.multiply(*raster_info['raster_size'])
+n_pixels_processed = 0
 for offsets in pygeoprocessing.iterblocks((sys.argv[1], 1), offset_only=True):
+    if time.time() - last_read_time > 3.0:
+        percent = (n_pixels_processed / n_pixels) * 100
+        LOGGER.info("Processed {n_pixels_processed} / {n_pixels}, {percent}%")
     block = band.ReadAsArray(**offsets)
-    valid_mask = ~pygeoprocessing.array_equals_nodata(
-        block, raster_info['nodata'][0])
+    valid_mask = (
+        ~pygeoprocessing.array_equals_nodata(
+            block, raster_info['nodata'][0]) &
+        numpy.isfinite(block))
 
     if not valid_mask.size:
         continue
@@ -36,11 +48,11 @@ for offsets in pygeoprocessing.iterblocks((sys.argv[1], 1), offset_only=True):
 
     m2_area_column = pygeoprocessing.geoprocessing._create_latitude_m2_area_column(
         block_min_lat, block_max_lat, n_pixels=offsets['win_ysize'])
+    ha_area_column = m2_area_column / 10000
 
     pixel_sum += numpy.sum(block[valid_mask])
     pixel_sum_adjusted_by_area += numpy.sum(
-        (block * m2_area_column)[valid_mask])
-
+        (block * ha_area_column)[valid_mask])
 
 print(f"Values for {os.path.basename(sys.argv[1])}")
 print(f"Pixel sum: {pixel_sum:,}")
