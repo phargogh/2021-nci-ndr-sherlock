@@ -38,6 +38,7 @@ for offsets in pygeoprocessing.iterblocks((sys.argv[1], 1), offset_only=True):
         LOGGER.info(f"Processed {n_pixels_processed} / {n_pixels}, {percent}%")
         last_read_time = time.time()
     block = band.ReadAsArray(**offsets)
+    n_pixels_processed += block.size
     valid_mask = (
         ~pygeoprocessing.array_equals_nodata(
             block, raster_info['nodata'][0]) &
