@@ -9,6 +9,7 @@ import pygeoprocessing.geoprocessing
 from osgeo import gdal
 from osgeo import osr
 
+logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(os.path.basename(__file__))
 
 gdal.SetCacheMax(512)  # low enough number, assumes in MB
