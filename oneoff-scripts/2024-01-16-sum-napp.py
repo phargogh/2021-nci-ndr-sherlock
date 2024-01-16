@@ -23,6 +23,7 @@ srs_epsg = srs.GetAttrValue('AUTHORITY', 1)
 assert str(srs_epsg) == '4326', (
     f"This function is designed to work on WGS84 only, not EPSG:{srs_epsg}")
 
+LOGGER.info(f"Opening {sys.argv[1]}")
 raster = gdal.Open(sys.argv[1])
 band = raster.GetRasterBand(1)
 
