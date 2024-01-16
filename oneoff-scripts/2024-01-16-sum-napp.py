@@ -34,7 +34,8 @@ n_pixels_processed = 0
 for offsets in pygeoprocessing.iterblocks((sys.argv[1], 1), offset_only=True):
     if time.time() - last_read_time > 3.0:
         percent = (n_pixels_processed / n_pixels) * 100
-        LOGGER.info("Processed {n_pixels_processed} / {n_pixels}, {percent}%")
+        LOGGER.info(f"Processed {n_pixels_processed} / {n_pixels}, {percent}%")
+        last_read_time = time.time()
     block = band.ReadAsArray(**offsets)
     valid_mask = (
         ~pygeoprocessing.array_equals_nodata(
