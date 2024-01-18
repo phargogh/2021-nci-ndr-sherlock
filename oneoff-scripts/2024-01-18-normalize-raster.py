@@ -20,7 +20,8 @@ gdal.SetCacheMax(512)
 
 def normalize(raster_path, target_path):
     raster_max = pygeoprocessing.raster_reduce(
-        lambda max_value, block: numpy.maximum(block.max(), max_value),
+        lambda max_value, block:
+            numpy.maximum(block.max(), max_value) if block.size else max_value,
         (raster_path, 1), float('-inf'))
 
     pygeoprocessing.raster_map(

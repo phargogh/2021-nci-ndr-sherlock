@@ -34,7 +34,7 @@ n_pixels = numpy.multiply(*raster_info['raster_size'])
 n_pixels_processed = 0
 for offsets in pygeoprocessing.iterblocks((sys.argv[1], 1), offset_only=True):
     if time.time() - last_read_time > 3.0:
-        percent = (n_pixels_processed / n_pixels) * 100
+        percent = round((n_pixels_processed / n_pixels) * 100, 3)
         LOGGER.info(f"Processed {n_pixels_processed} / {n_pixels}, {percent}%")
         last_read_time = time.time()
     block = band.ReadAsArray(**offsets)
@@ -59,5 +59,5 @@ for offsets in pygeoprocessing.iterblocks((sys.argv[1], 1), offset_only=True):
         (block * ha_area_column)[valid_mask])
 
 print(f"Values for {os.path.basename(sys.argv[1])}")
-print(f"Pixel sum: {pixel_sum:,}")
-print(f"Pixel sum adjusted by area: {pixel_sum_adjusted_by_area:,}")
+print(f"Sum of pixel values (kg/ha): {pixel_sum:,}")
+print(f"Sum of kg/pixel: {pixel_sum_adjusted_by_area:,}")
