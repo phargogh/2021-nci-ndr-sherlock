@@ -5,6 +5,8 @@ set -e  # fail on nonzero exit code
 # load endpoint IDs, shared across scripts
 source globus-endpoints.env
 
+module load system py-globus-cli/3.19.0_py39
+
 echo "Checking to see if you're logged in to Globus"
 globus login  # exit code 4 if not logged in
 
