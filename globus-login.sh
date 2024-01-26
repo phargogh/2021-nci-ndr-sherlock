@@ -21,7 +21,7 @@ echo "Checking access to Globus:Scratch"
 globus endpoint show "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID" || globus login --gcs "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID"  # exit code 4 if not logged in (automatically logged in if on Sherlock)
 
 echo "Checking scopes on Globus:Scratch"
-globus ls $GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID --filter=abcd1234
+globus ls $GLOBUS_SHERLOCK_SCRATCH_UUID --filter=abcd1234
 
 echo "Checking access to Globus:Stanford GDrive"
 globus collection show "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID"  || globus login --gcs "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID"  # exit code 4 if not logged in
