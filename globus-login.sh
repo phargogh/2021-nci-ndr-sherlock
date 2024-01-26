@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
 set -e  # fail on nonzero exit code
+set -x  # be eXplicit
 
 # load endpoint IDs, shared across scripts
 source globus-endpoints.env
@@ -19,7 +20,7 @@ globus ls $GLOBUS_OAK_COLLECTION_ID --filter=abcd1234
 echo "Checking access to Globus:Scratch"
 globus collection show "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID" || globus login --gcs "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID"  # exit code 4 if not logged in (automatically logged in if on Sherlock)
 
-echo "Checking scopes on Globus:Oak"
+echo "Checking scopes on Globus:Scratch"
 globus ls $GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID --filter=abcd1234
 
 echo "Checking access to Globus:Stanford GDrive"
