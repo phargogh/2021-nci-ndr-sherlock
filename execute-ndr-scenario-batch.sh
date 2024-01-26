@@ -15,7 +15,7 @@ echo "   NDR scenarios"
 echo "   Water Quality"
 echo "Started $DATE"
 echo "Sherlock repo rev: $GIT_REV"
-echo "NDR repo rev: $(git -C $REPOSLUG rev-parse HEAD)"
+echo "NDR repo rev: $(git --git-dir $REPOSLUG rev-parse HEAD)"
 echo "Extra args: $1 $2"
 echo "***********************************************************************"
 
