@@ -7,7 +7,7 @@ import sys
 import numpy
 import pygeoprocessing
 
-sys.path.append('ndr_plus_global_pipeline/scenarios')
+sys.path.append('ndr_plus_global_pipeline')
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 

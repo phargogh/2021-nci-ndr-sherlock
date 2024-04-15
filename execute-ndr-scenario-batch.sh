@@ -45,7 +45,8 @@ module unload numpy
 # We only need the scenario names, not the keys.  We won't know all the files
 # that are used in the scenarios until the `build-ndr-scenarios.sh` and
 # `build-n-app-scenarios.sh` tasks finish.
-SCENARIOS=$(python3 -c "import scenarios.nci_global_apr_2024_baseline_only as s; print('\n'.join(k for k in s.SCENARIOS))")
+SCENARIO_MODULE="scenarios.nci_global_apr_2024_baseline_only"
+SCENARIOS=$(python3 -c "import $SCENARIO_MODULE as s; print('\n'.join(k for k in s.SCENARIOS))")
 popd
 
 SCENARIOS_WORKSPACE="$FULL_WQ_PIPELINE_WORKSPACE/prepared-scenarios"
@@ -54,7 +55,8 @@ PREPROCESSED_SCENARIOS_JOB=$(sbatch \
     prep-ndr-inputs-pipeline.sh \
     "$LOCAL_GDRIVE_INPUTS_DIR" \
     "$SCENARIOS_WORKSPACE" \
-    "$FULL_WQ_PIPELINE_WORKSPACE" | grep -o "[0-9]\\+")
+    "$FULL_WQ_PIPELINE_WORKSPACE" \
+    "$SCENARIO_MODULE" | grep -o "[0-9]\\+")
 
 # According to https://slurm.schedmd.com/sbatch.html#SECTION_PERFORMANCE,
 # we're not supposed to call sbatch from within a loop.  A loop is the only way
@@ -78,7 +80,8 @@ do
         "$DATE" \
         "$GIT_REV" \
         "$FULL_WQ_PIPELINE_WORKSPACE" \
-        "$SCENARIOS_WORKSPACE/scenario_rasters.json" | grep -o "[0-9]\\+")
+        "$SCENARIOS_WORKSPACE/scenario_rasters.json" \
+        "$SCENARIO_MODULE" | grep -o "[0-9]\\+")
     NOXN_SLURM_DEPENDENCY_STRING="$NOXN_SLURM_DEPENDENCY_STRING:$SCENARIO_JOB_ID"
     echo "$NCI_SCENARIO $SCENARIO_JOB_ID" >> scenario_jobs.txt
 
