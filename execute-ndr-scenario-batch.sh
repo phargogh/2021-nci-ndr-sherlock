@@ -55,7 +55,6 @@ PREPROCESSED_SCENARIOS_JOB=$(sbatch \
     prep-ndr-inputs-pipeline.sh \
     "$LOCAL_GDRIVE_INPUTS_DIR" \
     "$SCENARIOS_WORKSPACE" \
-    "$FULL_WQ_PIPELINE_WORKSPACE" \
     "$SCENARIO_MODULE" | grep -o "[0-9]\\+")
 
 # According to https://slurm.schedmd.com/sbatch.html#SECTION_PERFORMANCE,
