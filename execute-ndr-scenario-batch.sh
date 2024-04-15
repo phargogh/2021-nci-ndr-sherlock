@@ -45,7 +45,7 @@ module unload numpy
 # We only need the scenario names, not the keys.  We won't know all the files
 # that are used in the scenarios until the `build-ndr-scenarios.sh` and
 # `build-n-app-scenarios.sh` tasks finish.
-SCENARIOS=$(python3 -c "import scenarios.nci_global_aug_2023_wq_paper as s; print('\n'.join(k for k in s.SCENARIOS))")
+SCENARIOS=$(python3 -c "import scenarios.nci_global_apr_2024_baseline_only as s; print('\n'.join(k for k in s.SCENARIOS))")
 popd
 
 SCENARIOS_WORKSPACE="$FULL_WQ_PIPELINE_WORKSPACE/prepared-scenarios"
