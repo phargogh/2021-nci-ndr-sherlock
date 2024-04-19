@@ -53,21 +53,13 @@ ls -la "$NDR_OUTPUTS_DIR"
 WORKSPACE_DIR="$NOXN_WORKSPACE"
 mkdir -p "$WORKSPACE_DIR" || echo "could not create workspace dir"
 
-# The model analysis script can start any time after the NDR outputs are in the right place.
-popd
-sbatch execute-model-analysis.sh \
-    "$NCI_WORKSPACE/noxn-model-analysis" \
-    "$NCI_WORKSPACE" \
-    "$RESOLUTION"
-pushd $REPOSLUG
-
 DECAYED_FLOWACCUM_WORKSPACE_DIR=$WORKSPACE_DIR/decayed_flowaccum
 singularity run \
     "docker://$NOXN_DOCKER_CONTAINER" \
     python pipeline-decayed-export.py --n_workers="$SLURM_CPUS_PER_TASK" "$DECAYED_FLOWACCUM_WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
 CONFIG_FILE="pipeline.config-sherlock-$RESOLUTION.json"
-singularity run \
+NOXN_JOB_ID=$(singularity run \
     --env-file="../singularity-containers.env" \
     "docker://$NOXN_DOCKER_CONTAINER" \
     python pipeline.py \
@@ -75,7 +67,17 @@ singularity run \
     --slurm \
     "$CONFIG_FILE" \
     "$WORKSPACE_DIR" \
-    "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs"
+    "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs" | grep -o "[0-9]\\+")
+
+# The model analysis script can start any time after the NDR outputs are in the
+# right place AND after the first NOXN phase has completed.
+popd
+sbatch execute-model-analysis.sh \
+    --dependency="$NOXN_JOB_ID" \
+    "$NCI_WORKSPACE/noxn-model-analysis" \
+    "$NCI_WORKSPACE" \
+    "$RESOLUTION"
+pushd $REPOSLUG
 
 PREDICTION_PICKLES_FILE=$WORKSPACE_DIR/$(singularity run docker://$NOXN_DOCKER_CONTAINER python -c "import pipeline; print(pipeline.PREDICTION_SLURM_JOBS_FILENAME)")
 PREDICTION_JOBS_STRING="afterok"
