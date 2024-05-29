@@ -59,7 +59,7 @@ singularity run \
     python pipeline-decayed-export.py --n_workers="$SLURM_CPUS_PER_TASK" "$DECAYED_FLOWACCUM_WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
 CONFIG_FILE="pipeline.config-sherlock-$RESOLUTION.json"
-NOXN_JOB_ID=$(singularity run \
+singularity run \
     --env-file="../singularity-containers.env" \
     "docker://$NOXN_DOCKER_CONTAINER" \
     python pipeline.py \
@@ -67,13 +67,12 @@ NOXN_JOB_ID=$(singularity run \
     --slurm \
     "$CONFIG_FILE" \
     "$WORKSPACE_DIR" \
-    "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs" | grep -o "[0-9]\\+")
+    "$DECAYED_FLOWACCUM_WORKSPACE_DIR/outputs"
 
 # The model analysis script can start any time after the NDR outputs are in the
 # right place AND after the first NOXN phase has completed.
 popd
 sbatch execute-model-analysis.sh \
-    --dependency="$NOXN_JOB_ID" \
     "$NCI_WORKSPACE/noxn-model-analysis" \
     "$NCI_WORKSPACE" \
     "$RESOLUTION"
