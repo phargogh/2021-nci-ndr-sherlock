@@ -18,7 +18,7 @@
 
 DEST_DIR="$1"
 
-module load system rclone
+module load system rclone/1.59.1
 
 # create the directory first so we can parallelize uploads into it.
 # If we don't do this, then we'll get many folders with the same name.
