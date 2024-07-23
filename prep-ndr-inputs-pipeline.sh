@@ -30,7 +30,7 @@ fi
 
 if [ "$3" == "" ]
 then
-    SCENARIO_MODULE="scenarios.nci_global_apr_2024_baseline_only"
+    SCENARIO_MODULE="scenarios.nci_global_jul_2024_baseline_with_manure_in_napp"
 else
     SCENARIO_MODULE="$3"
 fi

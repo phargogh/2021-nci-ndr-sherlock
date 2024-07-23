@@ -45,7 +45,7 @@ module unload numpy
 # We only need the scenario names, not the keys.  We won't know all the files
 # that are used in the scenarios until the `build-ndr-scenarios.sh` and
 # `build-n-app-scenarios.sh` tasks finish.
-SCENARIO_MODULE="scenarios.nci_global_apr_2024_baseline_only"
+SCENARIO_MODULE="scenarios.nci_global_jul_2024_baseline_with_manure_in_napp"
 SCENARIOS=$(python3 -c "import $SCENARIO_MODULE as s; print('\n'.join(k for k in s.SCENARIOS))")
 popd
 
