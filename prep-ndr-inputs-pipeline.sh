@@ -39,7 +39,7 @@ fi
 source "env-sherlock.env"
 
 # copy the ecoshards to $SCRATCH from $GROUP_HOME
-cp -v "$GROUP_HOME/nci-local-ecoshard-cache/*" "$SCRATCH/nci-ecoshards/"
+cp -v $GROUP_HOME/nci-local-ecoshard-cache/* "$SCRATCH/nci-ecoshards/"
 
 export APPTAINER_DOCKER_USERNAME="$GHCR_USERNAME"  # My github username
 export APPTAINER_DOCKER_PASSWORD="$GHCR_TOKEN"     # My GHCR token
