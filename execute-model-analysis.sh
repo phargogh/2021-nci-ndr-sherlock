@@ -5,6 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --partition=hns,normal
 #SBATCH --mail-type=ALL
+#SBATCH --mail-user=jdouglass@stanford.edu,iamadden@stanford.edu,rschmitt@stanford.edu
 #SBATCH --job-name="NCI-NOXN-model-analysis"
 #SBATCH --output=/scratch/users/jadoug06/slurm-logfiles/slurm-%j.%x.out
 

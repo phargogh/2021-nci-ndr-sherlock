@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=4G
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=jdouglass@stanford.edu
+#SBATCH --mail-user=jdouglass@stanford.edu,iamadden@stanford.edu,rschmitt@stanford.edu
 #SBATCH --partition=hns,normal
 #SBATCH --job-name="NCI-NOXN-globus-upload-to-gdrive"
 #SBATCH --output=/scratch/users/jadoug06/slurm-logfiles/slurm-%j.%x.out
