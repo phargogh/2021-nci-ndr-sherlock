@@ -3,7 +3,7 @@
 #SBATCH --cpus-per-task=20
 #SBATCH --time=24:00:00
 #SBATCH --ntasks=1
-#SBATCH --partition=hns,normal
+#SBATCH --partition=serc,hns,normal
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu,iamadden@stanford.edu,rschmitt@stanford.edu
 #SBATCH --job-name="NCI-NOXN-model-analysis"

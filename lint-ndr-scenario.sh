@@ -6,11 +6,11 @@
 #SBATCH --mem-per-cpu=4G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
-#SBATCH --partition=hns,normal
+#SBATCH --partition=serc,hns,normal
 #SBATCH --job-name="NCI-lint-scenario-before-ndr-runs"
 #SBATCH --output=/scratch/users/jadoug06/slurm-logfiles/slurm-%j.%x.out
 #
-# --partition=hns,normal means that this will be submitted to both queues, whichever gets to it first will be used.
+# --partition=serc,hns,normal means that this will be submitted to both queues, whichever gets to it first will be used.
 
 
 CONTAINER=ghcr.io/natcap-nci/devstack

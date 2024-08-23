@@ -6,14 +6,14 @@
 #SBATCH --mem-per-cpu=5999M
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
-#SBATCH --partition=hns,normal
+#SBATCH --partition=serc,hns,normal
 #SBATCH --output=/scratch/users/jadoug06/slurm-logfiles/slurm-%j.%x.out
 #
 # The script _should_ only take 13 hours to run, but on a machine where we're competing for SSD time, it might take up to about 25 hours.  30 should be plenty.
 #
 # This script assumes that the task name will be set by the calling sbatch command.
 #
-# --partition=hns,normal means that this will be submitted to both queues, whichever gets to it first will be used.
+# --partition=serc,hns,normal means that this will be submitted to both queues, whichever gets to it first will be used.
 
 WORKSPACE_NAME="$1"
 SCENARIO_NAME="$2"

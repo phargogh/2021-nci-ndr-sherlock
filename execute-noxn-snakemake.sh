@@ -6,13 +6,13 @@
 #SBATCH --mem-per-cpu=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jdouglass@stanford.edu
-#SBATCH --partition=hns,normal
+#SBATCH --partition=serc,hns,normal
 #SBATCH --job-name="NCI-NOXN-calories-snakemake"
 #SBATCH --output=/scratch/users/jadoug06/slurm-logfiles/slurm-%j.%x.out
 #
 # This script assumes that the task name will be set by the calling sbatch command.
 #
-# --partition=hns,normal means that this will be submitted to both queues, whichever gets to it first will be used.
+# --partition=serc,hns,normal means that this will be submitted to both queues, whichever gets to it first will be used.
 set -e
 set -x
 
@@ -24,7 +24,7 @@ set -x
 #        calories \
 #        --slurm \
 #        --default-resources \
-#            slurm_partition=normal,hns \
+#            slurm_partition=normal,serc,hns \
 
 # goal: get calories to run within snakemake
 cd nci-noxn-levels
