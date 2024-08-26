@@ -8,6 +8,9 @@ source globus-endpoints.env
 echo "Checking to see if you're logged in to Globus"
 globus login  # exit code 4 if not logged in
 
+echo "Checking your current session identity"
+globus session show
+
 echo "Checking access to Globus:Oak"
 globus collection show "$GLOBUS_OAK_COLLECTION_ID" || globus login --gcs "$GLOBUS_OAK_COLLECTION_ID"  # exit code 4 if not logged in
 
