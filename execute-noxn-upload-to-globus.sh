@@ -13,8 +13,7 @@
 # This script assumes that the task name will be set by the calling sbatch command.
 #
 # --partition=serc,hns,normal means that this will be submitted to both queues, whichever gets to it first will be used.
-set -e
-set -x
+set -ex
 
 DATE="$1"
 GIT_REV="$2"
