@@ -47,7 +47,7 @@ show-job-status:
 	sacct --format="JOBIDRaw,Start,Elapsed,State" --jobs=$(JOBIDS)
 
 sync-input-data:
-	sbatch ./sync-nci-gdrive-to-scratch.sh
+	srun ./sync-nci-gdrive-to-scratch.sh
 
 prep-ndr-inputs: update-submodules globus-login
 	sbatch ./prep-ndr-inputs-pipeline.sh
