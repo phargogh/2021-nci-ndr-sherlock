@@ -25,10 +25,10 @@ when-might-noxn-run:
 ndr-batch: update-submodules globus-login
 	bash ./execute-ndr-scenario-batch.sh 2>&1 | tee -a $@-$(DATE)-$(GIT_REV).log
 
-noxn-1km: globus-login
+noxn-1km: update-submodules globus-login
 	sbatch --time=10:00:00 ./execute-noxn.sh 1km
 
-noxn-10km: globus-login
+noxn-10km: update-submodules globus-login
 	sbatch --time=4:00:00 ./execute-noxn.sh 10km
 
 calories:
