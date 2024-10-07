@@ -23,7 +23,7 @@ source "../env-sherlock.env"
 
 singularity run \
     "docker://$NOXN_DOCKER_CONTAINER" \
-    python cli-wrap.py pipeline.execute_phase2 \
+    python -X faulthandler cli-wrap.py pipeline.execute_phase2 \
     --workspace="$WORKSPACE" \
     --n_workers="$SLURM_CPUS_PER_TASK"
 

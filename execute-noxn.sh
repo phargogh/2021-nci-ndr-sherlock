@@ -56,13 +56,13 @@ mkdir -p "$WORKSPACE_DIR" || echo "could not create workspace dir"
 DECAYED_FLOWACCUM_WORKSPACE_DIR=$WORKSPACE_DIR/decayed_flowaccum
 singularity run \
     "docker://$NOXN_DOCKER_CONTAINER" \
-    python pipeline-decayed-export.py --n_workers="$SLURM_CPUS_PER_TASK" "$DECAYED_FLOWACCUM_WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
+    python -X faulthandler pipeline-decayed-export.py --n_workers="$SLURM_CPUS_PER_TASK" "$DECAYED_FLOWACCUM_WORKSPACE_DIR" "$NDR_OUTPUTS_DIR"
 
 CONFIG_FILE="pipeline.config-sherlock-$RESOLUTION.json"
 singularity run \
     --env-file="../singularity-containers.env" \
     "docker://$NOXN_DOCKER_CONTAINER" \
-    python pipeline.py \
+    python -X faulthandler pipeline.py \
     --n_workers="$SLURM_CPUS_PER_TASK" \
     --slurm \
     "$CONFIG_FILE" \

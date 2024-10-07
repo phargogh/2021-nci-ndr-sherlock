@@ -33,7 +33,7 @@ CONFIG_BASENAME="$(basename $SPATIAL_CONFIG_FILE)"
 
 singularity run \
     "docker://$NOXN_DOCKER_CONTAINER" \
-    python calories.py \
+    python -X faulthandler calories.py \
         --n_workers="$SLURM_CPUS_PER_TASK" \
         --current="$CALORIES_DIR/caloriemapscurrentRevQ.tif" \
         --irrigated="$CALORIES_DIR/caloriemapsirrigatedRevQ.tif" \

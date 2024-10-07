@@ -46,7 +46,7 @@ export APPTAINER_DOCKER_PASSWORD="$GHCR_TOKEN"     # My GHCR token
 singularity run \
     --env GDAL_CACHEMAX=2048 \
     docker://$NOXN_DOCKER_CONTAINER \
-    python prep-ndr-inputs-pipeline.py \
+    python -X faulthandler prep-ndr-inputs-pipeline.py \
         --input-dir="$GDRIVE_INPUTS_DIR" \
         --output-dir="$SCENARIO_OUTPUTS_DIR" \
         --n-workers=$SLURM_CPUS_PER_TASK
@@ -80,4 +80,4 @@ singularity run \
     --env NCI_SCENARIO_LULC_N_APP_JSON="$SCENARIO_OUTPUTS_DIR/scenario_rasters.json" \
     --env GDAL_CACHEMAX=2048 \
     docker://$NOXN_DOCKER_CONTAINER \
-    python "$LINT_SCRIPT" "$SCENARIO_MODULE"
+    python -X faulthandler "$LINT_SCRIPT" "$SCENARIO_MODULE"

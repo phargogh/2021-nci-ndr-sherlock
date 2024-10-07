@@ -33,7 +33,7 @@ GIT_REV="rev$(git rev-parse --short HEAD)"
 CONFIG_FILE="pipeline.config-sherlock-$RESOLUTION.json"
 singularity run \
     "docker://$NOXN_DOCKER_CONTAINER" \
-    python3 model_analysis.py \
+    python3 -X faulthandler model_analysis.py \
     --n_workers "$SLURM_CPUS_PER_TASK" \
     "$CONFIG_FILE" \
     "$MODEL_ANALYSIS_WORKSPACE" \
