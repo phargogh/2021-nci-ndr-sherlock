@@ -30,6 +30,8 @@ WORKSPACE_DIR="$L_SCRATCH/$WORKSPACE_NAME"
 # This script is executed from within the ndr repo, so the globus config is one dir up.
 source "../globus-endpoints.env"
 
+source "./env-sherlock.env"
+
 if [ -d "$SCRATCH/$WORKSPACE_NAME" ]
 then
     # If there's already a workspace on $SCRATCH, then copy it into $L_SCRATCH
@@ -88,7 +90,7 @@ globus transfer --fail-on-quota-errors \
     --label="NCI WQ NDR rev$GIT_REV $SCENARIO_NAME" \
     --batch="$TEMPFILE" \
     "$GLOBUS_SHERLOCK_SCRATCH_ENDPOINT_ID:$FINAL_RESTING_PLACE/$WORKSPACE_NAME" \
-    "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$(basename $FINAL_RESTING_PLACE)/$ARCHIVE_DIR" || echo "Globus transfer failed!"
+    "$GLOBUS_STANFORD_GDRIVE_COLLECTION_ID:$GLOBUS_STANFORD_GDRIVE_RUN_ARCHIVE/$(basename $FINAL_RESTING_PLACE)/$ARCHIVE_DIR" || echo "Globus transfer failed!"
 
 #$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/*.out
 #$(pwd)/../upload-to-googledrive.sh "nci-ndr-stanford-gdrive:$GDRIVE_DIR" "$WORKSPACE_DIR"/compressed_*.tif
